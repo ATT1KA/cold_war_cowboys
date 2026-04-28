@@ -1,0 +1,52 @@
+[
+  {
+    "Id": "vanguard",
+    "Name": "Vanguard Solutions",
+    "Leader": "Lena Cervantes",
+    "Agenda": "Expansionist",
+    "Standing": 65,
+    "Cash": 220,
+    "RelationshipToPlayer": 10,
+    "Personality": ["aggressive_growth", "favors_loud_wins", "low_patience"]
+  },
+  {
+    "Id": "blacklight",
+    "Name": "Blacklight Analytics",
+    "Leader": "Director Kohl",
+    "Agenda": "Predatory",
+    "Standing": 55,
+    "Cash": 180,
+    "RelationshipToPlayer": -25,
+    "Personality": ["data_obsessed", "punishes_mistakes", "leaks_to_press"]
+  },
+  {
+    "Id": "ironbridge",
+    "Name": "Ironbridge Holdings",
+    "Leader": "Caleb Otieno",
+    "Agenda": "Defensive",
+    "Standing": 70,
+    "Cash": 320,
+    "RelationshipToPlayer": 0,
+    "Personality": ["risk_averse", "long_memory", "values_loyalty"]
+  },
+  {
+    "Id": "synthesis",
+    "Name": "Synthesis Bureau",
+    "Leader": "Mira Hadid",
+    "Agenda": "Cooperative",
+    "Standing": 45,
+    "Cash": 140,
+    "RelationshipToPlayer": 25,
+    "Personality": ["coalition_builder", "favors_quiet_wins", "academic"]
+  },
+  {
+    "Id": "deepwell",
+    "Name": "Deepwell Logistics",
+    "Leader": "Auggie Pratt",
+    "Agenda": "Predatory",
+    "Standing": 50,
+    "Cash": 160,
+    "RelationshipToPlayer": -10,
+    "Personality": ["smuggler_origins", "favors_under_table_deals", "paranoid"]
+  }
+]
