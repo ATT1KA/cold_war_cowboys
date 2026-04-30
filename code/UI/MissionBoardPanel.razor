@@ -1,0 +1,99 @@
+@using Sandbox
+@using Sandbox.UI
+@using System.Linq
+@using CWC.Core
+@using CWC.Domain
+@using CWC.UI
+@inherits Panel
+@namespace CWC.UI
+
+<root class="missionboard">
+	<div class="board-header">
+		<div class="header-title">Available Contracts</div>
+		<div class="header-meta">@(Vm?.AvailableMissions.Count ?? 0) on the board</div>
+	</div>
+
+	<div class="cards">
+		@if ( Vm == null )
+		{
+			<div class="empty">No data.</div>
+		}
+		else
+		{
+			@foreach ( var m in Vm.AvailableMissions )
+			{
+				<div class="card type-@(m.Type.ToString().ToLowerInvariant())">
+					<div class="card-row title-row">
+						<span class="card-title">@m.Title</span>
+						<div class="badges">
+							@if ( m.IsWetWork )
+							{
+								<span class="badge wet">WET</span>
+							}
+							else if ( m.MoralWeight >= 30 )
+							{
+								<span class="badge ambiguous">AMBIGUOUS</span>
+							}
+							<span class="badge type">@m.Type.ToString().ToUpperInvariant()</span>
+						</div>
+					</div>
+					<div class="card-briefing">@m.Briefing</div>
+					<div class="card-meta">
+						<span>Difficulty @m.Difficulty</span>
+						<span>·</span>
+						<span>Deadline cycle @m.CycleDeadline</span>
+					</div>
+					<div class="assigned-row">
+						<span class="assigned-label">Assigned:</span>
+						@if ( m.AssignedOperativeIds.Count == 0 )
+						{
+							<span class="assigned-empty">— none —</span>
+						}
+						else
+						{
+							@foreach ( var id in m.AssignedOperativeIds )
+							{
+								var op = Vm.World.GetOperative( id );
+								if ( op != null )
+								{
+									<span class="assigned-op" @onclick=@(() => Unassign(op.Id, m.Id))>@op.Codename ✕</span>
+								}
+							}
+						}
+					</div>
+					<div class="picker-row">
+						@foreach ( var op in EligibleFor( m ) )
+						{
+							<button class="picker-button" @onclick=@(() => Assign(op.Id, m.Id))>+ @op.Codename</button>
+						}
+					</div>
+				</div>
+			}
+		}
+	</div>
+</root>
+
+@code
+{
+	[Property] public IGameViewModel? Vm { get; set; }
+
+	private IEnumerable<Operative> EligibleFor( Mission m )
+	{
+		if ( Vm == null ) yield break;
+		foreach ( var op in Vm.FieldOperatives )
+		{
+			if ( !op.IsAvailable ) continue;
+			if ( m.AssignedOperativeIds.Contains( op.Id ) ) continue;
+			yield return op;
+		}
+	}
+
+	private void Assign( int opId, string missionId )  => Vm?.Assign( opId, missionId );
+	private void Unassign( int opId, string missionId ) => Vm?.Unassign( opId, missionId );
+
+	protected override int BuildHash() => System.HashCode.Combine(
+		Vm?.AvailableMissions.Count,
+		Vm?.AvailableMissions.Sum( m => m.AssignedOperativeIds.Count ),
+		Vm?.FieldOperatives.Count
+	);
+}

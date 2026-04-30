@@ -1,0 +1,86 @@
+@using Sandbox
+@using Sandbox.UI
+@using CWC.UI
+@inherits Panel
+@namespace CWC.UI
+
+<root class="cyclehud">
+	<div class="corp">
+		<div class="corp-name">@Vm?.World.Setting.CorpName</div>
+		<div class="corp-meta">@Vm?.World.Setting.Location · @Vm?.World.Setting.Year</div>
+	</div>
+
+	<div class="dials">
+		<div class="dial-block">
+			<div class="dial-label">Heat</div>
+			<div class="dial-bar">
+				<div class="dial-fill" style="width: @(HeatPct)%; background-color: @HeatColor;"></div>
+			</div>
+			<div class="dial-value" style="color: @HeatColor;">@(Vm?.World.Corporate.Heat ?? 0)</div>
+		</div>
+
+		<div class="dial-block">
+			<div class="dial-label">Suspicion</div>
+			<div class="dial-bar">
+				<div class="dial-fill" style="width: @(SuspPct)%; background-color: @SuspColor;"></div>
+			</div>
+			<div class="dial-value" style="color: @SuspColor;">@(Vm?.World.Corporate.Suspicion ?? 0)</div>
+		</div>
+
+		<div class="dial-block">
+			<div class="dial-label">Reputation</div>
+			<div class="dial-bar">
+				<div class="dial-fill" style="width: @(RepPct)%; background-color: #9aeebf;"></div>
+			</div>
+			<div class="dial-value">@(Vm?.World.Corporate.Reputation ?? 0)</div>
+		</div>
+
+		<div class="dial-block">
+			<div class="dial-label">Budget</div>
+			<div class="dial-value">$@(Vm?.World.Corporate.Budget.ToString("N0") ?? "0")</div>
+		</div>
+	</div>
+
+	<div class="cycle">
+		<div class="cycle-label">Cycle</div>
+		<div class="cycle-value">@(Vm?.World.Corporate.Cycle ?? 0)</div>
+		<div class="phase-label">@Vm?.CurrentPhase</div>
+	</div>
+</root>
+
+@code
+{
+	[Property] public IGameViewModel? Vm { get; set; }
+
+	private int HeatPct => Vm?.World.Corporate.Heat ?? 0;
+	private int SuspPct => Vm?.World.Corporate.Suspicion ?? 0;
+	private int RepPct => Vm?.World.Corporate.Reputation ?? 0;
+
+	// Cyan → amber → red lerp on the pressure dials.
+	private string HeatColor => LerpColor( HeatPct );
+	private string SuspColor => LerpColor( SuspPct );
+
+	private static string LerpColor( int v )
+	{
+		v = System.Math.Clamp( v, 0, 100 );
+		// 0..50: cyan → amber. 50..100: amber → red.
+		(int r, int g, int b) c = v < 50
+			? Lerp( (90, 220, 240), (255, 200, 90), v / 50.0 )
+			: Lerp( (255, 200, 90), (255, 90, 80), (v - 50) / 50.0 );
+		return $"rgb({c.r},{c.g},{c.b})";
+	}
+
+	private static (int, int, int) Lerp( (int r, int g, int b) a, (int r, int g, int b) b, double t )
+	{
+		t = System.Math.Clamp( t, 0.0, 1.0 );
+		return ( (int)(a.r + (b.r - a.r) * t),
+		         (int)(a.g + (b.g - a.g) * t),
+		         (int)(a.b + (b.b - a.b) * t) );
+	}
+
+	protected override int BuildHash() => System.HashCode.Combine(
+		Vm?.World.Corporate.Heat, Vm?.World.Corporate.Suspicion,
+		Vm?.World.Corporate.Reputation, Vm?.World.Corporate.Budget,
+		Vm?.World.Corporate.Cycle, Vm?.CurrentPhase
+	);
+}

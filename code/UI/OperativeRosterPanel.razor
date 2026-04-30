@@ -1,0 +1,79 @@
+@using Sandbox
+@using Sandbox.UI
+@using CWC.Domain
+@using CWC.UI
+@inherits Panel
+@namespace CWC.UI
+
+<root class="roster">
+	<div class="roster-header">
+		<div class="header-title">Field Roster</div>
+		<div class="header-meta">@(Vm?.FieldOperatives.Count ?? 0) operatives</div>
+	</div>
+
+	<div class="ops">
+		@if ( Vm == null )
+		{
+			<div class="empty">No data.</div>
+		}
+		else
+		{
+			@foreach ( var op in Vm.FieldOperatives )
+			{
+				<div class="op @StatusClass(op)">
+					<div class="op-head">
+						<div class="op-codename">@op.Codename</div>
+						<div class="op-status">@op.Status.ToString().ToUpperInvariant()</div>
+					</div>
+					<div class="op-meta">
+						<span class="op-name">@op.Name</span>
+						<span class="op-arch">@op.Archetype</span>
+					</div>
+					<div class="op-dials">
+						<Dial Label="Loyalty" Value=@op.Psychology.Loyalty/>
+						<Dial Label="Stress" Value=@op.Psychology.Stress Inverted=@true/>
+						<Dial Label="Morale" Value=@op.Psychology.Morale/>
+						<Dial Label="Conscience" Value=@op.Psychology.Conscience Cold=@true/>
+					</div>
+					@if ( op.Traits.Count > 0 )
+					{
+						<div class="op-traits">
+							@foreach ( var t in op.Traits )
+							{
+								<span class="trait trait-@(t.Axis.ToString().ToLowerInvariant())">@t.Name</span>
+							}
+						</div>
+					}
+				</div>
+			}
+		}
+	</div>
+</root>
+
+@code
+{
+	[Property] public IGameViewModel? Vm { get; set; }
+
+	private static string StatusClass( Operative op ) => op.Status switch
+	{
+		OperativeStatus.Active      => "status-active",
+		OperativeStatus.Injured     => "status-injured",
+		OperativeStatus.Compromised => "status-compromised",
+		OperativeStatus.Defected    => "status-defected",
+		OperativeStatus.Dead        => "status-dead",
+		_                           => "status-active",
+	};
+
+	protected override int BuildHash()
+	{
+		if ( Vm == null ) return 0;
+		int h = 0;
+		foreach ( var op in Vm.FieldOperatives )
+		{
+			h = System.HashCode.Combine( h, op.Id, op.Status,
+				op.Psychology.Stress, op.Psychology.Loyalty,
+				op.Psychology.Morale, op.Psychology.Conscience );
+		}
+		return h;
+	}
+}

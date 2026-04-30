@@ -1,0 +1,80 @@
+@using Sandbox
+@using Sandbox.UI
+@using CWC.Core
+@using CWC.UI
+@inherits PanelComponent
+@namespace CWC.UI
+
+<root class="uiroot phase-@CurrentPhaseClass">
+	<div class="topbar">
+		<CycleHud Vm=@Vm/>
+	</div>
+
+	<div class="stage">
+		@switch ( Vm?.CurrentPhase )
+		{
+			case CyclePhase.Briefing:
+				<MissionBoardPanel Vm=@Vm/>
+				<OperativeRosterPanel Vm=@Vm/>
+				break;
+			case CyclePhase.Assignment:
+				<MissionBoardPanel Vm=@Vm/>
+				<OperativeRosterPanel Vm=@Vm/>
+				break;
+			case CyclePhase.Resolution:
+				<div class="screen-msg">Resolving missions…</div>
+				break;
+			case CyclePhase.Aftermath:
+				<SceneReaderPanel Vm=@Vm/>
+				break;
+			case CyclePhase.Review:
+				<OperativeRosterPanel Vm=@Vm/>
+				break;
+			default:
+				<div class="screen-msg">No active session.</div>
+				break;
+		}
+	</div>
+
+	<div class="bottombar">
+		<button class="advance" @onclick=@OnAdvance>@AdvanceLabel</button>
+	</div>
+</root>
+
+@code
+{
+	[Property] public GameViewModel? Vm { get; set; }
+
+	protected override void OnAwake()
+	{
+		base.OnAwake();
+		if ( Vm != null ) Vm.Changed += OnVmChanged;
+	}
+
+	protected override void OnDestroy()
+	{
+		base.OnDestroy();
+		if ( Vm != null ) Vm.Changed -= OnVmChanged;
+	}
+
+	private void OnVmChanged() => StateHasChanged();
+
+	private void OnAdvance() => Vm?.Advance();
+
+	private string CurrentPhaseClass => Vm?.CurrentPhase.ToString().ToLowerInvariant() ?? "none";
+
+	private string AdvanceLabel => Vm?.CurrentPhase switch
+	{
+		CyclePhase.Briefing   => "Begin assignments →",
+		CyclePhase.Assignment => "Lock in →",
+		CyclePhase.Resolution => "View results →",
+		CyclePhase.Aftermath  => "Continue →",
+		CyclePhase.Review     => "Next cycle →",
+		_                     => "Advance →",
+	};
+
+	protected override int BuildHash() => System.HashCode.Combine(
+		Vm?.CurrentPhase, Vm?.World.Corporate.Cycle, Vm?.World.Corporate.Heat,
+		Vm?.AvailableMissions.Count, Vm?.CurrentScene?.TemplateId
+	);
+}

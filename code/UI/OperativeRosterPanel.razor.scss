@@ -1,0 +1,104 @@
+OperativeRosterPanel, .roster {
+	flex-direction: column;
+	flex-basis: 40%;
+	min-width: 360px;
+	background-color: rgba(14, 18, 24, 0.7);
+	border: 1px solid rgba(120, 200, 255, 0.12);
+	padding: 16px 18px;
+	overflow: hidden;
+
+	.roster-header {
+		flex-direction: row;
+		align-items: baseline;
+		justify-content: space-between;
+		margin-bottom: 14px;
+		padding-bottom: 10px;
+		border-bottom: 1px solid rgba(120, 200, 255, 0.18);
+
+		.header-title {
+			font-size: 14px;
+			letter-spacing: 2.4px;
+			text-transform: uppercase;
+			color: #ffffff;
+		}
+		.header-meta {
+			font-size: 11px;
+			color: rgba(180, 200, 220, 0.6);
+		}
+	}
+
+	.ops {
+		flex-direction: column;
+		gap: 10px;
+		overflow-y: scroll;
+	}
+
+	.op {
+		flex-direction: column;
+		padding: 12px 14px;
+		background-color: rgba(20, 26, 36, 0.85);
+		border-left: 3px solid rgba(140, 220, 200, 0.6);
+		gap: 8px;
+
+		&.status-injured     { border-left-color: rgba(255, 200, 90, 0.85); opacity: 0.85; }
+		&.status-compromised { border-left-color: rgba(255, 130, 90, 0.85); }
+		&.status-defected    { border-left-color: rgba(180, 100, 200, 0.85); opacity: 0.6; }
+		&.status-dead        { border-left-color: rgba(80, 90, 100, 0.85); opacity: 0.45; }
+
+		.op-head {
+			flex-direction: row;
+			align-items: baseline;
+			justify-content: space-between;
+
+			.op-codename {
+				font-size: 16px;
+				letter-spacing: 2.4px;
+				color: #ffffff;
+			}
+			.op-status {
+				font-size: 9px;
+				letter-spacing: 1.6px;
+				color: rgba(180, 220, 200, 0.85);
+			}
+		}
+
+		.op-meta {
+			flex-direction: row;
+			gap: 10px;
+			font-size: 11px;
+			color: rgba(160, 180, 200, 0.7);
+
+			.op-arch {
+				color: rgba(120, 220, 240, 0.75);
+				text-transform: uppercase;
+				letter-spacing: 1.2px;
+			}
+		}
+
+		.op-dials {
+			flex-direction: row;
+			gap: 10px;
+			padding-top: 4px;
+		}
+
+		.op-traits {
+			flex-direction: row;
+			gap: 4px;
+			flex-wrap: wrap;
+			padding-top: 4px;
+		}
+
+		.trait {
+			font-size: 9px;
+			padding: 2px 6px;
+			letter-spacing: 1px;
+			text-transform: uppercase;
+			border: 1px solid rgba(120, 200, 255, 0.3);
+			color: rgba(180, 220, 240, 0.85);
+
+			&.trait-vice       { border-color: rgba(255, 130, 90, 0.55); color: rgba(255, 180, 130, 0.95); }
+			&.trait-compulsion { border-color: rgba(180, 140, 240, 0.55); color: rgba(220, 180, 250, 0.95); }
+			&.trait-background { border-color: rgba(140, 220, 200, 0.45); color: rgba(180, 240, 220, 0.95); }
+		}
+	}
+}

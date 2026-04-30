@@ -1,0 +1,44 @@
+@using Sandbox
+@using Sandbox.UI
+@inherits Panel
+@namespace CWC.UI
+
+<root class="dial @Tone">
+	<div class="dial-name">@Label</div>
+	<div class="dial-track">
+		<div class="dial-fill" style="width: @(DisplayPct)%; background-color: @Color;"></div>
+	</div>
+	<div class="dial-value">@DisplayValue</div>
+</root>
+
+@code
+{
+	[Property] public string Label { get; set; } = "";
+	[Property] public int Value { get; set; }
+	[Property] public bool Inverted { get; set; }   // 0 = good, 100 = bad (e.g. Stress)
+	[Property] public bool Cold { get; set; }       // Conscience uses cold-blue tint
+
+	private int DisplayValue => Value;
+	private int DisplayPct => System.Math.Clamp( Value, 0, 100 );
+
+	private string Tone => Cold ? "cold" : (Inverted ? "inverted" : "normal");
+
+	private string Color
+	{
+		get
+		{
+			int v = DisplayPct;
+			// Cold dial: blue at high values (good), pale at low (bad).
+			if ( Cold ) return v > 50 ? "rgb(120, 200, 240)" : "rgb(160, 170, 180)";
+			// Inverted (stress): low = green, high = red.
+			// Normal (loyalty/morale): high = green, low = red.
+			int g = Inverted ? 100 - v : v;
+			(int r, int gC, int b) = g > 50
+				? (255 - (g - 50) * 4, 220, 120)   // green-ish at high
+				: (255, 90 + g * 3, 80);           // red→amber at low
+			return $"rgb({r},{gC},{b})";
+		}
+	}
+
+	protected override int BuildHash() => System.HashCode.Combine( Label, Value, Inverted, Cold );
+}

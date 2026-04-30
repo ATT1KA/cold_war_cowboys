@@ -1,0 +1,62 @@
+@using Sandbox
+@using Sandbox.UI
+@using CWC.Narrative
+@using CWC.UI
+@inherits Panel
+@namespace CWC.UI
+
+<root class="scenereader priority-@PriorityClass">
+	@if ( Vm?.CurrentScene is { } scene )
+	{
+		<div class="scene-frame">
+			<div class="scene-head">
+				<div class="scene-title">@scene.Title</div>
+				<div class="scene-setting">@scene.Setting</div>
+			</div>
+
+			<div class="scene-body">
+				@if ( !string.IsNullOrEmpty( scene.Speaker ) )
+				{
+					<div class="speaker">@scene.Speaker</div>
+				}
+				@foreach ( var line in scene.TextLines )
+				{
+					<div class="line">@line</div>
+				}
+			</div>
+
+			<div class="choices">
+				@if ( scene.Choices.Count == 0 )
+				{
+					<button class="choice-button" @onclick=@OnDismiss>Continue →</button>
+				}
+				else
+				{
+					@foreach ( var c in scene.Choices )
+					{
+						<button class="choice-button" @onclick=@(() => OnPick(c))>@c.Label</button>
+					}
+				}
+			</div>
+		</div>
+	}
+	else
+	{
+		<div class="scene-empty">No pending scenes.</div>
+	}
+</root>
+
+@code
+{
+	[Property] public IGameViewModel? Vm { get; set; }
+
+	private string PriorityClass => Vm?.CurrentScene?.Priority.ToString().ToLowerInvariant() ?? "none";
+
+	private void OnPick( SceneChoice c ) => Vm?.PickChoice( c );
+	private void OnDismiss() => Vm?.DismissScene();
+
+	protected override int BuildHash() => System.HashCode.Combine(
+		Vm?.CurrentScene?.TemplateId, Vm?.CurrentScene?.OperativeId,
+		Vm?.CurrentScene?.Priority
+	);
+}
