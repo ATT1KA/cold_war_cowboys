@@ -1,0 +1,36 @@
+{
+  "Corps": [
+    "Panopticon Holdings",
+    "Vector Logistics",
+    "Ouroboros Industrial",
+    "Crowley & Sons Acquisitions",
+    "MERIDIAN-3",
+    "Halcyon Capital Group"
+  ],
+  "Locations": [
+    "Neo-Detroit",
+    "Sao Paulo Free Zone",
+    "Pacific Ring Arcology",
+    "Tangier Sprawl",
+    "Vladivostok-9"
+  ],
+  "EraTaglines": [
+    "after the second collapse",
+    "in the long winter of capital",
+    "before the bonds came due",
+    "under the Razor's eye",
+    "in the year of the recall"
+  ],
+  "Years": [2076, 2081, 2087, 2091, 2098],
+  "ToneTags": ["noir", "cyberpunk", "corporate", "burnt", "wired"],
+  "Factions": [
+    { "Id": "host", "Name": "{HOST}", "Kind": "HostCorp", "Standing": 0, "Reputation": 50, "Cash": 250000 },
+    { "Id": "rival_kasumi", "Name": "Kasumi Dynamics", "Kind": "RivalCorp", "Standing": -25, "Reputation": 60, "Cash": 400000 },
+    { "Id": "rival_aether", "Name": "Aether Mutual", "Kind": "RivalCorp", "Standing": -10, "Reputation": 45, "Cash": 320000 },
+    { "Id": "razor", "Name": "The Razor", "Kind": "Agency", "Standing": -50, "Reputation": 30, "Cash": 1000000 },
+    { "Id": "div_ops", "Name": "Operations Division", "Kind": "InternalDivision", "Standing": 10, "Reputation": 55, "Cash": 50000 },
+    { "Id": "div_finance", "Name": "Finance Division", "Kind": "InternalDivision", "Standing": -10, "Reputation": 40, "Cash": 80000 },
+    { "Id": "synd_8th", "Name": "8th Street Combine", "Kind": "Syndicate", "Standing": -30, "Reputation": 20, "Cash": 60000 },
+    { "Id": "ngo_press", "Name": "Quill Collective", "Kind": "NGO", "Standing": -20, "Reputation": 65, "Cash": 15000 }
+  ]
+}

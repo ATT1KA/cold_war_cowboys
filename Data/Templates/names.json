@@ -1,0 +1,18 @@
+{
+  "First": [
+    "Mara", "Cyrus", "Vivienne", "Jin", "Emil", "Renko", "Lila", "Kade",
+    "Ines", "Tobias", "Saoirse", "Anand", "Noor", "Petra", "Soren", "Wren",
+    "Beatrix", "Hadley", "Iolanthe", "Marcus", "Octavia", "Ramses", "Sable", "Yusuf",
+    "Zara", "Cassia", "Drazen", "Esme", "Flora", "Gideon", "Halvar", "Ivor"
+  ],
+  "Last": [
+    "Vance", "Okoye", "Chen", "Reyes", "Bartov", "Marlowe", "Sato", "Halloran",
+    "Kowalski", "Trent", "Mendez", "Park", "Faber", "Ostrov", "Kael", "Lindqvist",
+    "Bishara", "Caro", "Damari", "Eisen", "Forde", "Gallego", "Hsu", "Jansen"
+  ],
+  "Codenames": [
+    "GHOST", "STITCH", "ECHO", "RIDER", "ORACLE", "WICK", "ANVIL", "MIRROR",
+    "PILGRIM", "CIPHER", "VESPER", "HUSK", "BLACKLINE", "SPARROW", "PROCTOR",
+    "AUGUR", "FERRET", "KILN", "MARROW", "NIGHTJAR", "SCRIVE", "TALLY", "VANE"
+  ]
+}

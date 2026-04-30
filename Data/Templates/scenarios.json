@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "the_recall",
+    "Title": "The Recall",
+    "Briefing": "A junior analyst inside Kasumi Dynamics defected last cycle with a slab of internal memos. The board wants the leak plugged before the press picks it up. Fast.",
+    "MissionTemplateId": "extraction_defector",
+    "StartingCorporate": { "Heat": 15, "Suspicion": 20, "Reputation": 50, "Budget": 250000 },
+    "NarrativeFlags": ["scenario:recall", "first_cycle"]
+  },
+  {
+    "Id": "tarmac_audit",
+    "Title": "Tarmac Audit",
+    "Briefing": "An auditor from the Razor is on a flight inbound. If they land, the books get opened. If they don't, somebody asks why. Pick the lesser bruise.",
+    "MissionTemplateId": "surveillance_auditor",
+    "StartingCorporate": { "Heat": 25, "Suspicion": 10, "Reputation": 55, "Budget": 220000 },
+    "NarrativeFlags": ["scenario:audit", "first_cycle"]
+  },
+  {
+    "Id": "noor_problem",
+    "Title": "The Noor Problem",
+    "Briefing": "Operations Division wants Finance Division's deputy reassigned. By any means. The board hasn't been told. Keep it that way.",
+    "MissionTemplateId": "counterintel_internal",
+    "StartingCorporate": { "Heat": 5, "Suspicion": 30, "Reputation": 50, "Budget": 200000 },
+    "NarrativeFlags": ["scenario:internal_war", "first_cycle"]
+  }
+]

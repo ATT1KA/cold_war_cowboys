@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "operator",
+    "DisplayName": "Operator",
+    "SkillBands": {
+      "Combat":       { "Min": 55, "Max": 85 },
+      "Stealth":      { "Min": 35, "Max": 65 },
+      "Hacking":      { "Min": 20, "Max": 45 },
+      "Deception":    { "Min": 30, "Max": 60 },
+      "Intimidation": { "Min": 50, "Max": 80 },
+      "Persuasion":   { "Min": 25, "Max": 50 }
+    },
+    "Loyalty":    { "Min": 65, "Max": 85 },
+    "Stress":     { "Min": 15, "Max": 35 },
+    "Morale":     { "Min": 60, "Max": 80 },
+    "Conscience": { "Min": 65, "Max": 90 },
+    "PersonalityPool": ["volatile", "dutiful", "cynical"],
+    "BackgroundPool":  ["ex_military", "ex_intel"],
+    "VicePool":        ["vice_drink", "vice_thrill"],
+    "CompulsionPool":  ["comp_loyalty", "comp_perfectionist"]
+  },
+  {
+    "Id": "ghost",
+    "DisplayName": "Ghost",
+    "SkillBands": {
+      "Combat":       { "Min": 30, "Max": 55 },
+      "Stealth":      { "Min": 60, "Max": 90 },
+      "Hacking":      { "Min": 35, "Max": 60 },
+      "Deception":    { "Min": 50, "Max": 80 },
+      "Intimidation": { "Min": 25, "Max": 50 },
+      "Persuasion":   { "Min": 30, "Max": 55 }
+    },
+    "Loyalty":    { "Min": 50, "Max": 75 },
+    "Stress":     { "Min": 20, "Max": 40 },
+    "Morale":     { "Min": 55, "Max": 75 },
+    "Conscience": { "Min": 65, "Max": 90 },
+    "PersonalityPool": ["calculating", "cynical", "compassionate"],
+    "BackgroundPool":  ["ex_street", "ex_intel"],
+    "VicePool":        ["vice_stim", "vice_drink"],
+    "CompulsionPool":  ["comp_perfectionist", "comp_records"]
+  },
+  {
+    "Id": "decker",
+    "DisplayName": "Decker",
+    "SkillBands": {
+      "Combat":       { "Min": 20, "Max": 45 },
+      "Stealth":      { "Min": 35, "Max": 65 },
+      "Hacking":      { "Min": 65, "Max": 95 },
+      "Deception":    { "Min": 40, "Max": 65 },
+      "Intimidation": { "Min": 15, "Max": 40 },
+      "Persuasion":   { "Min": 30, "Max": 55 }
+    },
+    "Loyalty":    { "Min": 55, "Max": 80 },
+    "Stress":     { "Min": 25, "Max": 45 },
+    "Morale":     { "Min": 60, "Max": 80 },
+    "Conscience": { "Min": 65, "Max": 90 },
+    "PersonalityPool": ["calculating", "cynical"],
+    "BackgroundPool":  ["ex_press", "ex_intel", "ex_street"],
+    "VicePool":        ["vice_stim", "vice_gambling"],
+    "CompulsionPool":  ["comp_records", "comp_perfectionist"]
+  },
+  {
+    "Id": "fixer",
+    "DisplayName": "Fixer",
+    "SkillBands": {
+      "Combat":       { "Min": 30, "Max": 50 },
+      "Stealth":      { "Min": 30, "Max": 55 },
+      "Hacking":      { "Min": 35, "Max": 60 },
+      "Deception":    { "Min": 60, "Max": 85 },
+      "Intimidation": { "Min": 40, "Max": 70 },
+      "Persuasion":   { "Min": 65, "Max": 90 }
+    },
+    "Loyalty":    { "Min": 45, "Max": 70 },
+    "Stress":     { "Min": 15, "Max": 35 },
+    "Morale":     { "Min": 65, "Max": 85 },
+    "Conscience": { "Min": 65, "Max": 90 },
+    "PersonalityPool": ["calculating", "cynical", "dutiful"],
+    "BackgroundPool":  ["ex_corporate", "ex_press"],
+    "VicePool":        ["vice_drink", "vice_gambling"],
+    "CompulsionPool":  ["comp_records", "comp_loyalty"]
+  }
+]

@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using CWC.Core;
 using CWC.Domain;
+using CWC.Generation;
 
 namespace CWC.Game;
 
 /// <summary>
-/// Top-level orchestrator. Sprint 1 ships a thin NewGame that scaffolds
-/// WorldState with deterministic seeding; Sprint 2's WorldGenerator replaces
-/// the body with the real procedural pipeline. Sprint 3+ wires mission flow.
+/// Top-level orchestrator. Sprint 2 wires NewGame through WorldGenerator;
+/// Sprint 3+ wires mission resolution and narrative directors.
 /// </summary>
 public sealed class GameManager
 {
@@ -20,12 +20,19 @@ public sealed class GameManager
 
 	public void NewGame( ulong seed )
 	{
-		World = new WorldState { Seed = seed };
 		Rng = new Rng( seed );
 		Phase.Reset();
 
-		// Sprint 1 placeholder: minimal world. Sprint 2 WorldGenerator replaces this.
-		ScaffoldFallbackWorld();
+		try
+		{
+			World = new WorldGenerator().Generate( seed );
+		}
+		catch
+		{
+			// Defensive fallback so the game still launches if templates are missing.
+			World = new WorldState { Seed = seed };
+			ScaffoldFallbackWorld();
+		}
 
 		StateChanged?.Invoke();
 	}
