@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using CWC.Core;
 using CWC.Domain;
 using CWC.Generation;
+using CWC.Generation.Templates;
+using CWC.Missions;
 
 namespace CWC.Game;
 
 /// <summary>
 /// Top-level orchestrator. Sprint 2 wires NewGame through WorldGenerator;
-/// Sprint 3+ wires mission resolution and narrative directors.
+/// Sprint 3 wires the mission flow (board refresh / resolve / consequences);
+/// Sprint 4 hooks the NarrativeDirector at Aftermath.
 /// </summary>
 public sealed class GameManager
 {
@@ -16,13 +19,26 @@ public sealed class GameManager
 	public PhaseManager Phase { get; } = new();
 	public Rng Rng { get; private set; } = new( 1 );
 
+	public MissionGenerator MissionGen { get; private set; } = new( new List<MissionTemplate>() );
+	public MissionBoard Board { get; private set; }
+	public MissionResolver Resolver { get; } = new();
+	public ConsequenceProcessor Consequences { get; } = new();
+
+	public List<MissionResult> LastResolutionResults { get; private set; } = new();
+
 	public event Action? StateChanged;
+
+	public GameManager()
+	{
+		Board = new MissionBoard( MissionGen );
+	}
 
 	public void NewGame( ulong seed )
 	{
 		Rng = new Rng( seed );
 		Phase.Reset();
 
+		var loader = new TemplateLoader();
 		try
 		{
 			World = new WorldGenerator().Generate( seed );
@@ -34,20 +50,54 @@ public sealed class GameManager
 			ScaffoldFallbackWorld();
 		}
 
+		MissionGen = new MissionGenerator( loader );
+		Board = new MissionBoard( MissionGen );
+
+		// Seed opening mission and refresh the board for cycle 1.
+		Board.SeedFromScenario( "extraction_defector", World, Rng.Fork( "scenario_seed" ) );
+		Board.Refresh( World, Rng.Fork( "board:1" ) );
+
 		StateChanged?.Invoke();
 	}
 
 	public void AdvancePhase()
 	{
 		Phase.Advance();
-		if ( Phase.CurrentPhase == CyclePhase.Briefing )
+		var current = Phase.CurrentPhase;
+
+		switch ( current )
 		{
-			// New cycle — bookkeeping the foundation owns.
-			World.Corporate.Cycle++;
-			RecoverInjuredOps();
-			DecayStress();
+			case CyclePhase.Briefing:
+				// New cycle — bookkeeping the foundation owns.
+				World.Corporate.Cycle++;
+				RecoverInjuredOps();
+				DecayStress();
+				Board.Refresh( World, Rng.Fork( $"board:{World.Corporate.Cycle}" ) );
+				break;
+
+			case CyclePhase.Resolution:
+				ResolveActiveMissions();
+				break;
 		}
+
 		StateChanged?.Invoke();
+	}
+
+	private void ResolveActiveMissions()
+	{
+		LastResolutionResults.Clear();
+		// Snapshot to allow status mutation while iterating.
+		var active = new List<Mission>();
+		foreach ( var m in World.Missions )
+			if ( m.Status == MissionStatus.Active && m.AssignedOperativeIds.Count > 0 )
+				active.Add( m );
+
+		foreach ( var m in active )
+		{
+			var result = Resolver.Resolve( m, World, Rng.Fork( $"resolve:{m.Id}" ) );
+			Consequences.Apply( result, World );
+			LastResolutionResults.Add( result );
+		}
 	}
 
 	/// <summary>
