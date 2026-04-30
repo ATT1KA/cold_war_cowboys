@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>CWC.SmokeTest</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Pull foundation source directly. No Sandbox / S&box dependency required. -->
+    <Compile Include="..\..\code\Core\**\*.cs" />
+    <Compile Include="..\..\code\Domain\**\*.cs" />
+    <Compile Include="..\..\code\Game\**\*.cs" />
+  </ItemGroup>
+</Project>
