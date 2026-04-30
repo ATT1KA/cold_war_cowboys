@@ -80,10 +80,11 @@ internal static class Program
 			Check( "starts at Briefing", pm.CurrentPhase == CyclePhase.Briefing );
 			pm.Advance(); Check( "Briefing → Assignment", pm.CurrentPhase == CyclePhase.Assignment );
 			pm.Advance(); Check( "Assignment → Resolution", pm.CurrentPhase == CyclePhase.Resolution );
-			pm.Advance(); Check( "Resolution → Aftermath", pm.CurrentPhase == CyclePhase.Aftermath );
+			pm.Advance(); Check( "Resolution → Corporate", pm.CurrentPhase == CyclePhase.Corporate );
+			pm.Advance(); Check( "Corporate → Aftermath", pm.CurrentPhase == CyclePhase.Aftermath );
 			pm.Advance(); Check( "Aftermath → Review", pm.CurrentPhase == CyclePhase.Review );
 			pm.Advance(); Check( "Review wraps → Briefing", pm.CurrentPhase == CyclePhase.Briefing );
-			Check( "PhaseChanged fired 5 times", events == 5, $"events={events}" );
+			Check( "PhaseChanged fired 6 times", events == 6, $"events={events}" );
 		}
 
 		Section( "4. GameManager.NewGame — populated WorldState" );
@@ -135,7 +136,7 @@ internal static class Program
 			gm.World.Operatives[0].Status = OperativeStatus.Injured;
 			gm.World.Operatives[1].Psychology.Stress = 80;
 			int beforeCycle = gm.World.Corporate.Cycle;
-			for ( int i = 0; i < 5; i++ ) gm.AdvancePhase(); // wrap once
+			for ( int i = 0; i < 6; i++ ) gm.AdvancePhase(); // wrap once (6 phases now)
 			Check( "cycle bumped by 1 on wrap to Briefing", gm.World.Corporate.Cycle == beforeCycle + 1 );
 			Check( "injured operative recovered", gm.World.Operatives[0].Status == OperativeStatus.Active );
 			Check( "stress decayed", gm.World.Operatives[1].Psychology.Stress < 80 );

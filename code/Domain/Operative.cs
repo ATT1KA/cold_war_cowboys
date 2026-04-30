@@ -32,4 +32,15 @@ public sealed class Operative
 
 	public Trait? TraitOnAxis( TraitAxis axis )
 		=> Traits.FirstOrDefault( t => t.Axis == axis );
+
+	// ---- Sprint 6 corporate-AI surface ----
+
+	/// <summary>Optional id of a non-player faction this operative privately favors.</summary>
+	public string? FactionLoyalty { get; set; }
+
+	/// <summary>Free-form tags consumed by Sprint 6 systems (e.g. "former_kasumi").</summary>
+	public List<string> Tags { get; set; } = new();
+
+	/// <summary>True when the operative is on the active roster (not Defected/Dead).</summary>
+	public bool Active => Status == OperativeStatus.Active || Status == OperativeStatus.Injured;
 }

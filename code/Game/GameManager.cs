@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CWC.Core;
+using CWC.Corporate;
 using CWC.Domain;
 using CWC.Generation;
 using CWC.Generation.Templates;
@@ -12,19 +13,30 @@ namespace CWC.Game;
 /// <summary>
 /// Top-level orchestrator. Sprint 2 wires NewGame through WorldGenerator;
 /// Sprint 3 wires the mission flow (board refresh / resolve / consequences);
-/// Sprint 4 hooks the NarrativeDirector at Aftermath.
+/// Sprint 4 hooks the NarrativeDirector at Aftermath; Sprint 6 inserts the
+/// Corporate phase between Resolution and Aftermath, where factions act, the
+/// board evaluates, contracts refresh, and random events roll.
 /// </summary>
 public sealed class GameManager
 {
 	public WorldState World { get; private set; } = new();
 	public PhaseManager Phase { get; } = new();
 	public Rng Rng { get; private set; } = new( 1 );
+	public EventBus Bus { get; } = new();
 
 	public MissionGenerator MissionGen { get; private set; } = new( new List<MissionTemplate>() );
 	public MissionBoard Board { get; private set; }
 	public MissionResolver Resolver { get; } = new();
 	public ConsequenceProcessor Consequences { get; } = new();
 	public NarrativeDirector Director { get; private set; } = new( new List<SceneTemplate>() );
+
+	// Sprint 6: corporate-sim layer.
+	public CorporateConsequenceProcessor CorpConsequences { get; private set; }
+	public FactionSystem? Factions { get; private set; }
+	public PoliticsSystem? Politics { get; private set; }
+	public ContractSystem? Contracts { get; private set; }
+	public ReputationSystem? Reputation { get; private set; }
+	public CorporateEventGenerator? CorporateEvents { get; private set; }
 
 	public List<MissionResult> LastResolutionResults { get; private set; } = new();
 
@@ -33,6 +45,7 @@ public sealed class GameManager
 	public GameManager()
 	{
 		Board = new MissionBoard( MissionGen );
+		CorpConsequences = new CorporateConsequenceProcessor( Bus );
 	}
 
 	public void NewGame( ulong seed )
@@ -60,7 +73,46 @@ public sealed class GameManager
 		Board.SeedFromScenario( "extraction_defector", World, Rng.Fork( "scenario_seed" ) );
 		Board.Refresh( World, Rng.Fork( "board:1" ) );
 
+		WireCorporateLayer( loader );
+
 		StateChanged?.Invoke();
+	}
+
+	private void WireCorporateLayer( TemplateLoader loader )
+	{
+		// Reset and wire fresh systems for this run.
+		CorpConsequences = new CorporateConsequenceProcessor( Bus );
+		Factions       = new FactionSystem( Rng.Fork( "corp_factions" ), Bus, CorpConsequences );
+		Politics       = new PoliticsSystem( Rng.Fork( "corp_politics" ), Bus, CorpConsequences );
+		Contracts      = new ContractSystem( Rng.Fork( "corp_contracts" ), Bus, CorpConsequences );
+		Reputation     = new ReputationSystem( Rng.Fork( "corp_reputation" ), Bus, CorpConsequences );
+		CorporateEvents = new CorporateEventGenerator( Rng.Fork( "corp_events" ), Bus, CorpConsequences );
+
+		// Seed the corporate-only views of state from generated world data.
+		World.Corporate.Roster.Clear();
+		World.Corporate.Factions.Clear();
+		foreach ( var op in World.Operatives )
+			if ( op.Id < CorporateHierarchyGenerator.BossId ) World.Corporate.Roster.Add( op );
+		foreach ( var f in World.Factions )
+			World.Corporate.Factions[f.Id] = f;
+
+		// Layer Sprint 6 templates on top of any defaults already provided by world.json.
+		CorporateDataLoader.LoadFactions( World.Corporate, loader );
+		CorporateDataLoader.LoadDirectives( World.Corporate, World, loader );
+		CorporateDataLoader.LoadEvents( CorporateEvents, loader );
+
+		// Make sure any factions added by the corporate loader are also visible
+		// at the world level so the rest of the codebase finds them.
+		foreach ( var kv in World.Corporate.Factions )
+		{
+			if ( World.Factions.Find( f => f.Id == kv.Key ) == null )
+				World.Factions.Add( kv.Value );
+		}
+
+		// Subscribe corporate systems to mission-resolution events.
+		Bus.Subscribe<MissionResolved>( r => Factions!.OnMissionResolved( World.Corporate, r ) );
+		Bus.Subscribe<MissionResolved>( r => Politics!.OnMissionResolved( World.Corporate, r ) );
+		Bus.Subscribe<MissionResolved>( r => Reputation!.OnMissionResolved( World.Corporate, World, r ) );
 	}
 
 	public void AdvancePhase()
@@ -73,6 +125,7 @@ public sealed class GameManager
 			case CyclePhase.Briefing:
 				// New cycle — bookkeeping the foundation owns.
 				World.Corporate.Cycle++;
+				World.Day++;
 				RecoverInjuredOps();
 				DecayStress();
 				Board.Refresh( World, Rng.Fork( $"board:{World.Corporate.Cycle}" ) );
@@ -80,6 +133,10 @@ public sealed class GameManager
 
 			case CyclePhase.Resolution:
 				ResolveActiveMissions();
+				break;
+
+			case CyclePhase.Corporate:
+				RunCorporatePhase();
 				break;
 
 			case CyclePhase.Aftermath:
@@ -104,7 +161,28 @@ public sealed class GameManager
 			var result = Resolver.Resolve( m, World, Rng.Fork( $"resolve:{m.Id}" ) );
 			Consequences.Apply( result, World );
 			LastResolutionResults.Add( result );
+
+			// Notify Sprint 6 systems that subscribe via the bus.
+			Bus.Publish( new MissionResolved(
+				m,
+				result.Outcome,
+				m.Exposure,
+				result.Outcome == MissionOutcome.Success ? m.Reward : 0
+			) );
 		}
+	}
+
+	private void RunCorporatePhase()
+	{
+		if ( Factions == null ) return; // pre-NewGame call — nothing to do.
+
+		Factions.ProcessTurn( World.Corporate );
+		Politics!.EvaluateBoard( World.Corporate, World );
+		Contracts!.RefreshContracts( World.Corporate );
+		CorporateEvents!.Roll( World.Corporate, World );
+		Reputation!.Decay( World.Corporate, World );
+		CorpConsequences.ApplyAll( World.Corporate );
+		Director.CheckCorporateTriggers( World );
 	}
 
 	/// <summary>

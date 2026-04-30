@@ -1,0 +1,72 @@
+[
+  {
+    "Id": "evt_board_reshuffle",
+    "Kind": "BoardReshuffle",
+    "NarrativeTemplate": "Cycle {cycle}: {director} is replaced. {new_director} takes the chair and the room recalibrates.",
+    "BaseWeight": 0.6,
+    "Conditions": ["min_cycle:5"]
+  },
+  {
+    "Id": "evt_faction_merger",
+    "Kind": "FactionMerger",
+    "NarrativeTemplate": "Cycle {cycle}: two divisions quietly fold their books together. Standing realigns overnight.",
+    "BaseWeight": 0.5,
+    "Conditions": ["min_factions:3"]
+  },
+  {
+    "Id": "evt_faction_split",
+    "Kind": "FactionSplit",
+    "NarrativeTemplate": "Cycle {cycle}: a splinter group breaks off, taking budget and grudges with them.",
+    "BaseWeight": 0.4,
+    "Conditions": ["min_factions:2"]
+  },
+  {
+    "Id": "evt_budget_cut",
+    "Kind": "BudgetCut",
+    "NarrativeTemplate": "Cycle {cycle}: the comptroller's office trims discretionary spend across the division.",
+    "BaseWeight": 0.8,
+    "Conditions": []
+  },
+  {
+    "Id": "evt_budget_windfall",
+    "Kind": "BudgetWindfall",
+    "NarrativeTemplate": "Cycle {cycle}: an unspent allocation from another division is rerouted to the player's books.",
+    "BaseWeight": 0.5,
+    "Conditions": ["max_board_confidence:80"]
+  },
+  {
+    "Id": "evt_whistleblower",
+    "Kind": "Whistleblower",
+    "NarrativeTemplate": "Cycle {cycle}: an old operation surfaces in the press. Names are redacted; the date isn't.",
+    "BaseWeight": 0.6,
+    "Conditions": ["min_suspicion:30"]
+  },
+  {
+    "Id": "evt_corporate_espionage",
+    "Kind": "CorporateEspionage",
+    "NarrativeTemplate": "Cycle {cycle}: a rival faction has been reading the player's mail. Containment is theoretical.",
+    "BaseWeight": 0.7,
+    "Conditions": []
+  },
+  {
+    "Id": "evt_market_shift",
+    "Kind": "MarketShift",
+    "NarrativeTemplate": "Cycle {cycle}: the megacorp's stock moves and every ledger flexes with it.",
+    "BaseWeight": 1.2,
+    "Conditions": []
+  },
+  {
+    "Id": "evt_late_game_reshuffle",
+    "Kind": "BoardReshuffle",
+    "NarrativeTemplate": "Cycle {cycle}: a late-stage purge. {new_director} arrives with a list and no patience.",
+    "BaseWeight": 0.4,
+    "Conditions": ["min_cycle:20"]
+  },
+  {
+    "Id": "evt_audit_whistle",
+    "Kind": "Whistleblower",
+    "NarrativeTemplate": "Cycle {cycle}: an internal auditor leaks. The story has receipts.",
+    "BaseWeight": 0.4,
+    "Conditions": ["min_suspicion:60"]
+  }
+]

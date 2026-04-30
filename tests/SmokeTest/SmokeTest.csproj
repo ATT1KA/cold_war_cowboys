@@ -15,5 +15,6 @@
     <Compile Include="..\..\code\Generation\**\*.cs" />
     <Compile Include="..\..\code\Missions\**\*.cs" />
     <Compile Include="..\..\code\Narrative\**\*.cs" />
+    <Compile Include="..\..\code\Corporate\**\*.cs" />
   </ItemGroup>
 </Project>

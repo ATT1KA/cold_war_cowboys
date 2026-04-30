@@ -6,6 +6,7 @@ namespace CWC.Core;
 
 /// <summary>
 /// Single source of truth for the run. Mutated only by ConsequenceProcessor (Sprint 3+).
+/// Sprint 6 adds Day, HeatLevel, PublicTrust to drive event-generation gating.
 /// </summary>
 public sealed class WorldState
 {
@@ -19,6 +20,13 @@ public sealed class WorldState
 	public List<Relationship> Relationships { get; } = new();
 
 	public HashSet<string> NarrativeFlags { get; } = new();
+
+	// ---- Sprint 6: world-tick metadata ----
+	public int Day { get; set; } = 1;
+	public int HeatLevel { get; set; } = 0;
+	public int PublicTrust { get; set; } = 50;
+	public List<string> ActiveCrises { get; } = new();
+	public List<string> Headlines { get; } = new();
 
 	public Operative? GetOperative( int id ) => Operatives.FirstOrDefault( o => o.Id == id );
 	public Mission? GetMission( string id ) => Missions.FirstOrDefault( m => m.Id == id );

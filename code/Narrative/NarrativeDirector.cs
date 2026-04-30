@@ -70,6 +70,29 @@ public sealed class NarrativeDirector
 	}
 
 	/// <summary>
+	/// Sprint 6 hook: scan CorporateState for boardroom-level triggers and seed
+	/// world flags so any matching template fires through ConsumeFlags. Called
+	/// from the Corporate phase after CorporateConsequenceProcessor flushes.
+	/// </summary>
+	public void CheckCorporateTriggers( WorldState world )
+	{
+		var corp = world.Corporate;
+		if ( corp.BoardConfidence >= 85 && corp.Rank < CorporateRank.BoardLiaison )
+			world.NarrativeFlags.Add( "corp:promotion_imminent" );
+		else if ( corp.BoardConfidence <= 15 && corp.Rank > CorporateRank.Probationary )
+			world.NarrativeFlags.Add( "corp:demotion_imminent" );
+
+		if ( corp.Suspicion >= 75 )
+			world.NarrativeFlags.Add( "corp:audit_triggered" );
+
+		foreach ( var f in world.Factions )
+		{
+			if ( f.RelationshipToPlayer <= -75 )
+				world.NarrativeFlags.Add( $"corp:confrontation:{f.Id}" );
+		}
+	}
+
+	/// <summary>
 	/// Apply player choice from a scene. Mutates the targeted operative + corp.
 	/// Returns the choice's flags so the caller can record them.
 	/// </summary>

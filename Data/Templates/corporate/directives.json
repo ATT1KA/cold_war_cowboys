@@ -1,0 +1,56 @@
+[
+  {
+    "Id": "dir_priority_target",
+    "Title": "Eliminate priority target",
+    "Description": "The board names a specific rival operative as a priority. The contract is your route to compliance.",
+    "Mandatory": true,
+    "IgnoreConfidencePenalty": 12,
+    "ComplyConfidenceReward": 10,
+    "DeadlineDayOffset": 5
+  },
+  {
+    "Id": "dir_budget_constraint",
+    "Title": "Operate under reduced budget",
+    "Description": "The board freezes discretionary spend. Find a way to deliver without burning capital.",
+    "Mandatory": false,
+    "IgnoreConfidencePenalty": 6,
+    "ComplyConfidenceReward": 4,
+    "DeadlineDayOffset": 7
+  },
+  {
+    "Id": "dir_political_alignment",
+    "Title": "Align with Synthesis Bureau this cycle",
+    "Description": "The board wants public alignment with a cooperative faction. Take a Synthesis contract this cycle.",
+    "Mandatory": false,
+    "IgnoreConfidencePenalty": 4,
+    "ComplyConfidenceReward": 6,
+    "DeadlineDayOffset": 4
+  },
+  {
+    "Id": "dir_quiet_quarter",
+    "Title": "No high-exposure operations",
+    "Description": "The board wants a quiet quarter. Avoid contracts with Exposure > 20.",
+    "Mandatory": false,
+    "IgnoreConfidencePenalty": 8,
+    "ComplyConfidenceReward": 8,
+    "DeadlineDayOffset": 14
+  },
+  {
+    "Id": "dir_board_signoff",
+    "Title": "Demonstrate division capability",
+    "Description": "Land at least one Success on a board-tagged contract this week.",
+    "Mandatory": true,
+    "IgnoreConfidencePenalty": 15,
+    "ComplyConfidenceReward": 12,
+    "DeadlineDayOffset": 7
+  },
+  {
+    "Id": "dir_loyalty_audit",
+    "Title": "Demonstrate roster loyalty",
+    "Description": "No operatives below 40 Loyalty on the active roster by deadline.",
+    "Mandatory": false,
+    "IgnoreConfidencePenalty": 5,
+    "ComplyConfidenceReward": 5,
+    "DeadlineDayOffset": 10
+  }
+]
