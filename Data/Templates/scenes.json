@@ -1,0 +1,178 @@
+[
+  {
+    "Id": "third_kill_intro",
+    "Title": "Three",
+    "Speaker": "{op}",
+    "Setting": "Office balcony, twenty-second floor, {location} skyline",
+    "RequiredFlags": ["any_op:third_kill"],
+    "Priority": "Pressing",
+    "OneShot": true,
+    "TextLines": [
+      "{op} stands at the railing, lighter open, cigarette unlit.",
+      "\"That's three, now. The last one had a kid's drawing on his desk.\"",
+      "The wind takes the lighter flame before it catches."
+    ],
+    "Choices": [
+      {
+        "Label": "\"You did the job. That's what we pay for.\"",
+        "FlagsOnPick": ["choice:cold"],
+        "LoyaltyDelta": -2, "ConscienceDelta": -3, "StressDelta": 4
+      },
+      {
+        "Label": "\"You don't have to like it.\"",
+        "FlagsOnPick": ["choice:human"],
+        "LoyaltyDelta": 4, "ConscienceDelta": 2, "StressDelta": -2
+      },
+      {
+        "Label": "\"You want a bonus or a transfer?\"",
+        "FlagsOnPick": ["choice:transactional"],
+        "LoyaltyDelta": -1, "ConscienceDelta": -1
+      }
+    ],
+    "FlagsOnFire": ["scene:third_kill_seen"]
+  },
+  {
+    "Id": "cold_blooded_review",
+    "Title": "Performance Review",
+    "Speaker": "{op}",
+    "Setting": "Glass conference room, Director's floor",
+    "RequiredFlags": ["any_op:cold_blooded"],
+    "ForbiddenFlags": ["scene:cold_blooded_seen"],
+    "Priority": "Critical",
+    "OneShot": true,
+    "TextLines": [
+      "{op}'s file is open on the table. Seven entries. The last three don't even have names.",
+      "\"You don't ask anymore,\" the Director observes. \"You used to ask.\"",
+      "{op} doesn't look up from the coffee."
+    ],
+    "Choices": [
+      {
+        "Label": "\"Promote them. They've earned it.\"",
+        "FlagsOnPick": ["choice:promote_cold"],
+        "LoyaltyDelta": 6, "HeatDelta": 2
+      },
+      {
+        "Label": "\"Bench them. Get them an evaluation.\"",
+        "FlagsOnPick": ["choice:bench_cold"],
+        "LoyaltyDelta": -8, "StressDelta": 8
+      }
+    ],
+    "FlagsOnFire": ["scene:cold_blooded_seen"]
+  },
+  {
+    "Id": "hollowed_out",
+    "Title": "Empty",
+    "Speaker": "{op}",
+    "Setting": "Operative's apartment, lights off",
+    "RequiredFlags": ["any_op:hollowed_out"],
+    "Priority": "Critical",
+    "OneShot": true,
+    "TextLines": [
+      "{op} hasn't answered the comm in two days.",
+      "When you arrive the apartment is empty of personality — no photos, no books, no signs of life.",
+      "{op} is sitting on the floor against the wall, looking at the door."
+    ],
+    "Choices": [
+      {
+        "Label": "Pull them from rotation.",
+        "FlagsOnPick": ["choice:pull_hollow"],
+        "StressDelta": -10, "LoyaltyDelta": 4
+      },
+      {
+        "Label": "Tell them tomorrow's mission needs them.",
+        "FlagsOnPick": ["choice:push_hollow"],
+        "StressDelta": 10, "ConscienceDelta": -2
+      }
+    ]
+  },
+  {
+    "Id": "body_found",
+    "Title": "Late Edition",
+    "Speaker": "Director",
+    "Setting": "Director's office, monitor on mute",
+    "RequiredFlags": ["flag:heat:body_found"],
+    "Priority": "Critical",
+    "OneShot": true,
+    "TextLines": [
+      "The Quill ran the story at 4 AM. Front-of-feed by 6.",
+      "\"There's a name attached,\" the Director says. \"Not yours yet.\"",
+      "She turns the monitor toward you. The face is the contractor your team buried two cycles ago."
+    ],
+    "Choices": [
+      {
+        "Label": "\"Buy the journalist out.\"",
+        "FlagsOnPick": ["choice:buy_press"],
+        "HeatDelta": -5
+      },
+      {
+        "Label": "\"Bury the journalist.\"",
+        "FlagsOnPick": ["choice:bury_press"],
+        "HeatDelta": -8, "ConscienceDelta": -5
+      },
+      {
+        "Label": "\"Ride it out.\"",
+        "FlagsOnPick": ["choice:ride_heat"],
+        "HeatDelta": 5
+      }
+    ]
+  },
+  {
+    "Id": "first_cycle_briefing",
+    "Title": "Welcome to the Floor",
+    "Speaker": "Director",
+    "Setting": "Operations bullpen, glass walls, no one sitting still",
+    "RequiredFlags": ["first_cycle"],
+    "Priority": "Routine",
+    "OneShot": true,
+    "TextLines": [
+      "\"You've read the file. You know what we do.\"",
+      "\"What you don't know yet is what it does to the people you send.\"",
+      "\"Try not to find out the hard way.\""
+    ],
+    "Choices": [
+      { "Label": "Acknowledge.", "FlagsOnPick": ["choice:opening_ack"] }
+    ]
+  },
+  {
+    "Id": "defection_risk_pull",
+    "Title": "Loyalty Audit",
+    "Speaker": "{op}",
+    "Setting": "Off-site coffee shop, twenty blocks from any office",
+    "RequiredFlags": ["any_op:defection_risk"],
+    "Priority": "Pressing",
+    "OneShot": false,
+    "TextLines": [
+      "{op} chose the meeting place. That alone tells you something.",
+      "\"I want a transfer,\" {op} says. \"Or a contract review. Pick one.\""
+    ],
+    "Choices": [
+      {
+        "Label": "Promise the transfer.",
+        "FlagsOnPick": ["choice:transfer_promised"],
+        "LoyaltyDelta": 10
+      },
+      {
+        "Label": "Refuse. Quietly.",
+        "FlagsOnPick": ["choice:transfer_refused"],
+        "LoyaltyDelta": -10, "StressDelta": 5
+      }
+    ]
+  },
+  {
+    "Id": "heat_critical",
+    "Title": "External Pressure",
+    "Speaker": "Director",
+    "Setting": "Boardroom anteroom, smoke-glass doors closed",
+    "RequiredFlags": ["flag:heat:critical"],
+    "Priority": "Critical",
+    "OneShot": true,
+    "TextLines": [
+      "\"The Razor is moving on us. Open file. Public.\"",
+      "The Director's voice is even, but her hands are flat on the table — she's keeping them still.",
+      "\"Whatever you have planned this cycle, halve it.\""
+    ],
+    "Choices": [
+      { "Label": "Acknowledge.", "FlagsOnPick": ["choice:heat_ack"] }
+    ]
+  }
+]

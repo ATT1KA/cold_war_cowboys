@@ -5,6 +5,7 @@ using CWC.Domain;
 using CWC.Generation;
 using CWC.Generation.Templates;
 using CWC.Missions;
+using CWC.Narrative;
 
 namespace CWC.Game;
 
@@ -23,6 +24,7 @@ public sealed class GameManager
 	public MissionBoard Board { get; private set; }
 	public MissionResolver Resolver { get; } = new();
 	public ConsequenceProcessor Consequences { get; } = new();
+	public NarrativeDirector Director { get; private set; } = new( new List<SceneTemplate>() );
 
 	public List<MissionResult> LastResolutionResults { get; private set; } = new();
 
@@ -52,6 +54,7 @@ public sealed class GameManager
 
 		MissionGen = new MissionGenerator( loader );
 		Board = new MissionBoard( MissionGen );
+		Director = new NarrativeDirector( loader.Deserialize<List<SceneTemplate>>( "scenes.json" ) ?? new() );
 
 		// Seed opening mission and refresh the board for cycle 1.
 		Board.SeedFromScenario( "extraction_defector", World, Rng.Fork( "scenario_seed" ) );
@@ -77,6 +80,10 @@ public sealed class GameManager
 
 			case CyclePhase.Resolution:
 				ResolveActiveMissions();
+				break;
+
+			case CyclePhase.Aftermath:
+				Director.ConsumeFlags( World );
 				break;
 		}
 
