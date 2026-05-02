@@ -70,7 +70,7 @@ public sealed class ConsequenceProcessor
 				{
 					FromId = opId,
 					ToId = otherId,
-					Kind = drift > 0 ? RelationshipKind.Acquaintance : RelationshipKind.Acquaintance,
+					Kind = drift > 0 ? RelationshipKind.Friend : RelationshipKind.Rival,
 					Score = drift,
 				} );
 			}

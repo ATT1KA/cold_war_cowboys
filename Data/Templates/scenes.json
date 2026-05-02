@@ -159,6 +159,39 @@
     ]
   },
   {
+    "Id": "breaking_point",
+    "Title": "Wire",
+    "Speaker": "{op}",
+    "Setting": "Operations floor, 3 AM, fluorescent hum",
+    "RequiredFlags": ["any_op:breaking_point"],
+    "ForbiddenFlags": ["scene:breaking_point_seen"],
+    "Priority": "Critical",
+    "OneShot": false,
+    "TextLines": [
+      "{op}'s hands won't stop shaking. The mission brief is open on the desk but the words aren't landing.",
+      "\"I can hear the comms even when they're off,\" {op} says. \"Every door sounds like a breach.\"",
+      "The coffee is untouched. It went cold hours ago."
+    ],
+    "Choices": [
+      {
+        "Label": "\"Stand down. That's an order.\"",
+        "FlagsOnPick": ["choice:stand_down_stress"],
+        "StressDelta": -15, "LoyaltyDelta": 5, "ConscienceDelta": 2
+      },
+      {
+        "Label": "\"We need you tomorrow. Hold it together.\"",
+        "FlagsOnPick": ["choice:push_through_stress"],
+        "StressDelta": 8, "LoyaltyDelta": -6
+      },
+      {
+        "Label": "\"Talk to me. Off the record.\"",
+        "FlagsOnPick": ["choice:off_record_talk"],
+        "StressDelta": -8, "LoyaltyDelta": 8, "MoraleDelta": 5
+      }
+    ],
+    "FlagsOnFire": ["scene:breaking_point_seen"]
+  },
+  {
     "Id": "heat_critical",
     "Title": "External Pressure",
     "Speaker": "Director",

@@ -83,20 +83,31 @@ public sealed class CorporateState
 
 	private static int Clamp01( int v ) => v < 0 ? 0 : v > 100 ? 100 : v;
 
-	public CorporateState Clone() => new()
+	public CorporateState Clone()
 	{
-		Heat = Heat,
-		Suspicion = Suspicion,
-		PoliticalPressure = PoliticalPressure,
-		Reputation = Reputation,
-		Budget = Budget,
-		Cycle = Cycle,
-		Rank = Rank,
-		BoardConfidence = BoardConfidence,
-		InternalReputation = InternalReputation,
-		ExternalReputation = ExternalReputation,
-		PoliticalCapital = PoliticalCapital,
-		DirectorName = DirectorName,
-		DirectorAgenda = DirectorAgenda,
-	};
+		var clone = new CorporateState
+		{
+			Heat = Heat,
+			Suspicion = Suspicion,
+			PoliticalPressure = PoliticalPressure,
+			Reputation = Reputation,
+			Budget = Budget,
+			Cycle = Cycle,
+			Rank = Rank,
+			BoardConfidence = BoardConfidence,
+			InternalReputation = InternalReputation,
+			ExternalReputation = ExternalReputation,
+			PoliticalCapital = PoliticalCapital,
+			DirectorName = DirectorName,
+			DirectorAgenda = DirectorAgenda,
+		};
+
+		foreach ( var op in Roster ) clone.Roster.Add( op );
+		foreach ( var kv in Factions ) clone.Factions[kv.Key] = kv.Value;
+		foreach ( var c in AvailableContracts ) clone.AvailableContracts.Add( c );
+		foreach ( var d in ActiveDirectives ) clone.ActiveDirectives.Add( d );
+		foreach ( var e in RecentEventLog ) clone.RecentEventLog.Add( e );
+
+		return clone;
+	}
 }

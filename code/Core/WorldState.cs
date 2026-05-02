@@ -22,6 +22,9 @@ public sealed class WorldState
 	public HashSet<string> NarrativeFlags { get; } = new();
 
 	// ---- Sprint 6: world-tick metadata ----
+	/// <summary>Scenario seed mission template id, set by WorldGenerator.BuildScenario.</summary>
+	public string SeedMissionTemplateId { get; set; } = "extraction_defector";
+
 	public int Day { get; set; } = 1;
 	public int HeatLevel { get; set; } = 0;
 	public int PublicTrust { get; set; } = 50;

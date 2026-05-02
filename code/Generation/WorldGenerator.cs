@@ -108,7 +108,7 @@ public sealed class WorldGenerator
 		var sg = new ScenarioGenerator( loader.LoadScenarios() );
 		var result = sg.Generate( world, r );
 		world.NarrativeFlags.Add( $"scenario:{result.ScenarioId}" );
-		// Seed mission body is built by Sprint 3's MissionGenerator on first cycle.
+		world.SeedMissionTemplateId = result.SeedMissionTemplateId;
 	}
 
 	private static FactionKind ParseKind( string s )

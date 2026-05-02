@@ -70,7 +70,7 @@ public sealed class GameManager
 		Director = new NarrativeDirector( loader.Deserialize<List<SceneTemplate>>( "scenes.json" ) ?? new() );
 
 		// Seed opening mission and refresh the board for cycle 1.
-		Board.SeedFromScenario( "extraction_defector", World, Rng.Fork( "scenario_seed" ) );
+		Board.SeedFromScenario( World.SeedMissionTemplateId, World, Rng.Fork( "scenario_seed" ) );
 		Board.Refresh( World, Rng.Fork( "board:1" ) );
 
 		WireCorporateLayer( loader );
@@ -182,6 +182,14 @@ public sealed class GameManager
 		CorporateEvents!.Roll( World.Corporate, World );
 		Reputation!.Decay( World.Corporate, World );
 		CorpConsequences.ApplyAll( World.Corporate );
+
+		// Surface Sprint 6 contracts on the mission board so the player can see them.
+		foreach ( var contract in World.Corporate.AvailableContracts )
+		{
+			if ( !World.Missions.Any( m => m.Id == contract.Id ) )
+				World.Missions.Add( contract );
+		}
+
 		Director.CheckCorporateTriggers( World );
 	}
 

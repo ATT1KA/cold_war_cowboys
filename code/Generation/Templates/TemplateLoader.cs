@@ -7,7 +7,7 @@ namespace CWC.Generation.Templates;
 
 /// <summary>
 /// Centralised JSON loader for Data/Templates/*. Reads once, caches by path.
-/// Path resolution: tries Sandbox FileSystem.Mounted first (S&box runtime),
+/// Path resolution: tries Sandbox FileSystem.Mounted first (S&amp;box runtime),
 /// falls back to plain disk (smoke tests, editor tools).
 /// </summary>
 public sealed class TemplateLoader
@@ -54,13 +54,57 @@ public sealed class TemplateLoader
 	{
 		if ( _textCache.TryGetValue( filename, out var cached ) ) return cached;
 
-		string? text = TryReadDisk( filename );
+		// Try S&box sandbox filesystem first (works in-engine).
+		string? text = TryReadSandbox( filename );
+
+		// Fall back to disk walk (smoke tests, editor tools).
+		text ??= TryReadDisk( filename );
+
 		if ( text is not null )
 		{
 			_textCache[filename] = text;
 			return text;
 		}
 		return null;
+	}
+
+	/// <summary>
+	/// Attempts to load via Sandbox.FileSystem.Mounted — the only API
+	/// available to sandboxed S&amp;box code. Returns null when not
+	/// running inside the engine (e.g. smoke tests).
+	/// </summary>
+	private string? TryReadSandbox( string filename )
+	{
+		try
+		{
+			var fsType = Type.GetType( "Sandbox.FileSystem, Sandbox.System" )
+				?? Type.GetType( "Sandbox.FileSystem" );
+			if ( fsType == null ) return null;
+
+			var mountedProp = fsType.GetProperty( "Mounted",
+				System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static );
+			if ( mountedProp == null ) return null;
+
+			var mounted = mountedProp.GetValue( null );
+			if ( mounted == null ) return null;
+
+			var mountedType = mounted.GetType();
+
+			// Check FileSystem.Mounted.FileExists( path )
+			var existsMethod = mountedType.GetMethod( "FileExists", new[] { typeof( string ) } );
+			var readMethod = mountedType.GetMethod( "ReadAllText", new[] { typeof( string ) } );
+			if ( existsMethod == null || readMethod == null ) return null;
+
+			var path = _root + "/" + filename;
+			bool exists = (bool)( existsMethod.Invoke( mounted, new object[] { path } ) ?? false );
+			if ( !exists ) return null;
+
+			return readMethod.Invoke( mounted, new object[] { path } ) as string;
+		}
+		catch
+		{
+			return null;
+		}
 	}
 
 	private string? TryReadDisk( string filename )

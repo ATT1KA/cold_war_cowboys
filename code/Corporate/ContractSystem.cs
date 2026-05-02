@@ -38,7 +38,9 @@ public sealed class ContractSystem
 
 	public void RefreshContracts( CorporateState corp )
 	{
-		corp.AvailableContracts.RemoveAll( c => !c.IsMandatory && c.Status == MissionStatus.Available );
+		corp.AvailableContracts.RemoveAll( c =>
+			c.Status == MissionStatus.Available &&
+			( !c.IsMandatory || corp.Cycle > c.CycleDeadline ) );
 
 		foreach ( var f in corp.Factions.Values )
 		{
