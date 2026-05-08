@@ -25,6 +25,9 @@ public sealed class WorldState
 	/// <summary>Scenario seed mission template id, set by WorldGenerator.BuildScenario.</summary>
 	public string SeedMissionTemplateId { get; set; } = "extraction_defector";
 
+	/// <summary>Night 3: protagonist gender for token resolution. Values: "m", "f", "nb".</summary>
+	public string ProtagonistGender { get; set; } = "m";
+
 	public int Day { get; set; } = 1;
 	public int HeatLevel { get; set; } = 0;
 	public int PublicTrust { get; set; } = 50;

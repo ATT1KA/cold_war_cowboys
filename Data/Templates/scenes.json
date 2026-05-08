@@ -2,14 +2,17 @@
   {
     "Id": "third_kill_intro",
     "Title": "Three",
-    "Speaker": "{op}",
+    "Speaker": "{operative.name}",
     "Setting": "Office balcony, twenty-second floor, {location} skyline",
     "RequiredFlags": ["any_op:third_kill"],
     "Priority": "Pressing",
     "OneShot": true,
+    "Cast": [
+      { "Name": "triggering", "Kind": "Role", "Resolver": "triggering_operative" }
+    ],
     "TextLines": [
-      "{op} stands at the railing, lighter open, cigarette unlit.",
-      "\"That's three, now. The last one had a kid's drawing on his desk.\"",
+      "{operative.name} stands at the railing, lighter open, cigarette unlit.",
+      "\"That's three, now. The last one had a kid's drawing on {gender:m|his|her} desk.\"",
       "The wind takes the lighter flame before it catches."
     ],
     "Choices": [
@@ -34,25 +37,28 @@
   {
     "Id": "cold_blooded_review",
     "Title": "Performance Review",
-    "Speaker": "{op}",
+    "Speaker": "{operative.name}",
     "Setting": "Glass conference room, Director's floor",
     "RequiredFlags": ["any_op:cold_blooded"],
     "ForbiddenFlags": ["scene:cold_blooded_seen"],
     "Priority": "Critical",
     "OneShot": true,
+    "Cast": [
+      { "Name": "triggering", "Kind": "Role", "Resolver": "triggering_operative" }
+    ],
     "TextLines": [
-      "{op}'s file is open on the table. Seven entries. The last three don't even have names.",
+      "{operative.name}'s file is open on the table. Seven entries. The last three don't even have names.",
       "\"You don't ask anymore,\" the Director observes. \"You used to ask.\"",
-      "{op} doesn't look up from the coffee."
+      "{operative.name} doesn't look up from the coffee."
     ],
     "Choices": [
       {
-        "Label": "\"Promote them. They've earned it.\"",
+        "Label": "\"Promote {gender:m|him|her}. {gender:m|He's|She's} earned it.\"",
         "FlagsOnPick": ["choice:promote_cold"],
         "LoyaltyDelta": 6, "HeatDelta": 2
       },
       {
-        "Label": "\"Bench them. Get them an evaluation.\"",
+        "Label": "\"Bench {gender:m|him|her}. Get {gender:m|him|her} an evaluation.\"",
         "FlagsOnPick": ["choice:bench_cold"],
         "LoyaltyDelta": -8, "StressDelta": 8
       }
@@ -62,24 +68,27 @@
   {
     "Id": "hollowed_out",
     "Title": "Empty",
-    "Speaker": "{op}",
+    "Speaker": "{operative.name}",
     "Setting": "Operative's apartment, lights off",
     "RequiredFlags": ["any_op:hollowed_out"],
     "Priority": "Critical",
     "OneShot": true,
+    "Cast": [
+      { "Name": "triggering", "Kind": "Role", "Resolver": "triggering_operative" }
+    ],
     "TextLines": [
-      "{op} hasn't answered the comm in two days.",
+      "{operative.name} hasn't answered the comm in two days.",
       "When you arrive the apartment is empty of personality — no photos, no books, no signs of life.",
-      "{op} is sitting on the floor against the wall, looking at the door."
+      "{operative.name} is sitting on the floor against the wall, looking at the door."
     ],
     "Choices": [
       {
-        "Label": "Pull them from rotation.",
+        "Label": "Pull {gender:m|him|her} from rotation.",
         "FlagsOnPick": ["choice:pull_hollow"],
         "StressDelta": -10, "LoyaltyDelta": 4
       },
       {
-        "Label": "Tell them tomorrow's mission needs them.",
+        "Label": "Tell {gender:m|him|her} tomorrow's mission needs {gender:m|him|her}.",
         "FlagsOnPick": ["choice:push_hollow"],
         "StressDelta": 10, "ConscienceDelta": -2
       }
@@ -96,7 +105,7 @@
     "TextLines": [
       "The Quill ran the story at 4 AM. Front-of-feed by 6.",
       "\"There's a name attached,\" the Director says. \"Not yours yet.\"",
-      "She turns the monitor toward you. The face is the contractor your team buried two cycles ago."
+      "{gender:m|She|He} turns the monitor toward you. The face is the contractor your team buried two cycles ago."
     ],
     "Choices": [
       {
@@ -136,14 +145,17 @@
   {
     "Id": "defection_risk_pull",
     "Title": "Loyalty Audit",
-    "Speaker": "{op}",
+    "Speaker": "{operative.name}",
     "Setting": "Off-site coffee shop, twenty blocks from any office",
     "RequiredFlags": ["any_op:defection_risk"],
     "Priority": "Pressing",
     "OneShot": false,
+    "Cast": [
+      { "Name": "triggering", "Kind": "Role", "Resolver": "triggering_operative" }
+    ],
     "TextLines": [
-      "{op} chose the meeting place. That alone tells you something.",
-      "\"I want a transfer,\" {op} says. \"Or a contract review. Pick one.\""
+      "{operative.name} chose the meeting place. That alone tells you something.",
+      "\"I want a transfer,\" {operative.name} says. \"Or a contract review. Pick one.\""
     ],
     "Choices": [
       {
@@ -161,16 +173,21 @@
   {
     "Id": "breaking_point",
     "Title": "Wire",
-    "Speaker": "{op}",
+    "Speaker": "{operative.name}",
     "Setting": "Operations floor, 3 AM, fluorescent hum",
     "RequiredFlags": ["any_op:breaking_point"],
     "ForbiddenFlags": ["scene:breaking_point_seen"],
     "Priority": "Critical",
     "OneShot": false,
+    "Cast": [
+      { "Name": "triggering", "Kind": "Role", "Resolver": "triggering_operative" },
+      { "Name": "anchor", "Kind": "Role", "Resolver": "role:anchor" }
+    ],
     "TextLines": [
-      "{op}'s hands won't stop shaking. The mission brief is open on the desk but the words aren't landing.",
-      "\"I can hear the comms even when they're off,\" {op} says. \"Every door sounds like a breach.\"",
-      "The coffee is untouched. It went cold hours ago."
+      "{operative.name}'s hands won't stop shaking. The mission brief is open on the desk but the words aren't landing.",
+      "\"I can hear the comms even when they're off,\" {operative.name} says. \"Every door sounds like a breach.\"",
+      "The coffee is untouched. It went cold hours ago.",
+      "{operative.role:anchor} is watching from the far desk, saying nothing."
     ],
     "Choices": [
       {
@@ -201,11 +218,219 @@
     "OneShot": true,
     "TextLines": [
       "\"The Razor is moving on us. Open file. Public.\"",
-      "The Director's voice is even, but her hands are flat on the table — she's keeping them still.",
+      "The Director's voice is even, but {gender:m|her|his} hands are flat on the table — {gender:m|she's|he's} keeping them still.",
       "\"Whatever you have planned this cycle, halve it.\""
     ],
     "Choices": [
       { "Label": "Acknowledge.", "FlagsOnPick": ["choice:heat_ack"] }
     ]
+  },
+  {
+    "Id": "corruption_milestone",
+    "Title": "The Ledger",
+    "Speaker": "{operative.role:conscience}",
+    "Setting": "Basement archive, {corp} records wing, {year}",
+    "RequiredFlags": [],
+    "ForbiddenFlags": ["scene:corruption_milestone_seen"],
+    "Priority": "Pressing",
+    "OneShot": true,
+    "Triggers": [
+      { "Type": "avg_stat_below", "Key": "conscience", "Threshold": 50 }
+    ],
+    "Cast": [
+      { "Name": "conscience", "Kind": "Role", "Resolver": "role:conscience" },
+      { "Name": "weapon", "Kind": "Role", "Resolver": "role:weapon" }
+    ],
+    "TextLines": [
+      "{operative.role:conscience} is waiting for you in the archive. The lights flicker — nobody comes down here.",
+      "\"I pulled the operational summaries. All of them.\" A stack of folders, thicker than it should be.",
+      "\"We crossed a line somewhere, {gender:m|sir|ma'am}. I can't tell you when because there wasn't a single moment. It was all of them.\"",
+      "From upstairs, you hear {operative.role:weapon} laughing at something. The sound carries wrong down here."
+    ],
+    "Choices": [
+      {
+        "Label": "\"We do what the mission requires. That hasn't changed.\"",
+        "FlagsOnPick": ["choice:accept_corruption"],
+        "ConscienceDelta": -5, "LoyaltyDelta": -3, "HeatDelta": 0
+      },
+      {
+        "Label": "\"Pull the worst cases. I want a review.\"",
+        "FlagsOnPick": ["choice:review_corruption"],
+        "ConscienceDelta": 4, "MoraleDelta": 3, "HeatDelta": 2
+      },
+      {
+        "Label": "\"Burn those files. Now.\"",
+        "FlagsOnPick": ["choice:burn_evidence"],
+        "ConscienceDelta": -8, "StressDelta": 5, "HeatDelta": -3
+      }
+    ],
+    "FlagsOnFire": ["scene:corruption_milestone_seen"]
+  },
+  {
+    "Id": "relationship_tension",
+    "Title": "Fracture Lines",
+    "Speaker": "{operative.name}",
+    "Setting": "Briefing room, door locked, blinds drawn",
+    "RequiredFlags": [],
+    "ForbiddenFlags": ["scene:relationship_tension_seen"],
+    "Priority": "Pressing",
+    "OneShot": false,
+    "Triggers": [
+      { "Type": "any_relationship_below", "Key": "", "Threshold": -30 }
+    ],
+    "Cast": [
+      { "Name": "triggering", "Kind": "Role", "Resolver": "triggering_operative" },
+      { "Name": "mirror", "Kind": "Role", "Resolver": "role:mirror" }
+    ],
+    "TextLines": [
+      "{operative.name} won't sit. Keeps pacing the length of the window.",
+      "\"I'm not working with {operative.role:mirror} again. I don't care what the board says.\"",
+      "\"Last op, {gender:m|he|she} left me in the corridor for six minutes. Six. You know what six minutes means in the field.\"",
+      "The request is on your desk already. Transfer or termination. {operative.name} wants an answer today."
+    ],
+    "Choices": [
+      {
+        "Label": "\"I'll separate you. Different rotations.\"",
+        "FlagsOnPick": ["choice:separate_ops"],
+        "LoyaltyDelta": 5, "StressDelta": -4
+      },
+      {
+        "Label": "\"You'll work with who I assign. That's final.\"",
+        "FlagsOnPick": ["choice:force_together"],
+        "LoyaltyDelta": -8, "StressDelta": 6, "MoraleDelta": -4
+      },
+      {
+        "Label": "\"Tell me what happened. The real version.\"",
+        "FlagsOnPick": ["choice:investigate_tension"],
+        "LoyaltyDelta": 3, "StressDelta": -2
+      }
+    ],
+    "FlagsOnFire": ["scene:relationship_tension_seen"]
+  },
+  {
+    "Id": "loyalty_test",
+    "Title": "The Offer",
+    "Speaker": "{operative.name}",
+    "Setting": "Parking structure, sub-level 3, engine running",
+    "RequiredFlags": [],
+    "ForbiddenFlags": ["scene:loyalty_test_seen"],
+    "Priority": "Critical",
+    "OneShot": false,
+    "Triggers": [
+      { "Type": "any_stat_below", "Key": "loyalty", "Threshold": 25 }
+    ],
+    "Cast": [
+      { "Name": "triggering", "Kind": "Role", "Resolver": "lowest_loyalty" },
+      { "Name": "climber", "Kind": "Role", "Resolver": "role:climber" }
+    ],
+    "TextLines": [
+      "The message came through a dead drop — not your dead drop. {operative.name} met someone.",
+      "\"{faction.name} offered me a package,\" {operative.name} says, not looking at you. \"Relocation. New identity. Double salary.\"",
+      "The engine idles. {operative.role:climber} doesn't know about this meeting. Nobody does.",
+      "\"I'm telling you because I haven't decided yet.\""
+    ],
+    "Choices": [
+      {
+        "Label": "\"What would it take to stay?\"",
+        "FlagsOnPick": ["choice:counter_offer"],
+        "LoyaltyDelta": 12, "StressDelta": -5
+      },
+      {
+        "Label": "\"If you walk, you know what happens.\"",
+        "FlagsOnPick": ["choice:threaten_defector"],
+        "LoyaltyDelta": -5, "StressDelta": 10, "ConscienceDelta": -3
+      },
+      {
+        "Label": "\"Go. I'll give you a twelve-hour head start.\"",
+        "FlagsOnPick": ["choice:release_defector"],
+        "LoyaltyDelta": 0, "ConscienceDelta": 5, "MoraleDelta": -3
+      }
+    ],
+    "FlagsOnFire": ["scene:loyalty_test_seen"]
+  },
+  {
+    "Id": "team_morale_crisis",
+    "Title": "Dead Air",
+    "Speaker": "{operative.role:anchor}",
+    "Setting": "Operations bullpen, end of shift, half the desks empty",
+    "RequiredFlags": [],
+    "ForbiddenFlags": ["scene:morale_crisis_seen"],
+    "Priority": "Pressing",
+    "OneShot": true,
+    "Triggers": [
+      { "Type": "avg_stat_below", "Key": "morale", "Threshold": 40 }
+    ],
+    "Cast": [
+      { "Name": "anchor", "Kind": "Role", "Resolver": "role:anchor" },
+      { "Name": "wildcard", "Kind": "Role", "Resolver": "role:wildcard" },
+      { "Name": "survivor", "Kind": "Role", "Resolver": "role:survivor" }
+    ],
+    "TextLines": [
+      "The bullpen used to be loud at shift change. People talked. Argued. Laughed, sometimes.",
+      "{operative.role:anchor} catches you at the door. \"We're losing them, {gender:m|sir|ma'am}.\"",
+      "\"{operative.role:wildcard} hasn't spoken to anyone in three days. {operative.role:survivor} is putting in transfer papers.\"",
+      "\"They're not angry. That I could work with. They just don't care anymore.\""
+    ],
+    "Choices": [
+      {
+        "Label": "\"Organize something. Off-book. Dinner, drinks, I don't care.\"",
+        "FlagsOnPick": ["choice:boost_morale"],
+        "MoraleDelta": 8, "LoyaltyDelta": 3
+      },
+      {
+        "Label": "\"Cut the dead weight. Reassign anyone below baseline.\"",
+        "FlagsOnPick": ["choice:cut_deadweight"],
+        "MoraleDelta": -4, "StressDelta": 6, "LoyaltyDelta": -5
+      },
+      {
+        "Label": "\"They'll find their footing. Give it time.\"",
+        "FlagsOnPick": ["choice:ignore_morale"],
+        "MoraleDelta": -2
+      }
+    ],
+    "FlagsOnFire": ["scene:morale_crisis_seen"]
+  },
+  {
+    "Id": "quiet_moment",
+    "Title": "Rooftop",
+    "Speaker": "{operative.name}",
+    "Setting": "Building rooftop, {location}, city noise far below",
+    "RequiredFlags": [],
+    "ForbiddenFlags": ["scene:quiet_moment_seen"],
+    "Priority": "Background",
+    "OneShot": false,
+    "Triggers": [
+      { "Type": "no_active_missions", "Key": "", "Threshold": 0 },
+      { "Type": "any_relationship_above", "Key": "", "Threshold": 60 }
+    ],
+    "Cast": [
+      { "Name": "triggering", "Kind": "Role", "Resolver": "highest_morale" },
+      { "Name": "mirror", "Kind": "Role", "Resolver": "role:mirror" }
+    ],
+    "TextLines": [
+      "No ops running. No comms traffic. The board is clean for the first time in weeks.",
+      "{operative.name} found you up here. Brought two cups of something that passes for coffee in {location}.",
+      "\"You ever think about what happens after?\" {operative.name} asks. Not fishing. Just asking.",
+      "The city hums. {operative.role:mirror} is down in the bullpen, probably reading the same blank board.",
+      "For a few minutes, nobody needs anything from you."
+    ],
+    "Choices": [
+      {
+        "Label": "\"After? There's no after in this line of work.\"",
+        "FlagsOnPick": ["choice:no_after"],
+        "LoyaltyDelta": 2, "ConscienceDelta": -1
+      },
+      {
+        "Label": "\"I think about it more than I should.\"",
+        "FlagsOnPick": ["choice:honest_moment"],
+        "LoyaltyDelta": 6, "MoraleDelta": 4, "StressDelta": -3
+      },
+      {
+        "Label": "Say nothing. Drink the coffee.",
+        "FlagsOnPick": ["choice:quiet_peace"],
+        "StressDelta": -5, "MoraleDelta": 3
+      }
+    ],
+    "FlagsOnFire": ["scene:quiet_moment_seen"]
   }
 ]

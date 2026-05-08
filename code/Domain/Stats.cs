@@ -67,12 +67,15 @@ public sealed class Psychology
 	public int Morale { get; set; } = 70;
 	public int Conscience { get; set; } = 70;
 
+	/// <summary>Drive to climb. High → power plays, low → content to follow. Night 2 variety axis.</summary>
+	public int Ambition { get; set; } = 50;
+
 	/// <summary>Per-operative wet-work counter. Tripwires at 3 and 7 (third_kill, cold_blooded).</summary>
 	public int WetWorkCount { get; set; } = 0;
 
 	public Psychology Clone() => new()
 	{
 		Loyalty = Loyalty, Stress = Stress, Morale = Morale,
-		Conscience = Conscience, WetWorkCount = WetWorkCount,
+		Conscience = Conscience, Ambition = Ambition, WetWorkCount = WetWorkCount,
 	};
 }

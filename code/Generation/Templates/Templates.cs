@@ -15,6 +15,12 @@ public sealed class ArchetypeTemplate
 	public string Id { get; set; } = "";
 	public string DisplayName { get; set; } = "";
 
+	/// <summary>Background category: ExMilitary, Hacker, CorpoClimber, Street, Spook, Academic.</summary>
+	public string Background { get; set; } = "";
+
+	/// <summary>Narrative role tag: conscience, mirror, weapon, innocent, survivor, climber, anchor, wildcard.</summary>
+	public string NarrativeRole { get; set; } = "";
+
 	// Per-skill (min, max) bands. BellInt rolled inside.
 	public Dictionary<string, IntRange> SkillBands { get; set; } = new();
 
@@ -23,12 +29,22 @@ public sealed class ArchetypeTemplate
 	public IntRange Stress { get; set; } = new( 10, 30 );
 	public IntRange Morale { get; set; } = new( 60, 80 );
 	public IntRange Conscience { get; set; } = new( 65, 90 );
+	public IntRange Ambition { get; set; } = new( 40, 60 );
 
 	// Trait-pool weighting per axis. Empty list means "any from global pool".
 	public List<string> PersonalityPool { get; set; } = new();
 	public List<string> BackgroundPool { get; set; } = new();
 	public List<string> VicePool { get; set; } = new();
 	public List<string> CompulsionPool { get; set; } = new();
+
+	/// <summary>Flat trait pool (Night 2). 4-6 trait ids drawn from during generation.</summary>
+	public List<string> TraitPool { get; set; } = new();
+
+	/// <summary>[min, max] traits to assign from TraitPool.</summary>
+	public List<int> TraitCount { get; set; } = new();
+
+	/// <summary>3 cyberpunk-flavored backstory fragments for flavor text generation.</summary>
+	public List<string> FlavorFragments { get; set; } = new();
 
 	public List<string> CodenamePool { get; set; } = new();
 }

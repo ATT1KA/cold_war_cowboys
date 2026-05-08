@@ -13,7 +13,14 @@ public sealed class Operative
 	public string Name { get; set; } = "";
 	public string Codename { get; set; } = "";
 	public string Archetype { get; set; } = "";
+	public string Background { get; set; } = "";
 	public string Gender { get; set; } = "";
+
+	/// <summary>
+	/// Narrative role tag assigned at generation, re-evaluated each cycle.
+	/// Values: conscience, mirror, weapon, innocent, survivor, climber, anchor, wildcard.
+	/// </summary>
+	public string NarrativeRole { get; set; } = "";
 
 	public Skills Skills { get; set; } = new();
 	public Psychology Psychology { get; set; } = new();

@@ -1,18 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using CWC.Core;
 using CWC.Domain;
 
 namespace CWC.Narrative;
 
 /// <summary>
-/// Reads narrative flags off WorldState (set by ConsequenceProcessor) and
-/// queues scenes for the UI to consume. Selection is OneShot-aware: a fired
-/// template won't re-fire unless its OneShot flag is false.
+/// Night 3 upgrade: role-based casting, token resolution, gender-conditional text.
 ///
-/// The Director never mutates WorldState mid-selection — it only reads flags
-/// to choose, and adds FlagsOnFire when a scene actually fires (PopNextScene).
+/// Reads narrative flags + stat thresholds off WorldState and queues scenes for
+/// the UI. Selection is OneShot-aware. Cast slots resolve to operatives at render
+/// time based on current state — the same template can fire for different operatives
+/// across cycles as stats shift.
+///
+/// Token resolution runs at Materialize time:
+///   {operative.name}           → resolved operative's display name
+///   {operative.role:mirror}    → name of op filling the "mirror" cast slot
+///   {faction.name}             → relevant faction name
+///   {gender:m|male text|female text} → gender-conditional based on ProtagonistGender
+///   {corp}, {location}, {year} → legacy world-setting tokens
 /// </summary>
 public sealed class NarrativeDirector
 {
@@ -28,6 +36,57 @@ public sealed class NarrativeDirector
 	public int QueueDepth => _queue.Count;
 	public IReadOnlyCollection<Scene> Queued => _queue;
 
+	// ========================================================================
+	// ROLE EVALUATION — re-run each cycle to assign narrative roles
+	// ========================================================================
+
+	/// <summary>
+	/// Re-evaluate narrative roles for all active operatives based on current stats.
+	/// Call at start of each cycle before ConsumeFlags.
+	/// </summary>
+	public static void EvaluateRoles( WorldState world )
+	{
+		var active = world.Operatives.Where( o => o.Active ).ToList();
+		if ( active.Count == 0 ) return;
+
+		// Clear existing roles
+		foreach ( var op in active ) op.NarrativeRole = "";
+
+		// Assign by stat extremes — first match wins, no double-assignment
+		var assigned = new HashSet<int>();
+
+		Assign( active, assigned, "conscience",
+			ops => ops.OrderByDescending( o => o.Psychology.Conscience ).First() );
+		Assign( active, assigned, "weapon",
+			ops => ops.OrderByDescending( o => o.Skills.Combat + o.Skills.Intimidation ).First() );
+		Assign( active, assigned, "mirror",
+			ops => ops.OrderByDescending( o => o.Psychology.Loyalty ).First() );
+		Assign( active, assigned, "anchor",
+			ops => ops.OrderByDescending( o => o.Psychology.Morale ).First() );
+		Assign( active, assigned, "climber",
+			ops => ops.OrderByDescending( o => o.Psychology.Ambition ).First() );
+		Assign( active, assigned, "wildcard",
+			ops => ops.OrderByDescending( o => o.Psychology.Stress ).First() );
+		Assign( active, assigned, "survivor",
+			ops => ops.OrderByDescending( o => o.Tenure ).First() );
+		Assign( active, assigned, "innocent",
+			ops => ops.OrderBy( o => o.Psychology.WetWorkCount ).First() );
+
+		static void Assign( List<Operative> pool, HashSet<int> used, string role,
+			Func<IEnumerable<Operative>, Operative> selector )
+		{
+			var candidates = pool.Where( o => !used.Contains( o.Id ) );
+			if ( !candidates.Any() ) return;
+			var pick = selector( candidates );
+			pick.NarrativeRole = role;
+			used.Add( pick.Id );
+		}
+	}
+
+	// ========================================================================
+	// SCENE SELECTION — scan triggers, enqueue eligible scenes
+	// ========================================================================
+
 	/// <summary>
 	/// Scan world state, resolve all eligible templates, and enqueue scenes
 	/// in priority order. Call after ConsequenceProcessor finishes a cycle's
@@ -41,13 +100,12 @@ public sealed class NarrativeDirector
 		{
 			if ( template.OneShot && _firedOneShots.Contains( template.Id ) ) continue;
 			if ( IsForbidden( template, world ) ) continue;
-			if ( !IsRequiredMet( template, world, out int? opId ) ) continue;
+			if ( !IsEligible( template, world, out int? opId ) ) continue;
 
 			var scene = Materialize( template, world, opId );
 			fresh.Add( scene );
 		}
 
-		// Highest priority first; stable order on tie.
 		fresh.Sort( ( a, b ) => b.Priority.CompareTo( a.Priority ) );
 		foreach ( var s in fresh ) _queue.Enqueue( s );
 		return fresh;
@@ -70,9 +128,7 @@ public sealed class NarrativeDirector
 	}
 
 	/// <summary>
-	/// Sprint 6 hook: scan CorporateState for boardroom-level triggers and seed
-	/// world flags so any matching template fires through ConsumeFlags. Called
-	/// from the Corporate phase after CorporateConsequenceProcessor flushes.
+	/// Sprint 6 hook: scan CorporateState for boardroom-level triggers.
 	/// </summary>
 	public void CheckCorporateTriggers( WorldState world )
 	{
@@ -94,7 +150,6 @@ public sealed class NarrativeDirector
 
 	/// <summary>
 	/// Apply player choice from a scene. Mutates the targeted operative + corp.
-	/// Returns the choice's flags so the caller can record them.
 	/// </summary>
 	public IReadOnlyList<string> ApplyChoice( Scene scene, SceneChoice choice, WorldState world )
 	{
@@ -106,6 +161,7 @@ public sealed class NarrativeDirector
 				op.Psychology.Loyalty    = Math.Clamp( op.Psychology.Loyalty + choice.LoyaltyDelta, 0, 100 );
 				op.Psychology.Stress     = Math.Clamp( op.Psychology.Stress + choice.StressDelta, 0, 100 );
 				op.Psychology.Conscience = Math.Clamp( op.Psychology.Conscience + choice.ConscienceDelta, 0, 100 );
+				op.Psychology.Morale     = Math.Clamp( op.Psychology.Morale + choice.MoraleDelta, 0, 100 );
 			}
 		}
 		world.Corporate.Heat = Math.Clamp( world.Corporate.Heat + choice.HeatDelta, 0, 100 );
@@ -113,7 +169,59 @@ public sealed class NarrativeDirector
 		return choice.FlagsOnPick;
 	}
 
-	// ---- predicate helpers --------------------------------------------------
+	// ========================================================================
+	// NIGHT 2: narrative role re-evaluation
+	// ========================================================================
+
+	/// <summary>
+	/// Re-evaluate each operative's narrative role against current psychology.
+	/// Called once per cycle (e.g. during Aftermath phase). An operative whose
+	/// stats no longer match the role thresholds loses the tag; one whose stats
+	/// have drifted into a new archetype band may gain one.
+	/// </summary>
+	public void ReEvaluateRoles( IReadOnlyList<Operative> operatives )
+	{
+		foreach ( var op in operatives )
+		{
+			if ( !op.Active ) continue;
+
+			var role = op.NarrativeRole?.ToLowerInvariant() ?? "";
+			var p = op.Psychology;
+
+			switch ( role )
+			{
+				case "conscience":
+					if ( p.Conscience < 30 ) op.NarrativeRole = "";
+					break;
+				case "weapon":
+					if ( p.Conscience > 70 ) op.NarrativeRole = "";
+					break;
+				case "climber":
+					if ( p.Ambition < 35 ) op.NarrativeRole = "";
+					break;
+				case "anchor":
+					if ( p.Loyalty < 35 ) op.NarrativeRole = "";
+					break;
+				case "innocent":
+					if ( p.Conscience < 40 || p.Stress > 70 ) op.NarrativeRole = "";
+					break;
+			}
+
+			// If role was stripped, check for natural re-assignment
+			if ( string.IsNullOrEmpty( op.NarrativeRole ) )
+			{
+				if ( p.Conscience > 65 ) op.NarrativeRole = "conscience";
+				else if ( p.Conscience < 30 && p.Ambition < 40 ) op.NarrativeRole = "weapon";
+				else if ( p.Ambition > 70 ) op.NarrativeRole = "climber";
+				else if ( p.Loyalty > 70 ) op.NarrativeRole = "anchor";
+				// Otherwise stays blank — narratively adrift
+			}
+		}
+	}
+
+	// ========================================================================
+	// ELIGIBILITY — flag predicates + Night 3 stat-based triggers
+	// ========================================================================
 
 	private static bool IsForbidden( SceneTemplate t, WorldState world )
 	{
@@ -122,19 +230,93 @@ public sealed class NarrativeDirector
 		return false;
 	}
 
-	private static bool IsRequiredMet( SceneTemplate t, WorldState world, out int? opId )
+	/// <summary>
+	/// Check both legacy RequiredFlags AND Night 3 Triggers. All must pass.
+	/// </summary>
+	private static bool IsEligible( SceneTemplate t, WorldState world, out int? opId )
 	{
 		opId = null;
+
+		// Legacy flag requirements
 		foreach ( var f in t.RequiredFlags )
 		{
 			if ( !MatchesFlag( f, world, out var matchedOp ) ) return false;
-			// First op-scoped match wins as the focal operative.
 			if ( opId == null && matchedOp.HasValue ) opId = matchedOp;
 		}
+
+		// Night 3 structured triggers
+		foreach ( var trigger in t.Triggers )
+		{
+			if ( !EvaluateTrigger( trigger, world, ref opId ) ) return false;
+		}
+
 		return true;
 	}
 
-	// Supports plain flag, "flag:foo", "flag_prefix:foo", "any_op:bar"
+	private static bool EvaluateTrigger( SceneTrigger trigger, WorldState world, ref int? opId )
+	{
+		var active = world.Operatives.Where( o => o.Active ).ToList();
+		if ( active.Count == 0 ) return false;
+
+		switch ( trigger.Type )
+		{
+			case "avg_stat_below":
+				return GetAvgStat( active, trigger.Key ) < trigger.Threshold;
+
+			case "any_stat_below":
+				var low = active.FirstOrDefault( o => GetStat( o, trigger.Key ) < trigger.Threshold );
+				if ( low == null ) return false;
+				opId ??= low.Id;
+				return true;
+
+			case "any_relationship_below":
+				var badRel = world.Relationships.FirstOrDefault( r => r.Score < trigger.Threshold );
+				if ( badRel == null ) return false;
+				opId ??= badRel.FromId;
+				return true;
+
+			case "any_relationship_above":
+				var goodRel = world.Relationships.FirstOrDefault( r => r.Score > trigger.Threshold );
+				if ( goodRel == null ) return false;
+				opId ??= goodRel.FromId;
+				return true;
+
+			case "no_active_missions":
+				return !world.Missions.Any( m => m.Status == MissionStatus.Active );
+
+			case "flag":
+				return MatchesFlag( trigger.Key, world, out _ );
+
+			case "flag_prefix":
+				return world.NarrativeFlags.Any( f => f.StartsWith( trigger.Key ) );
+
+			case "any_op":
+				string prefix = trigger.Key + ":";
+				var hit = world.NarrativeFlags.FirstOrDefault( f => f.StartsWith( prefix ) );
+				if ( hit == null ) return false;
+				if ( int.TryParse( hit.Substring( prefix.Length ), out var id ) ) opId ??= id;
+				return true;
+
+			default:
+				return false;
+		}
+	}
+
+	private static double GetAvgStat( List<Operative> ops, string stat )
+	{
+		return ops.Average( o => (double)GetStat( o, stat ) );
+	}
+
+	private static int GetStat( Operative op, string stat ) => stat switch
+	{
+		"conscience" => op.Psychology.Conscience,
+		"loyalty" => op.Psychology.Loyalty,
+		"stress" => op.Psychology.Stress,
+		"morale" => op.Psychology.Morale,
+		"ambition" => op.Psychology.Ambition,
+		_ => 0,
+	};
+
 	private static bool MatchesFlag( string spec, WorldState world, out int? opId )
 	{
 		opId = null;
@@ -155,18 +337,162 @@ public sealed class NarrativeDirector
 		return world.NarrativeFlags.Contains( raw );
 	}
 
-	private static Scene Materialize( SceneTemplate t, WorldState world, int? opId )
-	{
-		var op = opId.HasValue ? world.GetOperative( opId.Value ) : null;
-		string opName = op != null
-			? (string.IsNullOrEmpty( op.Codename ) ? op.Name : op.Codename)
-			: "the field";
+	// ========================================================================
+	// CAST RESOLUTION — resolve role slots to operatives
+	// ========================================================================
 
-		string Resolve( string s ) => s
-			.Replace( "{op}", opName )
+	private static Dictionary<string, int> ResolveCast( SceneTemplate t, WorldState world, int? triggeringOpId )
+	{
+		var cast = new Dictionary<string, int>();
+		var active = world.Operatives.Where( o => o.Active ).ToList();
+
+		foreach ( var slot in t.Cast )
+		{
+			int? resolved = ResolveSlot( slot, world, active, triggeringOpId );
+			if ( resolved.HasValue )
+				cast[slot.Name] = resolved.Value;
+		}
+
+		// Always include "triggering" if we have a triggering operative
+		if ( triggeringOpId.HasValue && !cast.ContainsKey( "triggering" ) )
+			cast["triggering"] = triggeringOpId.Value;
+
+		return cast;
+	}
+
+	private static int? ResolveSlot( CastSlot slot, WorldState world,
+		List<Operative> active, int? triggeringOpId )
+	{
+		if ( slot.Kind == CastSlotKind.Identity )
+		{
+			if ( int.TryParse( slot.Resolver, out var id ) ) return id;
+			return null;
+		}
+
+		// Role-based resolution
+		return slot.Resolver switch
+		{
+			"triggering_operative" => triggeringOpId,
+			"highest_conscience" => active.OrderByDescending( o => o.Psychology.Conscience ).FirstOrDefault()?.Id,
+			"lowest_conscience" => active.OrderBy( o => o.Psychology.Conscience ).FirstOrDefault()?.Id,
+			"highest_social" => active.OrderByDescending( o => o.Skills.Persuasion + o.Skills.Deception ).FirstOrDefault()?.Id,
+			"lowest_loyalty" => active.OrderBy( o => o.Psychology.Loyalty ).FirstOrDefault()?.Id,
+			"highest_stress" => active.OrderByDescending( o => o.Psychology.Stress ).FirstOrDefault()?.Id,
+			"highest_morale" => active.OrderByDescending( o => o.Psychology.Morale ).FirstOrDefault()?.Id,
+			"lowest_morale" => active.OrderBy( o => o.Psychology.Morale ).FirstOrDefault()?.Id,
+			_ when slot.Resolver.StartsWith( "role:" ) =>
+				active.FirstOrDefault( o => o.NarrativeRole == slot.Resolver.Substring( "role:".Length ) )?.Id,
+			_ => null,
+		};
+	}
+
+	// ========================================================================
+	// TOKEN RESOLUTION — render scene text with dynamic substitutions
+	// ========================================================================
+
+	private static readonly Regex GenderToken = new(
+		@"\{gender:([mfn])\|([^|]*)\|([^}]*)\}", RegexOptions.Compiled );
+
+	private static readonly Regex OperativeRoleToken = new(
+		@"\{operative\.role:([^}]+)\}", RegexOptions.Compiled );
+
+	private static readonly Regex OperativeNameToken = new(
+		@"\{operative\.name\}", RegexOptions.Compiled );
+
+	private static readonly Regex FactionToken = new(
+		@"\{faction\.name\}", RegexOptions.Compiled );
+
+	private static string ResolveTokens( string text, WorldState world,
+		Dictionary<string, int> cast, int? primaryOpId )
+	{
+		// Legacy tokens
+		string result = text
 			.Replace( "{corp}", world.Setting.CorpName )
 			.Replace( "{location}", world.Setting.Location )
 			.Replace( "{year}", world.Setting.Year.ToString() );
+
+		// {op} → legacy primary operative (backward compat)
+		if ( primaryOpId.HasValue )
+		{
+			var op = world.GetOperative( primaryOpId.Value );
+			string opName = op != null
+				? ( string.IsNullOrEmpty( op.Codename ) ? op.Name : op.Codename )
+				: "the field";
+			result = result.Replace( "{op}", opName );
+		}
+		else
+		{
+			result = result.Replace( "{op}", "the field" );
+		}
+
+		// {operative.name} → primary operative's display name
+		result = OperativeNameToken.Replace( result, m =>
+		{
+			if ( !primaryOpId.HasValue ) return "the operative";
+			var op = world.GetOperative( primaryOpId.Value );
+			return op != null
+				? ( string.IsNullOrEmpty( op.Codename ) ? op.Name : op.Codename )
+				: "the operative";
+		} );
+
+		// {operative.role:X} → name of operative filling role X in cast
+		result = OperativeRoleToken.Replace( result, m =>
+		{
+			string role = m.Groups[1].Value;
+			if ( cast.TryGetValue( role, out int opId ) )
+			{
+				var op = world.GetOperative( opId );
+				return op != null
+					? ( string.IsNullOrEmpty( op.Codename ) ? op.Name : op.Codename )
+					: "someone";
+			}
+			// Also check by narrative role directly
+			var byRole = world.Operatives.FirstOrDefault( o => o.NarrativeRole == role && o.Active );
+			return byRole != null
+				? ( string.IsNullOrEmpty( byRole.Codename ) ? byRole.Name : byRole.Codename )
+				: "someone";
+		} );
+
+		// {faction.name} → first relevant faction
+		result = FactionToken.Replace( result, m =>
+		{
+			var faction = world.Factions.FirstOrDefault();
+			return faction?.Name ?? "the opposition";
+		} );
+
+		// {gender:m|male text|female text} → gender-conditional
+		result = GenderToken.Replace( result, m =>
+		{
+			string condition = m.Groups[1].Value;
+			string optionA = m.Groups[2].Value;
+			string optionB = m.Groups[3].Value;
+			string gender = world.ProtagonistGender?.ToLowerInvariant() ?? "m";
+			// condition "m" → optionA if protagonist is male, optionB otherwise
+			// condition "f" → optionA if protagonist is female, optionB otherwise
+			return condition switch
+			{
+				"m" => gender == "m" ? optionA : optionB,
+				"f" => gender == "f" ? optionA : optionB,
+				"n" => gender == "nb" ? optionA : optionB,
+				_ => optionA,
+			};
+		} );
+
+		return result;
+	}
+
+	// ========================================================================
+	// MATERIALIZE — build concrete Scene from template + world state
+	// ========================================================================
+
+	private static Scene Materialize( SceneTemplate t, WorldState world, int? opId )
+	{
+		var cast = ResolveCast( t, world, opId );
+
+		// Primary operative: explicit triggering op, or first cast slot
+		int? primaryOp = opId ?? ( cast.Count > 0 ? cast.Values.First() : null );
+
+		string Resolve( string s ) => ResolveTokens( s, world, cast, primaryOp );
 
 		return new Scene
 		{
@@ -184,8 +510,10 @@ public sealed class NarrativeDirector
 				StressDelta = c.StressDelta,
 				ConscienceDelta = c.ConscienceDelta,
 				HeatDelta = c.HeatDelta,
+				MoraleDelta = c.MoraleDelta,
 			} ).ToList(),
-			OperativeId = opId,
+			OperativeId = primaryOp,
+			ResolvedCast = cast,
 			FlagsOnFire = new List<string>( t.FlagsOnFire ),
 		};
 	}
