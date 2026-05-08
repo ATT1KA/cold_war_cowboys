@@ -1,0 +1,102 @@
+@using System.Linq
+@using Sandbox
+@using Sandbox.UI
+@using CWC.UI
+@using CWC.Save
+@inherits Panel
+@namespace CWC.UI
+
+<root class="save-load-panel">
+	<div class="section-title">@(IsSaveMode ? "Save Game" : "Load Game")</div>
+
+	<div class="slot-list">
+		@foreach ( var slot in Slots )
+		{
+			<div class="slot @(slot.IsOccupied ? "occupied" : "empty") @(slot.IsAutoSave ? "autosave" : "")">
+				<div class="slot-header">
+					<span class="slot-name">@slot.DisplayName</span>
+					@if ( slot.IsOccupied )
+					{
+						<span class="slot-time">@slot.Timestamp.ToString("yyyy-MM-dd HH:mm")</span>
+					}
+				</div>
+
+				@if ( slot.IsOccupied )
+				{
+					<div class="slot-summary">@slot.Summary</div>
+					<div class="slot-meta">Cycle @slot.Cycle</div>
+				}
+				else
+				{
+					<div class="slot-summary empty-label">— Empty —</div>
+				}
+
+				<div class="slot-actions">
+					@if ( IsSaveMode && !slot.IsAutoSave )
+					{
+						<button class="slot-btn save" @onclick=@( () => OnSave( slot.SlotName ) )>
+							Save Here
+						</button>
+					}
+					@if ( !IsSaveMode && slot.IsOccupied )
+					{
+						<button class="slot-btn load" @onclick=@( () => OnLoad( slot.SlotName ) )>
+							Load
+						</button>
+					}
+				</div>
+			</div>
+		}
+	</div>
+
+	@if ( !string.IsNullOrEmpty( _statusMessage ) )
+	{
+		<div class="status-message">@_statusMessage</div>
+	}
+
+	<button class="back-btn" @onclick=@OnBackClick>← Back</button>
+</root>
+
+@code
+{
+	[Property] public IGameViewModel? Vm { get; set; }
+	[Property] public string Mode { get; set; } = "save";
+	[Property] public System.Action<string>? OnSlotSelected { get; set; }
+	[Property] public System.Action? OnBack { get; set; }
+
+	private bool IsSaveMode => Mode == "save";
+	private string _statusMessage = "";
+	private List<SaveSlotInfo> _cachedSlots = new();
+
+	private List<SaveSlotInfo> Slots
+	{
+		get
+		{
+			if ( _cachedSlots.Count == 0 )
+				_cachedSlots = Vm?.ListSaveSlots() ?? new();
+			return _cachedSlots;
+		}
+	}
+
+	private void OnSave( string slotName )
+	{
+		if ( Vm?.SaveGame( slotName ) == true )
+		{
+			_statusMessage = $"Saved to {slotName}";
+			_cachedSlots.Clear(); // refresh
+		}
+		else
+			_statusMessage = "Save failed.";
+	}
+
+	private void OnLoad( string slotName )
+	{
+		OnSlotSelected?.Invoke( slotName );
+	}
+
+	private void OnBackClick() => OnBack?.Invoke();
+
+	protected override int BuildHash() => System.HashCode.Combine(
+		_statusMessage, Slots.Count, Mode
+	);
+}

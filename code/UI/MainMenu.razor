@@ -1,0 +1,85 @@
+@using Sandbox
+@using Sandbox.UI
+@using CWC.UI
+@using CWC.Save
+@inherits Panel
+@namespace CWC.UI
+
+<root class="main-menu">
+	<div class="title-block">
+		<div class="title">COLD WAR COWBOYS</div>
+		<div class="subtitle">A Corporate Operations Thriller</div>
+	</div>
+
+	@if ( _mode == MenuMode.Title )
+	{
+		<div class="menu-buttons">
+			<button class="menu-btn" @onclick=@OnNewGame>New Game</button>
+			<button class="menu-btn" @onclick=@OnLoadGame>Load Game</button>
+			<button class="menu-btn" @onclick=@OnSettings>Settings</button>
+		</div>
+	}
+	else if ( _mode == MenuMode.GenderSelect )
+	{
+		<div class="gender-select">
+			<div class="section-title">Protagonist</div>
+			<div class="gender-buttons">
+				<button class="gender-btn" @onclick=@( () => StartGame( "m" ) )>
+					<span class="gender-label">Male</span>
+				</button>
+				<button class="gender-btn" @onclick=@( () => StartGame( "f" ) )>
+					<span class="gender-label">Female</span>
+				</button>
+				<button class="gender-btn" @onclick=@( () => StartGame( "nb" ) )>
+					<span class="gender-label">Non-Binary</span>
+				</button>
+			</div>
+			<button class="back-btn" @onclick=@BackToTitle>← Back</button>
+		</div>
+	}
+	else if ( _mode == MenuMode.Load )
+	{
+		<SaveLoadPanel Vm=@Vm Mode="load" OnSlotSelected=@OnSlotLoaded OnBack=@BackToTitle/>
+	}
+	else if ( _mode == MenuMode.Settings )
+	{
+		<div class="settings-panel">
+			<div class="section-title">Settings</div>
+			<div class="setting-row">
+				<span>Auto-Save</span>
+				<span class="setting-value">On</span>
+			</div>
+			<div class="setting-row">
+				<span>Text Speed</span>
+				<span class="setting-value">Normal</span>
+			</div>
+			<button class="back-btn" @onclick=@BackToTitle>← Back</button>
+		</div>
+	}
+</root>
+
+@code
+{
+	[Property] public IGameViewModel? Vm { get; set; }
+
+	private enum MenuMode { Title, GenderSelect, Load, Settings }
+	private MenuMode _mode = MenuMode.Title;
+
+	private void OnNewGame() => _mode = MenuMode.GenderSelect;
+	private void OnLoadGame() => _mode = MenuMode.Load;
+	private void OnSettings() => _mode = MenuMode.Settings;
+	private void BackToTitle() => _mode = MenuMode.Title;
+
+	private void StartGame( string gender )
+	{
+		ulong seed = (ulong)System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+		Vm?.NewGame( seed, gender );
+	}
+
+	private void OnSlotLoaded( string slotName )
+	{
+		Vm?.LoadGame( slotName );
+	}
+
+	protected override int BuildHash() => System.HashCode.Combine( _mode, Vm?.IsInGame );
+}

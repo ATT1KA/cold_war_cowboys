@@ -7,6 +7,7 @@ using CWC.Game;
 using CWC.Generation;
 using CWC.Missions;
 using CWC.Narrative;
+using CWC.Save;
 
 namespace CWC.UI;
 
@@ -99,6 +100,33 @@ public sealed class GameViewModel : IGameViewModel
 
 	// Night 5: corruption index
 	public bool ShouldInvertChoices => _game.World.Corruption.ShouldInvertChoices;
+
+	// Night 6: save/load + menu
+	public bool IsInGame { get; private set; }
+
+	public void NewGame( ulong seed, string gender )
+	{
+		_game.NewGame( seed );
+		_game.World.ProtagonistGender = gender;
+		IsInGame = true;
+		Changed?.Invoke();
+	}
+
+	public bool LoadGame( string slotName )
+	{
+		if ( !_game.LoadGame( slotName ) ) return false;
+		IsInGame = true;
+		Changed?.Invoke();
+		return true;
+	}
+
+	public bool SaveGame( string slotName )
+	{
+		return _game.SaveSystem.Save( _game, slotName );
+	}
+
+	public List<SaveSlotInfo> ListSaveSlots()
+		=> _game.SaveSystem.ListSlots();
 
 	public void PickNarrativeChoice( NarrativeChoice choice )
 	{

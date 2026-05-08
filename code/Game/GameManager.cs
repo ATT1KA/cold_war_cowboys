@@ -7,6 +7,7 @@ using CWC.Generation;
 using CWC.Generation.Templates;
 using CWC.Missions;
 using CWC.Narrative;
+using CWC.Save;
 
 namespace CWC.Game;
 
@@ -39,6 +40,9 @@ public sealed class GameManager
 	public ReputationSystem? Reputation { get; private set; }
 	public CorporateEventGenerator? CorporateEvents { get; private set; }
 
+	// Night 6: save/load
+	public SaveSystem SaveSystem { get; } = new();
+
 	public List<MissionResult> LastResolutionResults { get; private set; } = new();
 
 	public event Action? StateChanged;
@@ -47,6 +51,21 @@ public sealed class GameManager
 	{
 		Board = new MissionBoard( MissionGen );
 		CorpConsequences = new CorporateConsequenceProcessor( Bus );
+	}
+
+	/// <summary>Night 6: load a saved game from a named slot.</summary>
+	public bool LoadGame( string slotName )
+	{
+		var data = SaveSystem.Load( slotName );
+		if ( data == null ) return false;
+
+		// Re-initialize from the saved seed to rebuild templates
+		NewGame( data.Seed );
+
+		// Overwrite with saved state
+		SaveSystem.Restore( data, this );
+		StateChanged?.Invoke();
+		return true;
 	}
 
 	public void NewGame( ulong seed )
@@ -124,6 +143,9 @@ public sealed class GameManager
 		switch ( current )
 		{
 			case CyclePhase.Briefing:
+				// Night 6: auto-save at start of each new cycle
+				if ( World.Corporate.Cycle > 1 )
+					SaveSystem.AutoSave( this );
 				// New cycle — bookkeeping the foundation owns.
 				World.Corporate.Cycle++;
 				World.Day++;

@@ -4,6 +4,7 @@ using CWC.Core;
 using CWC.Domain;
 using CWC.Missions;
 using CWC.Narrative;
+using CWC.Save;
 
 namespace CWC.UI;
 
@@ -36,4 +37,11 @@ public interface IGameViewModel
 
 	// Night 5: corruption index
 	bool ShouldInvertChoices { get; }
+
+	// Night 6: save/load + menu
+	bool IsInGame { get; }
+	void NewGame( ulong seed, string gender );
+	bool LoadGame( string slotName );
+	bool SaveGame( string slotName );
+	List<SaveSlotInfo> ListSaveSlots();
 }

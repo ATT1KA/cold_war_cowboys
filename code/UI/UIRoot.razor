@@ -6,51 +6,65 @@
 @namespace CWC.UI
 
 <root class="uiroot phase-@CurrentPhaseClass">
-	<div class="topbar">
-		<CycleHud Vm=@Vm/>
-	</div>
+	@if ( Vm?.IsInGame != true )
+	{
+		<MainMenu Vm=@Vm/>
+	}
+	else if ( _showSavePanel )
+	{
+		<SaveLoadPanel Vm=@Vm Mode="save" OnBack=@CloseSavePanel/>
+	}
+	else
+	{
+		<div class="topbar">
+			<CycleHud Vm=@Vm/>
+			<button class="save-btn" @onclick=@OpenSavePanel>Save</button>
+		</div>
 
-	<div class="stage">
-		@switch ( Vm?.CurrentPhase )
-		{
-			case CyclePhase.Briefing:
-				<MissionBoardPanel Vm=@Vm/>
-				<OperativeRosterPanel Vm=@Vm/>
-				break;
-			case CyclePhase.Assignment:
-				@if ( Vm?.NarrativeRunner?.IsActive == true )
-				{
-					<NarrativeSequencePanel Vm=@Vm/>
-				}
-				else
-				{
+		<div class="stage">
+			@switch ( Vm?.CurrentPhase )
+			{
+				case CyclePhase.Briefing:
 					<MissionBoardPanel Vm=@Vm/>
 					<OperativeRosterPanel Vm=@Vm/>
-				}
-				break;
-			case CyclePhase.Resolution:
-				<div class="screen-msg">Resolving missions…</div>
-				break;
-			case CyclePhase.Aftermath:
-				<SceneReaderPanel Vm=@Vm/>
-				break;
-			case CyclePhase.Review:
-				<OperativeRosterPanel Vm=@Vm/>
-				break;
-			default:
-				<div class="screen-msg">No active session.</div>
-				break;
-		}
-	</div>
+					break;
+				case CyclePhase.Assignment:
+					@if ( Vm?.NarrativeRunner?.IsActive == true )
+					{
+						<NarrativeSequencePanel Vm=@Vm/>
+					}
+					else
+					{
+						<MissionBoardPanel Vm=@Vm/>
+						<OperativeRosterPanel Vm=@Vm/>
+					}
+					break;
+				case CyclePhase.Resolution:
+					<div class="screen-msg">Resolving missions…</div>
+					break;
+				case CyclePhase.Aftermath:
+					<SceneReaderPanel Vm=@Vm/>
+					break;
+				case CyclePhase.Review:
+					<OperativeRosterPanel Vm=@Vm/>
+					break;
+				default:
+					<div class="screen-msg">No active session.</div>
+					break;
+			}
+		</div>
 
-	<div class="bottombar">
-		<button class="advance" @onclick=@OnAdvance>@AdvanceLabel</button>
-	</div>
+		<div class="bottombar">
+			<button class="advance" @onclick=@OnAdvance>@AdvanceLabel</button>
+		</div>
+	}
 </root>
 
 @code
 {
 	[Property] public IGameViewModel? Vm { get; set; }
+
+	private bool _showSavePanel;
 
 	protected override void OnAwake()
 	{
@@ -68,6 +82,9 @@
 
 	private void OnAdvance() => Vm?.Advance();
 
+	private void OpenSavePanel() => _showSavePanel = true;
+	private void CloseSavePanel() => _showSavePanel = false;
+
 	private string CurrentPhaseClass => Vm?.CurrentPhase.ToString().ToLowerInvariant() ?? "none";
 
 	private string AdvanceLabel => Vm?.CurrentPhase switch
@@ -82,6 +99,7 @@
 
 	protected override int BuildHash() => System.HashCode.Combine(
 		Vm?.CurrentPhase, Vm?.World.Corporate.Cycle, Vm?.World.Corporate.Heat,
-		Vm?.AvailableMissions.Count, Vm?.CurrentScene?.TemplateId
+		Vm?.AvailableMissions.Count, Vm?.CurrentScene?.TemplateId,
+		Vm?.IsInGame, _showSavePanel
 	);
 }
