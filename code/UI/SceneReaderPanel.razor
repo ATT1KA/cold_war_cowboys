@@ -6,7 +6,7 @@
 @inherits Panel
 @namespace CWC.UI
 
-<root class="scenereader priority-@PriorityClass">
+<root class="scenereader priority-@PriorityClass tone-@ToneClass">
 	@if ( Vm?.CurrentScene is { } scene )
 	{
 		<div class="scene-frame">
@@ -34,9 +34,15 @@
 				else
 				{
 					@{
-						// Night 5: invert choice ordering at corruption >= 80
+						// Night 8: at corruption >= 80, cold choices surface first.
+						// "Cold" = negative conscience delta OR flagged with "choice:cold"
+						// or "choice:transactional". This makes ruthless options feel natural.
 						var orderedChoices = Vm?.ShouldInvertChoices == true
-							? scene.Choices.AsEnumerable().Reverse().ToList()
+							? scene.Choices.OrderByDescending( c =>
+								( c.ConscienceDelta < 0 ? 2 : 0 )
+								+ ( c.FlagsOnPick.Any( f => f.Contains( "cold" ) || f.Contains( "transactional" )
+									|| f.Contains( "machine" ) || f.Contains( "weapon" ) ) ? 1 : 0 )
+							).ToList()
 							: scene.Choices;
 					}
 					@foreach ( var c in orderedChoices )
@@ -59,11 +65,14 @@
 
 	private string PriorityClass => Vm?.CurrentScene?.Priority.ToString().ToLowerInvariant() ?? "none";
 
+	// Night 8: tone modifier CSS class for dialogue rendering
+	private string ToneClass => Vm?.CurrentScene?.Tone.ToString().ToLowerInvariant() ?? "normal";
+
 	private void OnPick( SceneChoice c ) => Vm?.PickChoice( c );
 	private void OnDismiss() => Vm?.DismissScene();
 
 	protected override int BuildHash() => System.HashCode.Combine(
 		Vm?.CurrentScene?.TemplateId, Vm?.CurrentScene?.OperativeId,
-		Vm?.CurrentScene?.Priority
+		Vm?.CurrentScene?.Priority, Vm?.CurrentScene?.Tone
 	);
 }

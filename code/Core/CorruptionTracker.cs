@@ -167,16 +167,41 @@ public sealed class CorruptionTracker
 
 	/// <summary>
 	/// Saturation multiplier for the entire HUD. 1.0 = full color, 0.0 = grayscale.
-	/// Desaturates progressively from 80+ (The Machine).
+	/// Night 8: progressive drain — teal at 0, desaturating through gray at 80, near-white at 95.
+	///   0-40:  full saturation (1.0)
+	///   40-60: subtle fade begins (1.0 → 0.7)
+	///   60-80: noticeable drain (0.7 → 0.25) — grays creeping in
+	///   80-95: aggressive washout (0.25 → 0.08) — nearly monochrome
+	///   95+:   ghost (0.05) — Jenkins: the HUD is a pale memory
 	/// </summary>
 	public double HudSaturation
 	{
 		get
 		{
+			if ( CorruptionIndex < 40 ) return 1.0;
+			if ( CorruptionIndex < 60 ) return 1.0 - (CorruptionIndex - 40) / 66.7; // 1.0 → 0.7
+			if ( CorruptionIndex < 80 ) return 0.7 - (CorruptionIndex - 60) * 0.0225; // 0.7 → 0.25
+			if ( CorruptionIndex < 95 ) return 0.25 - (CorruptionIndex - 80) * 0.0113; // 0.25 → 0.08
+			return 0.05; // Jenkins: ghost
+		}
+	}
+
+	/// <summary>
+	/// Night 8: brightness multiplier for HUD washout. 1.0 = normal, higher = washed out.
+	/// At high corruption the HUD bleaches toward near-white as color drains away.
+	///   0-60:  1.0 (normal)
+	///   60-80: 1.0 → 1.15 (subtle overexposure)
+	///   80-95: 1.15 → 1.45 (aggressive bleach)
+	///   95+:   1.55 (near-white glare)
+	/// </summary>
+	public double HudBrightness
+	{
+		get
+		{
 			if ( CorruptionIndex < 60 ) return 1.0;
-			if ( CorruptionIndex < 80 ) return 1.0 - (CorruptionIndex - 60) / 80.0; // subtle fade
-			if ( CorruptionIndex < 95 ) return 0.5 - (CorruptionIndex - 80) / 60.0; // aggressive
-			return 0.15; // Jenkins: nearly monochrome
+			if ( CorruptionIndex < 80 ) return 1.0 + (CorruptionIndex - 60) * 0.0075; // → 1.15
+			if ( CorruptionIndex < 95 ) return 1.15 + (CorruptionIndex - 80) * 0.02;  // → 1.45
+			return 1.55;
 		}
 	}
 

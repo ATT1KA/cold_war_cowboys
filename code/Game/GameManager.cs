@@ -175,6 +175,9 @@ public sealed class GameManager
 	private void ResolveActiveMissions()
 	{
 		LastResolutionResults.Clear();
+		// Night 8: clear previous catastrophe flag before this cycle's resolution
+		World.NarrativeFlags.Remove( "last_mission:catastrophe" );
+
 		// Snapshot to allow status mutation while iterating.
 		var active = new List<Mission>();
 		foreach ( var m in World.Missions )
@@ -194,6 +197,16 @@ public sealed class GameManager
 			var result = Resolver.Resolve( m, World, Rng.Fork( $"resolve:{m.Id}" ), overrides );
 			Consequences.Apply( result, World );
 			LastResolutionResults.Add( result );
+
+			// Night 8: track consecutive successes and catastrophe flag for scene triggers
+			if ( result.Outcome == MissionOutcome.Success )
+				World.ConsecutiveSuccesses++;
+			else
+			{
+				World.ConsecutiveSuccesses = 0;
+				if ( result.Outcome == MissionOutcome.Catastrophe )
+					World.NarrativeFlags.Add( "last_mission:catastrophe" );
+			}
 
 			// Notify Sprint 6 systems that subscribe via the bus.
 			Bus.Publish( new MissionResolved(

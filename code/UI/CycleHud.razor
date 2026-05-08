@@ -4,7 +4,7 @@
 @inherits Panel
 @namespace CWC.UI
 
-<root class="cyclehud" style="filter: saturate(@SaturationPct%);">
+<root class="cyclehud" style="filter: saturate(@SaturationPct%) brightness(@BrightnessPct%);">
 	<div class="corp">
 		<div class="corp-name">@Vm?.World.Setting.CorpName</div>
 		<div class="corp-meta">@Vm?.World.Setting.Location · @Vm?.World.Setting.Year</div>
@@ -81,8 +81,9 @@
 		}
 	}
 
-	// Night 5: HUD saturation — desaturates at high corruption
+	// Night 8: progressive HUD corruption expression — desaturate + bleach
 	private int SaturationPct => (int)( (Vm?.World.Corruption.HudSaturation ?? 1.0) * 100 );
+	private int BrightnessPct => (int)( (Vm?.World.Corruption.HudBrightness ?? 1.0) * 100 );
 
 	// Cyan → amber → red lerp on the pressure dials.
 	private string HeatColor => LerpColor( HeatPct );
@@ -109,6 +110,6 @@
 		Vm?.World.Corporate.Heat, Vm?.World.Corporate.Suspicion,
 		Vm?.World.Corporate.Reputation, Vm?.World.Corporate.Budget,
 		Vm?.World.Corporate.Cycle, Vm?.CurrentPhase,
-		CorruptionValue, SaturationPct
+		CorruptionValue, SaturationPct * 1000 + BrightnessPct
 	);
 }

@@ -62,6 +62,14 @@ public sealed class SceneTrigger
 	///   any_relationship_below — any relationship score below threshold
 	///   no_active_missions — true when mission board is empty
 	///   any_relationship_above — any relationship score above threshold
+	///   Night 8 additions:
+	///   consecutive_successes — N+ mission successes in a row
+	///   board_confidence_below — board confidence under threshold
+	///   any_faction_relationship_below — any faction hostility past threshold
+	///   cycle_reached — game has reached cycle N+
+	///   active_operatives_below — fewer than N active operatives
+	///   last_mission_catastrophe — most recent mission was a catastrophe
+	///   stress_below — average team stress below threshold
 	/// </summary>
 	public string Type { get; set; } = "flag";
 
@@ -129,6 +137,20 @@ public sealed class SceneChoice
 /// <summary>
 /// Concrete queued scene. Resolved against specific operatives via cast slots.
 /// </summary>
+/// <summary>
+/// Night 8: tone modifier applied to operative dialogue at high corruption.
+/// At corruption >= 80, operative responses become more transactional —
+/// shorter, flatter, stripped of personality. The UI uses this to adjust
+/// text rendering (muted color, reduced line spacing, clinical font weight).
+/// </summary>
+public enum ToneModifier
+{
+	Normal,
+	Guarded,       // corruption 60-79: operatives hedge, fewer personal details
+	Transactional, // corruption 80-94: clipped, professional, emotionally flat
+	Hollow,        // corruption 95+: monosyllabic, affectless, mechanical
+}
+
 public sealed class Scene
 {
 	public string TemplateId { get; set; } = "";
@@ -142,4 +164,6 @@ public sealed class Scene
 	/// <summary>Night 3: all resolved cast mappings (slot name → operative id).</summary>
 	public Dictionary<string, int> ResolvedCast { get; set; } = new();
 	public List<string> FlagsOnFire { get; set; } = new();
+	/// <summary>Night 8: tone modifier for operative dialogue rendering.</summary>
+	public ToneModifier Tone { get; set; } = ToneModifier.Normal;
 }

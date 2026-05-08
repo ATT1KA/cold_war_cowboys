@@ -31,6 +31,9 @@ public sealed class WorldState
 	/// <summary>Night 5: corruption tracker — computed each cycle, drives milestones + UI.</summary>
 	public CorruptionTracker Corruption { get; set; } = new();
 
+	/// <summary>Night 8: consecutive mission successes (resets on failure/catastrophe). Drives scene triggers.</summary>
+	public int ConsecutiveSuccesses { get; set; } = 0;
+
 	public int Day { get; set; } = 1;
 	public int HeatLevel { get; set; } = 0;
 	public int PublicTrust { get; set; } = 50;

@@ -297,6 +297,28 @@ public sealed class NarrativeDirector
 				if ( int.TryParse( hit.Substring( prefix.Length ), out var id ) ) opId ??= id;
 				return true;
 
+			// Night 8: new trigger types for expanded scene templates
+			case "consecutive_successes":
+				return world.ConsecutiveSuccesses >= trigger.Threshold;
+
+			case "board_confidence_below":
+				return world.Corporate.BoardConfidence < trigger.Threshold;
+
+			case "any_faction_relationship_below":
+				return world.Factions.Any( f => f.RelationshipToPlayer < trigger.Threshold );
+
+			case "cycle_reached":
+				return world.Corporate.Cycle >= trigger.Threshold;
+
+			case "active_operatives_below":
+				return active.Count < trigger.Threshold;
+
+			case "last_mission_catastrophe":
+				return world.NarrativeFlags.Contains( "last_mission:catastrophe" );
+
+			case "stress_below":
+				return GetAvgStat( active, "stress" ) < trigger.Threshold;
+
 			default:
 				return false;
 		}
@@ -380,6 +402,9 @@ public sealed class NarrativeDirector
 			"highest_stress" => active.OrderByDescending( o => o.Psychology.Stress ).FirstOrDefault()?.Id,
 			"highest_morale" => active.OrderByDescending( o => o.Psychology.Morale ).FirstOrDefault()?.Id,
 			"lowest_morale" => active.OrderBy( o => o.Psychology.Morale ).FirstOrDefault()?.Id,
+			// Night 8: new resolvers for expanded scene cast slots
+			"first_mission_op" => triggeringOpId ?? active.FirstOrDefault()?.Id,
+			"last_catastrophe_op" => triggeringOpId ?? active.OrderByDescending( o => o.Psychology.Stress ).FirstOrDefault()?.Id,
 			_ when slot.Resolver.StartsWith( "role:" ) =>
 				active.FirstOrDefault( o => o.NarrativeRole == slot.Resolver.Substring( "role:".Length ) )?.Id,
 			_ => null,
@@ -494,6 +519,15 @@ public sealed class NarrativeDirector
 
 		string Resolve( string s ) => ResolveTokens( s, world, cast, primaryOp );
 
+		// Night 8: determine tone modifier based on corruption level
+		var tone = world.Corruption.CorruptionIndex switch
+		{
+			>= 95 => ToneModifier.Hollow,
+			>= 80 => ToneModifier.Transactional,
+			>= 60 => ToneModifier.Guarded,
+			_     => ToneModifier.Normal,
+		};
+
 		return new Scene
 		{
 			TemplateId = t.Id,
@@ -515,6 +549,7 @@ public sealed class NarrativeDirector
 			OperativeId = primaryOp,
 			ResolvedCast = cast,
 			FlagsOnFire = new List<string>( t.FlagsOnFire ),
+			Tone = tone,
 		};
 	}
 }

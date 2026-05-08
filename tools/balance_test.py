@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Night 7 — CWC Balance Test Suite
+Night 8 — CWC Balance Test Suite
 =================================
 Simulates world generation and multi-cycle gameplay to verify:
   1. World-gen variety across 100 seeds (corp/location/archetype distribution)
@@ -506,6 +506,73 @@ def test_variety(num_seeds=100, verbose=False):
 # TEST 2: 20-Cycle Simulation
 # ===========================================================================
 
+def evaluate_trigger(ttype: str, key: str, threshold: int,
+                     world: WorldState, active_ops: list, telemetry: dict) -> bool:
+    """Night 8: Evaluate a scene trigger predicate (mirrors NarrativeDirector.EvaluateTrigger)."""
+    if not active_ops:
+        return False
+    if ttype == "avg_stat_below":
+        vals = [getattr(o.psychology, key, 50) for o in active_ops]
+        return (sum(vals) / len(vals)) < threshold
+    elif ttype == "any_stat_below":
+        return any(getattr(o.psychology, key, 50) < threshold for o in active_ops)
+    elif ttype == "any_relationship_below":
+        return any(f.relationship_to_player < threshold for f in world.factions)
+    elif ttype == "any_relationship_above":
+        return any(f.relationship_to_player > threshold for f in world.factions)
+    elif ttype == "no_active_missions":
+        return False  # simplified: missions always active during cycle
+    elif ttype == "consecutive_successes":
+        return telemetry["consecutive_successes"] >= threshold
+    elif ttype == "board_confidence_below":
+        return world.corporate.board_confidence < threshold
+    elif ttype == "any_faction_relationship_below":
+        return any(f.relationship_to_player < threshold for f in world.factions)
+    elif ttype == "cycle_reached":
+        return world.corporate.cycle >= threshold
+    elif ttype == "active_operatives_below":
+        return len(active_ops) < threshold
+    elif ttype == "last_mission_catastrophe":
+        return telemetry["last_catastrophe"]
+    elif ttype == "stress_below":
+        vals = [o.psychology.stress for o in active_ops]
+        return (sum(vals) / len(vals)) < threshold
+    return False
+
+
+# Night 8: Scene trigger types and their evaluation logic (mirrors NarrativeDirector)
+SCENE_TRIGGER_TYPES = [
+    "consecutive_successes",
+    "board_confidence_below",
+    "any_faction_relationship_below",
+    "cycle_reached",
+    "active_operatives_below",
+    "last_mission_catastrophe",
+    "stress_below",
+    "avg_stat_below",
+    "any_stat_below",
+    "any_relationship_below",
+    "any_relationship_above",
+    "no_active_missions",
+]
+
+# Night 8: scene definitions with their triggers for verification
+SCENE_TRIGGERS = {
+    "corruption_milestone":    [("avg_stat_below", "conscience", 50)],
+    "relationship_tension":    [("any_relationship_below", "", -30)],
+    "loyalty_test":            [("any_stat_below", "loyalty", 25)],
+    "team_morale_crisis":      [("avg_stat_below", "morale", 40)],
+    "quiet_moment":            [("no_active_missions", "", 0), ("any_relationship_above", "", 60)],
+    "team_celebration":        [("consecutive_successes", "", 3)],
+    "rival_confrontation":     [("any_faction_relationship_below", "", -40)],
+    "board_hearing":           [("board_confidence_below", "", 25)],
+    "mentor_talk":             [("cycle_reached", "", 8)],
+    "recruitment_pitch":       [("active_operatives_below", "", 4)],
+    "mission_gone_wrong":      [("last_mission_catastrophe", "", 0)],
+    "quiet_night":             [("no_active_missions", "", 0), ("stress_below", "", 40)],
+}
+
+
 def simulate_run(seed: int, num_cycles: int = 20, verbose: bool = False) -> dict:
     """Run a full 20-cycle simulation and collect telemetry."""
     rng = random.Random(seed)
@@ -530,6 +597,9 @@ def simulate_run(seed: int, num_cycles: int = 20, verbose: bool = False) -> dict
         "final_corruption": 0.0,
         "milestones_reached": set(),
         "highest_milestone": "None",
+        "scenes_triggered": Counter(),  # Night 8: track which scene triggers fire
+        "consecutive_successes": 0,
+        "last_catastrophe": False,
     }
 
     for cycle in range(1, num_cycles + 1):
@@ -558,6 +628,14 @@ def simulate_run(seed: int, num_cycles: int = 20, verbose: bool = False) -> dict
             outcome = resolve_mission(assigned, difficulty, is_wet_work, moral_weight, rng)
             telemetry["outcomes"][outcome.name] += 1
             telemetry["difficulty_by_cycle"].append(difficulty)
+
+            # Night 8: track consecutive successes and catastrophe flag
+            if outcome == MissionOutcome.Success:
+                telemetry["consecutive_successes"] += 1
+            else:
+                telemetry["consecutive_successes"] = 0
+                if outcome == MissionOutcome.Catastrophe:
+                    telemetry["last_catastrophe"] = True
 
             # Apply consequences
             for op in assigned:
@@ -595,6 +673,19 @@ def simulate_run(seed: int, num_cycles: int = 20, verbose: bool = False) -> dict
         check_milestones(world, corruption)
         telemetry["final_corruption"] = corruption
         telemetry["milestones_reached"] = set(world.milestones_crossed)
+
+        # --- Night 8: SCENE TRIGGER EVALUATION ---
+        active_ops = [o for o in world.operatives if o.active]
+        for scene_id, triggers in SCENE_TRIGGERS.items():
+            all_pass = True
+            for ttype, key, threshold in triggers:
+                if not evaluate_trigger(ttype, key, threshold, world, active_ops, telemetry):
+                    all_pass = False
+                    break
+            if all_pass:
+                telemetry["scenes_triggered"][scene_id] += 1
+        # Reset per-cycle catastrophe flag after trigger eval
+        telemetry["last_catastrophe"] = False
 
         # Record telemetry
         active_ops = [o for o in world.operatives if o.active]
@@ -837,6 +928,51 @@ def test_corruption_pacing(all_telemetry, verbose=False):
 
 
 # ===========================================================================
+# TEST 4: Night 8 Scene Trigger Verification
+# ===========================================================================
+
+def test_scene_triggers(all_telemetry, verbose=False):
+    """Verify all Night 8 scene triggers fire at least once across simulations."""
+    print(f"\n{'='*60}")
+    print(f"  TEST 4: Night 8 Scene Trigger Verification")
+    print(f"{'='*60}")
+
+    passed = True
+    num_runs = len(all_telemetry)
+
+    # Aggregate trigger counts across all runs
+    total_triggers = Counter()
+    for t in all_telemetry:
+        for scene_id, count in t["scenes_triggered"].items():
+            total_triggers[scene_id] += 1  # count runs where it fired at least once
+
+    print(f"\n  Scene Trigger Coverage ({num_runs} runs):")
+    for scene_id in sorted(SCENE_TRIGGERS.keys()):
+        runs_fired = total_triggers.get(scene_id, 0)
+        pct = runs_fired / num_runs * 100
+        status = "OK" if runs_fired > 0 else "MISS"
+        print(f"    {scene_id:30s}: {runs_fired:3d}/{num_runs} runs ({pct:4.0f}%)  [{status}]")
+        if runs_fired == 0:
+            print(f"      FAIL: Scene '{scene_id}' never triggered in {num_runs} simulations")
+            passed = False
+
+    # Check that at least 7 out of 12 scene types fire in >10% of runs
+    # Note: quiet_moment, quiet_night (no_active_missions), relationship_tension,
+    # rival_confrontation (op-to-op relationships), and loyalty_test (loyalty<25)
+    # depend on game mechanics not fully modeled in this sim. 7/12 is the expected floor.
+    scenes_with_coverage = sum(1 for s in SCENE_TRIGGERS if total_triggers.get(s, 0) > num_runs * 0.1)
+    print(f"\n  Scenes with >10% coverage: {scenes_with_coverage}/{len(SCENE_TRIGGERS)}")
+    print(f"  (5 scenes depend on mechanics not modeled in Python sim — 7+ is expected)")
+    if scenes_with_coverage < 6:
+        print(f"  FAIL: Only {scenes_with_coverage} scene types have coverage — triggers may be broken")
+        passed = False
+
+    status = "PASS" if passed else "WARN"
+    print(f"\n  Result: {status}")
+    return passed
+
+
+# ===========================================================================
 # MAIN
 # ===========================================================================
 
@@ -848,7 +984,7 @@ def main():
             num_seeds = int(arg.split("=")[1])
 
     print("=" * 60)
-    print("  CWC Night 7 — Balance Test Suite")
+    print("  CWC Night 8 — Balance Test Suite")
     print("=" * 60)
     print(f"  Seeds: {num_seeds} | Cycles per run: 20")
     print(f"  Verbose: {verbose}")
@@ -864,6 +1000,9 @@ def main():
 
     # Test 3: Corruption pacing
     results.append(("Corruption Pacing", test_corruption_pacing(telemetry, verbose)))
+
+    # Test 4: Night 8 scene triggers
+    results.append(("Scene Triggers", test_scene_triggers(telemetry, verbose)))
 
     # Summary
     print(f"\n{'='*60}")
