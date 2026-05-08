@@ -77,5 +77,14 @@ public sealed class GameViewModel : IGameViewModel
 		Changed?.Invoke();
 	}
 
+	// Night 4: narrative mission sequence
+	public MissionNarrativeRunner NarrativeRunner => _game.NarrativeRunner;
+
+	public void PickNarrativeChoice( NarrativeChoice choice )
+	{
+		_game.NarrativeRunner.ApplyChoice( choice, World );
+		Changed?.Invoke();
+	}
+
 	private void OnGameChanged() => Changed?.Invoke();
 }

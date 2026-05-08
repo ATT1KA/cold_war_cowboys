@@ -21,7 +21,17 @@ namespace CWC.Missions;
 /// </summary>
 public sealed class MissionResolver
 {
+	/// <summary>
+	/// Resolve with default mission parameters (no narrative overrides).
+	/// </summary>
 	public MissionResult Resolve( Mission mission, WorldState world, Rng rng )
+		=> Resolve( mission, world, rng, null );
+
+	/// <summary>
+	/// Resolve with optional narrative overrides from MissionNarrativeRunner.
+	/// Overrides modify skill weights and difficulty based on player choices.
+	/// </summary>
+	public MissionResult Resolve( Mission mission, WorldState world, Rng rng, NarrativeOverrides? overrides )
 	{
 		var ops = mission.AssignedOperativeIds
 			.Select( world.GetOperative )
@@ -32,7 +42,7 @@ public sealed class MissionResolver
 		var result = new MissionResult
 		{
 			MissionId = mission.Id,
-			Target = mission.Difficulty,
+			Target = overrides != null ? Math.Clamp( mission.Difficulty + overrides.DifficultyDelta, 5, 95 ) : mission.Difficulty,
 			AssignedOperativeIds = mission.AssignedOperativeIds.ToList(),
 		};
 
@@ -46,13 +56,53 @@ public sealed class MissionResolver
 			return result;
 		}
 
-		int skill = ComputeSkill( mission, ops );
+		// Night 4: apply narrative overrides to mission parameters before resolution
+		var effectiveMission = mission;
+		int difficultyOverride = mission.Difficulty;
+		if ( overrides != null )
+		{
+			// Apply skill weight deltas from narrative choices
+			if ( overrides.SkillWeightDeltas.Count > 0 )
+			{
+				var adjusted = new Dictionary<SkillKind, int>( mission.StatWeights );
+				foreach ( var (sk, delta) in overrides.SkillWeightDeltas )
+				{
+					if ( !adjusted.ContainsKey( sk ) ) adjusted[sk] = 0;
+					adjusted[sk] = Math.Max( 0, adjusted[sk] + delta );
+				}
+				// Use a shallow copy with overridden weights
+				effectiveMission = new Mission
+				{
+					Id = mission.Id, TemplateId = mission.TemplateId, Type = mission.Type,
+					Status = mission.Status, Title = mission.Title, Briefing = mission.Briefing,
+					Difficulty = mission.Difficulty, MoralWeight = mission.MoralWeight,
+					IsWetWork = mission.IsWetWork || overrides.ForcedWetWork,
+					StatWeights = adjusted,
+					AssignedOperativeIds = mission.AssignedOperativeIds,
+				};
+			}
+			else if ( overrides.ForcedWetWork && !mission.IsWetWork )
+			{
+				effectiveMission = new Mission
+				{
+					Id = mission.Id, TemplateId = mission.TemplateId, Type = mission.Type,
+					Status = mission.Status, Title = mission.Title, Briefing = mission.Briefing,
+					Difficulty = mission.Difficulty, MoralWeight = mission.MoralWeight,
+					IsWetWork = true,
+					StatWeights = mission.StatWeights,
+					AssignedOperativeIds = mission.AssignedOperativeIds,
+				};
+			}
+			difficultyOverride = Math.Clamp( mission.Difficulty + overrides.DifficultyDelta, 5, 95 );
+		}
+
+		int skill = ComputeSkill( effectiveMission, ops );
 		int psych = ComputePsychPenalty( ops );
 		int relSwing = ComputeRelationshipSwing( ops, world, rng );
 		int rngSwing = rng.Next( -15, 16 );
 
 		int score = skill - psych + relSwing + rngSwing;
-		var outcome = ClassifyOutcome( score, mission.Difficulty );
+		var outcome = ClassifyOutcome( score, difficultyOverride );
 
 		result.SkillContribution = skill;
 		result.PsychologyPenalty = psych;

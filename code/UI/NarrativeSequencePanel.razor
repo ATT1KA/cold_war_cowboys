@@ -1,0 +1,75 @@
+@using Sandbox
+@using Sandbox.UI
+@using CWC.Missions
+@using CWC.UI
+@inherits Panel
+@namespace CWC.UI
+
+<root class="narrative-sequence-panel">
+	@if ( Runner?.IsActive == true && Runner.CurrentNode != null )
+	{
+		var node = Runner.CurrentNode;
+		<div class="narrative-header">
+			<div class="phase-tag">@node.Phase</div>
+			<div class="step-counter">Node @(Runner.CurrentStep + 1) / @Runner.TotalSteps</div>
+		</div>
+
+		<div class="narrative-body">
+			<p class="narrative-text">@Runner.ResolveText( node.Text )</p>
+		</div>
+
+		<div class="narrative-choices">
+			@foreach ( var choice in node.Choices )
+			{
+				<button class="narrative-choice approach-@choice.Approach"
+				        @onclick=@( () => OnPick( choice ) )>
+					<span class="choice-text">@choice.Text</span>
+					@if ( choice.DifficultyModifier != 0 )
+					{
+						<span class="choice-mod diff">
+							Difficulty @(choice.DifficultyModifier > 0 ? "+" : "")@choice.DifficultyModifier
+						</span>
+					}
+					@if ( choice.StressModifier != 0 )
+					{
+						<span class="choice-mod stress">Stress +@choice.StressModifier</span>
+					}
+					@if ( choice.WetWork )
+					{
+						<span class="choice-mod wetwork">WET WORK</span>
+					}
+				</button>
+			}
+		</div>
+
+		@if ( !string.IsNullOrEmpty( _lastAftermath ) )
+		{
+			<div class="narrative-aftermath">@_lastAftermath</div>
+		}
+	}
+	else if ( Runner?.IsComplete == true )
+	{
+		<div class="narrative-complete">
+			<div class="complete-msg">Sequence complete. Proceeding to resolution.</div>
+		</div>
+	}
+</root>
+
+@code
+{
+	[Property] public IGameViewModel? Vm { get; set; }
+
+	private string? _lastAftermath;
+
+	private MissionNarrativeRunner? Runner => Vm?.NarrativeRunner;
+
+	private void OnPick( NarrativeChoice choice )
+	{
+		_lastAftermath = Vm?.NarrativeRunner?.ApplyChoice( choice, Vm.World );
+		Vm?.PickNarrativeChoice( choice );
+	}
+
+	protected override int BuildHash() => System.HashCode.Combine(
+		Runner?.CurrentStep, Runner?.IsActive, Runner?.IsComplete, _lastAftermath
+	);
+}

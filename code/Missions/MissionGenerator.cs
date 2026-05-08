@@ -17,8 +17,25 @@ public sealed class MissionGenerator
 	private readonly List<MissionTemplate> _templates;
 
 	public MissionGenerator( TemplateLoader loader )
-		: this( loader.Deserialize<List<MissionTemplate>>( "missions.json" ) ?? FallbackTemplates() )
+		: this( MergeTemplates(
+			loader.Deserialize<List<MissionTemplate>>( "missions.json" ),
+			loader.Deserialize<List<MissionTemplate>>( "narrative_missions.json" ) ) )
 	{ }
+
+	private static List<MissionTemplate> MergeTemplates(
+		List<MissionTemplate>? baseMissions, List<MissionTemplate>? narrativeMissions )
+	{
+		var merged = baseMissions ?? FallbackTemplates();
+		if ( narrativeMissions != null )
+		{
+			foreach ( var nm in narrativeMissions )
+			{
+				if ( !merged.Any( m => m.Id == nm.Id ) )
+					merged.Add( nm );
+			}
+		}
+		return merged;
+	}
 
 	public MissionGenerator( List<MissionTemplate> templates )
 	{
@@ -64,6 +81,8 @@ public sealed class MissionGenerator
 			NarrativeFlagsOnPartialSuccess = new List<string>( t.NarrativeFlagsOnPartialSuccess ),
 			NarrativeFlagsOnFailure = new List<string>( t.NarrativeFlagsOnFailure ),
 			NarrativeFlagsOnCatastrophe = new List<string>( t.NarrativeFlagsOnCatastrophe ),
+			// Night 4: attach narrative sequence for high-stakes missions
+			NarrativeSequence = difficulty >= 70 ? t.NarrativeSequence : null,
 		};
 
 		return mission;

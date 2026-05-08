@@ -28,6 +28,7 @@ public sealed class GameManager
 	public MissionBoard Board { get; private set; }
 	public MissionResolver Resolver { get; } = new();
 	public ConsequenceProcessor Consequences { get; } = new();
+	public MissionNarrativeRunner NarrativeRunner { get; } = new();
 	public NarrativeDirector Director { get; private set; } = new( new List<SceneTemplate>() );
 
 	// Sprint 6: corporate-sim layer.
@@ -158,7 +159,15 @@ public sealed class GameManager
 
 		foreach ( var m in active )
 		{
-			var result = Resolver.Resolve( m, World, Rng.Fork( $"resolve:{m.Id}" ) );
+			// Night 4: use narrative overrides if this mission had a completed sequence
+			NarrativeOverrides? overrides = null;
+			if ( NarrativeRunner.IsComplete && NarrativeRunner.ActiveMission?.Id == m.Id )
+			{
+				overrides = NarrativeRunner.Overrides;
+				overrides.SequenceCompleted = true;
+			}
+
+			var result = Resolver.Resolve( m, World, Rng.Fork( $"resolve:{m.Id}" ), overrides );
 			Consequences.Apply( result, World );
 			LastResolutionResults.Add( result );
 
@@ -170,6 +179,9 @@ public sealed class GameManager
 				result.Outcome == MissionOutcome.Success ? m.Reward : 0
 			) );
 		}
+
+		// Night 4: clear narrative runner after all missions resolve
+		NarrativeRunner.Cancel();
 	}
 
 	private void RunCorporatePhase()

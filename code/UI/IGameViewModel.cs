@@ -29,4 +29,8 @@ public interface IGameViewModel
 	bool Unassign( int operativeId, string missionId );
 	void PickChoice( SceneChoice choice );
 	void DismissScene();
+
+	// Night 4: narrative mission sequence
+	MissionNarrativeRunner NarrativeRunner { get; }
+	void PickNarrativeChoice( NarrativeChoice choice );
 }

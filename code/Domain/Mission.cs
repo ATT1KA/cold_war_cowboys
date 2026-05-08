@@ -73,4 +73,12 @@ public sealed class Mission
 
 	/// <summary>Free-form tags; Sprint 6 uses "hidden_risk:N" / "hidden_exposure:N".</summary>
 	public List<string> Tags { get; set; } = new();
+
+	// ---- Night 4: narrative sequence layer ----
+
+	/// <summary>
+	/// Interactive narrative sequence for high-stakes missions (Difficulty >= 70).
+	/// Null for routine missions — they resolve immediately through MissionResolver.
+	/// </summary>
+	public CWC.Missions.NarrativeSequence? NarrativeSequence { get; set; }
 }

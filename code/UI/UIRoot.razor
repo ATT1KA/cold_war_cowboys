@@ -18,8 +18,15 @@
 				<OperativeRosterPanel Vm=@Vm/>
 				break;
 			case CyclePhase.Assignment:
-				<MissionBoardPanel Vm=@Vm/>
-				<OperativeRosterPanel Vm=@Vm/>
+				@if ( Vm?.NarrativeRunner?.IsActive == true )
+				{
+					<NarrativeSequencePanel Vm=@Vm/>
+				}
+				else
+				{
+					<MissionBoardPanel Vm=@Vm/>
+					<OperativeRosterPanel Vm=@Vm/>
+				}
 				break;
 			case CyclePhase.Resolution:
 				<div class="screen-msg">Resolving missions…</div>

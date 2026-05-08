@@ -1,0 +1,417 @@
+[
+  {
+    "Id": "extraction_highvalue",
+    "Type": "Extraction",
+    "TitleTemplate": "Extract: {target} VIP under siege",
+    "BriefingTemplate": "High-value asset pinned down in {location}. Three factions want them dead. Get them out — or don't come back.",
+    "MinDifficulty": 70,
+    "MaxDifficulty": 90,
+    "MoralWeight": 25,
+    "IsWetWork": false,
+    "StatWeights": { "Stealth": 40, "Combat": 35, "Persuasion": 25 },
+    "TargetCandidates": ["rival_kasumi", "rival_aether"],
+    "ClientCandidates": ["host"],
+    "CycleWindow": 2,
+    "SuccessText": "{leader} pulls the asset out clean. No traces.",
+    "PartialText": "Asset secured, but the exit was loud. Someone saw faces.",
+    "FailureText": "The extraction collapsed. {leader}'s team barely got out.",
+    "CatastropheText": "Total failure. The asset is gone and so is any deniability.",
+    "NarrativeSequence": {
+      "Nodes": [
+        {
+          "Phase": "Briefing",
+          "Text": "{leader} reviews the dossier. The asset is holed up in a condemned high-rise on the east side of {location}. Two known exit routes — the service tunnel and the rooftop. Intel says {target} has a patrol rotation with a gap at 0300.",
+          "Choices": [
+            {
+              "Text": "Go through the service tunnel. Quiet, controlled.",
+              "Approach": "stealth",
+              "SkillWeightOverride": { "Stealth": 20 },
+              "DifficultyModifier": -5,
+              "StressModifier": 5,
+              "WetWork": false,
+              "Aftermath": "The tunnel it is. {leader} signals the team to move low and slow."
+            },
+            {
+              "Text": "Rooftop extraction. Fast, visible, overwhelming.",
+              "Approach": "force",
+              "SkillWeightOverride": { "Combat": 25 },
+              "DifficultyModifier": 5,
+              "StressModifier": 10,
+              "WetWork": false,
+              "Aftermath": "Loud and fast. {leader} preps the breach charges."
+            }
+          ]
+        },
+        {
+          "Phase": "Complication",
+          "Text": "Halfway to the asset, {leader}'s earpiece crackles. A third party — unidentified — is converging on the building. They're not {target}'s people. The team has maybe four minutes before the situation gets very crowded.",
+          "Choices": [
+            {
+              "Text": "Accelerate. Beat them to the asset.",
+              "Approach": "force",
+              "SkillWeightOverride": { "Combat": 10 },
+              "DifficultyModifier": 5,
+              "StressModifier": 8,
+              "WetWork": false,
+              "Aftermath": "No time for finesse. The team doubles their pace."
+            },
+            {
+              "Text": "Set an ambush. Let the third party walk into us.",
+              "Approach": "stealth",
+              "SkillWeightOverride": { "Stealth": 15, "Intimidation": 10 },
+              "DifficultyModifier": 0,
+              "StressModifier": 12,
+              "WetWork": true,
+              "Aftermath": "Cold calculus. {leader} positions the team in the stairwell."
+            },
+            {
+              "Text": "Divert them. False signal, wrong floor.",
+              "Approach": "cyber",
+              "SkillWeightOverride": { "Hacking": 20, "Deception": 10 },
+              "DifficultyModifier": -8,
+              "StressModifier": 5,
+              "WetWork": false,
+              "Aftermath": "A ghost ping on their comms. They'll chase shadows for ten minutes.",
+              "RequiresStat": "Hacking:55"
+            }
+          ]
+        },
+        {
+          "Phase": "ResolutionModifier",
+          "Text": "The asset is in sight. But they're not alone — a handler, armed, watching the door. The asset's eyes say 'help me.' The handler's hand is on a detonator.",
+          "Choices": [
+            {
+              "Text": "Talk them down. Promise safe passage.",
+              "Approach": "social",
+              "SkillWeightOverride": { "Persuasion": 30 },
+              "DifficultyModifier": -10,
+              "StressModifier": 5,
+              "WetWork": false,
+              "Aftermath": "Words as weapons. {leader} steps forward, hands visible."
+            },
+            {
+              "Text": "Headshot. Clean. Before the thumb moves.",
+              "Approach": "force",
+              "SkillWeightOverride": { "Combat": 30 },
+              "DifficultyModifier": 5,
+              "StressModifier": 15,
+              "WetWork": true,
+              "Aftermath": "One shot. The handler drops. The asset screams."
+            },
+            {
+              "Text": "Kill the lights. Move in the dark.",
+              "Approach": "stealth",
+              "SkillWeightOverride": { "Stealth": 20, "Combat": 10 },
+              "DifficultyModifier": 0,
+              "StressModifier": 10,
+              "WetWork": false,
+              "Aftermath": "Darkness. Then silence. Then movement."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "Id": "assassination_executive",
+    "Type": "Assassination",
+    "TitleTemplate": "Terminate: {target} division head",
+    "BriefingTemplate": "Board wants {target}'s leadership removed. Permanently. Make it look like anything except what it is.",
+    "MinDifficulty": 75,
+    "MaxDifficulty": 95,
+    "MoralWeight": 80,
+    "IsWetWork": true,
+    "StatWeights": { "Combat": 40, "Stealth": 30, "Deception": 30 },
+    "TargetCandidates": ["rival_kasumi", "div_finance"],
+    "ClientCandidates": ["host"],
+    "CycleWindow": 2,
+    "SuccessText": "The target is neutralised. No fingerprints. No questions.",
+    "PartialText": "Target down, but the scene is messy. Someone will dig.",
+    "FailureText": "The target survived. They'll know someone tried.",
+    "CatastropheText": "Botched. Target alive, team compromised, bodies left behind.",
+    "NarrativeSequence": {
+      "Nodes": [
+        {
+          "Phase": "Briefing",
+          "Text": "{leader} studies the target's routine. Three windows: a morning jog through the industrial district, a weekly dinner at a private club, and a Saturday visit to a mistress in the warehouse quarter. Each has trade-offs.",
+          "Choices": [
+            {
+              "Text": "The jog. Open space, low witnesses, hard to stage.",
+              "Approach": "force",
+              "SkillWeightOverride": { "Combat": 20, "Stealth": 10 },
+              "DifficultyModifier": 0,
+              "StressModifier": 8,
+              "WetWork": true,
+              "Aftermath": "Dawn operation. {leader} marks the route on the map."
+            },
+            {
+              "Text": "The dinner. Poison the meal. Classic.",
+              "Approach": "stealth",
+              "SkillWeightOverride": { "Deception": 25, "Stealth": 15 },
+              "DifficultyModifier": -5,
+              "StressModifier": 5,
+              "WetWork": true,
+              "Aftermath": "Elegant. If the kitchen staff cooperate."
+            },
+            {
+              "Text": "The mistress. Compromise the location, stage an accident.",
+              "Approach": "social",
+              "SkillWeightOverride": { "Deception": 20, "Persuasion": 15 },
+              "DifficultyModifier": -10,
+              "StressModifier": 12,
+              "WetWork": true,
+              "Aftermath": "Messy in a different way. {leader} starts building the cover story."
+            }
+          ]
+        },
+        {
+          "Phase": "Complication",
+          "Text": "The target has a child. Seven years old. They'll be present during the window. There is no clean version of this that doesn't risk the child seeing everything.",
+          "Choices": [
+            {
+              "Text": "Proceed as planned. Collateral is the client's problem.",
+              "Approach": "force",
+              "SkillWeightOverride": {},
+              "DifficultyModifier": 0,
+              "StressModifier": 20,
+              "WetWork": true,
+              "Aftermath": "The team goes quiet. {leader} doesn't look at anyone."
+            },
+            {
+              "Text": "Create a diversion. Get the child away first.",
+              "Approach": "social",
+              "SkillWeightOverride": { "Persuasion": 15 },
+              "DifficultyModifier": 10,
+              "StressModifier": 8,
+              "WetWork": true,
+              "Aftermath": "More moving parts. More risk. But the team breathes easier."
+            },
+            {
+              "Text": "Abort. Find another window without the child.",
+              "Approach": "abort",
+              "SkillWeightOverride": {},
+              "DifficultyModifier": 15,
+              "StressModifier": 5,
+              "WetWork": true,
+              "Aftermath": "Delay costs. The board won't be pleased. But some lines hold."
+            }
+          ]
+        },
+        {
+          "Phase": "ResolutionModifier",
+          "Text": "Final approach. {leader} has eyes on the target. One signal and it's done. The team is in position. The only sound is breathing.",
+          "Choices": [
+            {
+              "Text": "Execute.",
+              "Approach": "force",
+              "SkillWeightOverride": { "Combat": 15 },
+              "DifficultyModifier": 0,
+              "StressModifier": 10,
+              "WetWork": true,
+              "Aftermath": "It's done."
+            },
+            {
+              "Text": "Make it look natural. Take the extra time.",
+              "Approach": "stealth",
+              "SkillWeightOverride": { "Deception": 20, "Stealth": 10 },
+              "DifficultyModifier": 5,
+              "StressModifier": 5,
+              "WetWork": true,
+              "Aftermath": "Patience. The hardest weapon to wield."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "Id": "datatheft_blacksite",
+    "Type": "DataTheft",
+    "TitleTemplate": "Infiltrate: {target} black-site server farm",
+    "BriefingTemplate": "A data vault buried under {location}'s industrial zone. Air-gapped. Armed guards. The payload is worth more than your entire division's budget.",
+    "MinDifficulty": 75,
+    "MaxDifficulty": 92,
+    "MoralWeight": 20,
+    "IsWetWork": false,
+    "StatWeights": { "Hacking": 45, "Stealth": 35, "Deception": 20 },
+    "TargetCandidates": ["rival_kasumi", "rival_aether"],
+    "ClientCandidates": ["host", "div_ops"],
+    "CycleWindow": 2,
+    "SuccessText": "Data secured. {leader} delivers the payload personally.",
+    "PartialText": "Partial dump. Some files were encrypted beyond reach.",
+    "FailureText": "Locked out. The intrusion was detected mid-transfer.",
+    "CatastropheText": "Counter-intrusion triggered. The team's identities may be burned.",
+    "NarrativeSequence": {
+      "Nodes": [
+        {
+          "Phase": "Briefing",
+          "Text": "The facility blueprints are old but legible. {leader} identifies two approaches: a physical intrusion through the ventilation system, or a social engineering play — posing as a maintenance contractor.",
+          "Choices": [
+            { "Text": "Ventilation. No human contact, no variables.", "Approach": "stealth", "SkillWeightOverride": { "Stealth": 20 }, "DifficultyModifier": 0, "StressModifier": 8, "WetWork": false, "Aftermath": "Tight spaces. No margin for error." },
+            { "Text": "Maintenance cover. Walk in the front door.", "Approach": "social", "SkillWeightOverride": { "Deception": 25, "Persuasion": 10 }, "DifficultyModifier": -5, "StressModifier": 5, "WetWork": false, "Aftermath": "Confidence is the best skeleton key." }
+          ]
+        },
+        {
+          "Phase": "Complication",
+          "Text": "Inside the server room. The air-gap is real — no wireless, no network. The data has to be physically copied. But there's a guard rotation in six minutes and the transfer will take eight.",
+          "Choices": [
+            { "Text": "Overwrite the guard logs. Buy time.", "Approach": "cyber", "SkillWeightOverride": { "Hacking": 20 }, "DifficultyModifier": -5, "StressModifier": 8, "WetWork": false, "Aftermath": "Digital sleight of hand. The cameras see an empty room." },
+            { "Text": "Neutralise the guards quietly. Zip ties, dark corners.", "Approach": "force", "SkillWeightOverride": { "Combat": 15, "Stealth": 10 }, "DifficultyModifier": 5, "StressModifier": 12, "WetWork": false, "Aftermath": "Non-lethal. Probably. {leader} doesn't ask." },
+            { "Text": "Grab what you can in six minutes. Partial is better than caught.", "Approach": "compromise", "SkillWeightOverride": { "Hacking": 10 }, "DifficultyModifier": -15, "StressModifier": 5, "WetWork": false, "Aftermath": "Half the payload. All of the team." }
+          ]
+        },
+        {
+          "Phase": "ResolutionModifier",
+          "Text": "Transfer complete. But the exit is compromised — a security team is sweeping the corridor. {leader} has the data drive.",
+          "Choices": [
+            { "Text": "Bluff through. Flash the maintenance badge.", "Approach": "social", "SkillWeightOverride": { "Deception": 25 }, "DifficultyModifier": -5, "StressModifier": 5, "WetWork": false, "Aftermath": "Smile. Nod. Walk." },
+            { "Text": "Emergency exit. Blow the fire suppression, run.", "Approach": "force", "SkillWeightOverride": { "Combat": 10 }, "DifficultyModifier": 5, "StressModifier": 15, "WetWork": false, "Aftermath": "Halon gas and chaos. Good enough." }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "Id": "sabotage_infrastructure",
+    "Type": "Sabotage",
+    "TitleTemplate": "Sabotage: {target} logistics network",
+    "BriefingTemplate": "{target}'s supply chain runs through {location}. Cripple it and they lose a quarter's revenue. The board wants economic damage, not bodies.",
+    "MinDifficulty": 70,
+    "MaxDifficulty": 88,
+    "MoralWeight": 40,
+    "IsWetWork": false,
+    "StatWeights": { "Hacking": 35, "Stealth": 35, "Combat": 30 },
+    "TargetCandidates": ["rival_kasumi", "rival_aether"],
+    "ClientCandidates": ["host"],
+    "CycleWindow": 3,
+    "SuccessText": "Infrastructure down. {target} will feel this for months.",
+    "PartialText": "Partial disruption. They'll recover faster than hoped.",
+    "FailureText": "The charges didn't detonate. Or the code didn't compile. Either way, nothing happened.",
+    "CatastropheText": "Backfire. The sabotage triggered a cascade that hit civilian systems.",
+    "NarrativeSequence": {
+      "Nodes": [
+        {
+          "Phase": "Briefing",
+          "Text": "{leader} maps the logistics hub. Two critical nodes: the routing servers that coordinate shipments, and the physical rail junction that feeds the warehouse district. Hitting one hurts. Hitting both cripples.",
+          "Choices": [
+            { "Text": "Cyber attack on the routing servers. Remote, surgical.", "Approach": "cyber", "SkillWeightOverride": { "Hacking": 25 }, "DifficultyModifier": -5, "StressModifier": 5, "WetWork": false, "Aftermath": "Digital warfare. Clean if it works." },
+            { "Text": "Physical sabotage on the rail junction. Old school.", "Approach": "force", "SkillWeightOverride": { "Combat": 15, "Stealth": 15 }, "DifficultyModifier": 5, "StressModifier": 10, "WetWork": false, "Aftermath": "Thermite and timing. {leader} likes the simplicity." },
+            { "Text": "Both. Simultaneous strike.", "Approach": "force", "SkillWeightOverride": { "Hacking": 10, "Combat": 10 }, "DifficultyModifier": 15, "StressModifier": 15, "WetWork": false, "Aftermath": "Maximum damage. Maximum exposure." }
+          ]
+        },
+        {
+          "Phase": "Complication",
+          "Text": "Mid-operation. A night-shift worker stumbles into the restricted area. Civilian. Scared. Reaching for a phone.",
+          "Choices": [
+            { "Text": "Restrain and sedate. They wake up with a headache and a story.", "Approach": "stealth", "SkillWeightOverride": { "Stealth": 10 }, "DifficultyModifier": 0, "StressModifier": 8, "WetWork": false, "Aftermath": "Zip ties and chloroform. Not elegant, but no one dies." },
+            { "Text": "Silence them. Permanently. No witnesses.", "Approach": "force", "SkillWeightOverride": { "Intimidation": 10 }, "DifficultyModifier": -10, "StressModifier": 18, "WetWork": true, "Aftermath": "A line crossed. The team knows it." },
+            { "Text": "Convince them they saw nothing. Flash a badge, tell a story.", "Approach": "social", "SkillWeightOverride": { "Persuasion": 15, "Deception": 10 }, "DifficultyModifier": 5, "StressModifier": 5, "WetWork": false, "Aftermath": "A scared nod. They'll go home and try to forget." }
+          ]
+        },
+        {
+          "Phase": "ResolutionModifier",
+          "Text": "Charges set. Timer running. But {leader} notices the blast radius will clip a residential water main. Hundreds of families lose water for weeks. The mission parameters didn't mention this.",
+          "Choices": [
+            { "Text": "Detonate as planned. The mission comes first.", "Approach": "force", "SkillWeightOverride": {}, "DifficultyModifier": -5, "StressModifier": 15, "WetWork": false, "Aftermath": "Collateral damage. The board won't care. The team will." },
+            { "Text": "Reposition the charges. Smaller blast, less damage.", "Approach": "stealth", "SkillWeightOverride": { "Stealth": 10 }, "DifficultyModifier": 10, "StressModifier": 5, "WetWork": false, "Aftermath": "Reduced impact. But the infrastructure still goes down." }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "Id": "counterintel_mole",
+    "Type": "CounterIntel",
+    "TitleTemplate": "Mole hunt: leak inside {corp}",
+    "BriefingTemplate": "Someone inside {corp} is feeding intel to {target}. Find the mole. Then decide what to do with them.",
+    "MinDifficulty": 72,
+    "MaxDifficulty": 90,
+    "MoralWeight": 55,
+    "IsWetWork": false,
+    "StatWeights": { "Deception": 35, "Hacking": 30, "Persuasion": 20, "Intimidation": 15 },
+    "TargetCandidates": ["rival_kasumi"],
+    "ClientCandidates": ["host", "div_ops"],
+    "CycleWindow": 2,
+    "SuccessText": "Mole identified and handled. The leak is sealed.",
+    "PartialText": "Mole found, but they had time to burn files first.",
+    "FailureText": "Investigation stalled. The mole is still active.",
+    "CatastropheText": "Wrong person accused. The real mole digs deeper.",
+    "NarrativeSequence": {
+      "Nodes": [
+        {
+          "Phase": "Briefing",
+          "Text": "{leader} has three suspects. A finance analyst with gambling debts, a logistics coordinator who recently started encrypting personal calls, and a senior handler whose field reports don't match satellite data.",
+          "Choices": [
+            { "Text": "Digital surveillance. Monitor their devices, trace the leak.", "Approach": "cyber", "SkillWeightOverride": { "Hacking": 20 }, "DifficultyModifier": 0, "StressModifier": 5, "WetWork": false, "Aftermath": "Patience. Let the data tell the story." },
+            { "Text": "Interrogate all three. Pressure reveals truth.", "Approach": "force", "SkillWeightOverride": { "Intimidation": 25 }, "DifficultyModifier": 5, "StressModifier": 12, "WetWork": false, "Aftermath": "Three rooms. Three conversations. One answer." },
+            { "Text": "Feed each suspect different false intel. See which version leaks.", "Approach": "social", "SkillWeightOverride": { "Deception": 25 }, "DifficultyModifier": -8, "StressModifier": 5, "WetWork": false, "Aftermath": "The canary trap. Classic for a reason." }
+          ]
+        },
+        {
+          "Phase": "Complication",
+          "Text": "The mole is identified: it's the senior handler. Sixteen years of service. A family. And a reason — their child needs medical treatment that {corp}'s insurance won't cover. {target} offered to pay.",
+          "Choices": [
+            { "Text": "Turn them. Double agent. Feed {target} disinformation.", "Approach": "social", "SkillWeightOverride": { "Persuasion": 20, "Deception": 15 }, "DifficultyModifier": 5, "StressModifier": 5, "WetWork": false, "Aftermath": "Redemption through utility. The handler nods slowly." },
+            { "Text": "Disappear them. The corp can't afford the optics.", "Approach": "force", "SkillWeightOverride": { "Intimidation": 15 }, "DifficultyModifier": -10, "StressModifier": 20, "WetWork": true, "Aftermath": "A family will wonder. {leader} files a transfer report that never happened." },
+            { "Text": "Expose them publicly. Let the system handle it.", "Approach": "compromise", "SkillWeightOverride": {}, "DifficultyModifier": 0, "StressModifier": 8, "WetWork": false, "Aftermath": "By the book. The handler is escorted out in front of everyone." }
+          ]
+        },
+        {
+          "Phase": "ResolutionModifier",
+          "Text": "Final step: the handler's dead drop. A physical location where they leave files for {target}'s courier. {leader} can seed it with poison data — or just shut it down.",
+          "Choices": [
+            { "Text": "Poison the drop. Long game. Feed them what we want them to believe.", "Approach": "social", "SkillWeightOverride": { "Deception": 20 }, "DifficultyModifier": 5, "StressModifier": 5, "WetWork": false, "Aftermath": "Misinformation is the gift that keeps giving." },
+            { "Text": "Burn it. Clean break. No loose ends.", "Approach": "force", "SkillWeightOverride": { "Combat": 10 }, "DifficultyModifier": -5, "StressModifier": 8, "WetWork": false, "Aftermath": "Fire solves many problems." }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "Id": "surveillance_deepcover",
+    "Type": "Surveillance",
+    "TitleTemplate": "Deep cover: infiltrate {target} inner circle",
+    "BriefingTemplate": "Long-range surveillance of {target}'s leadership. Plant an operative inside their operations for three weeks. The intel could reshape the board's strategy — or get someone killed.",
+    "MinDifficulty": 70,
+    "MaxDifficulty": 85,
+    "MoralWeight": 35,
+    "IsWetWork": false,
+    "StatWeights": { "Deception": 40, "Stealth": 30, "Persuasion": 30 },
+    "TargetCandidates": ["rival_kasumi", "rival_aether"],
+    "ClientCandidates": ["host"],
+    "CycleWindow": 3,
+    "SuccessText": "Three weeks of intel. {target}'s playbook is wide open.",
+    "PartialText": "Cover held but the operative was kept at arm's length. Surface intel only.",
+    "FailureText": "Cover blown after ten days. Operative extracted under fire.",
+    "CatastropheText": "Operative captured. {target} now knows what {corp} was looking for.",
+    "NarrativeSequence": {
+      "Nodes": [
+        {
+          "Phase": "Briefing",
+          "Text": "The cover identity needs depth. {leader} has two legends prepared: a disgruntled tech contractor looking for better pay, or a corporate headhunter scouting {target}'s talent pool.",
+          "Choices": [
+            { "Text": "The contractor. Technical access, lower profile.", "Approach": "stealth", "SkillWeightOverride": { "Hacking": 15, "Deception": 15 }, "DifficultyModifier": 0, "StressModifier": 8, "WetWork": false, "Aftermath": "Boring is safe. The best covers always are." },
+            { "Text": "The headhunter. Social access, higher risk.", "Approach": "social", "SkillWeightOverride": { "Persuasion": 20, "Deception": 10 }, "DifficultyModifier": 5, "StressModifier": 5, "WetWork": false, "Aftermath": "Charm offensive. Everyone likes someone who might offer them a raise." }
+          ]
+        },
+        {
+          "Phase": "Complication",
+          "Text": "Week two. The operative has gained trust but {target}'s security chief is suspicious. A loyalty test is coming — the operative will be asked to provide intel on {corp}. Real intel.",
+          "Choices": [
+            { "Text": "Feed them stale data. True enough to pass, old enough to be harmless.", "Approach": "social", "SkillWeightOverride": { "Deception": 20 }, "DifficultyModifier": 0, "StressModifier": 10, "WetWork": false, "Aftermath": "A tightrope. The data has to smell fresh." },
+            { "Text": "Give them real low-value intel. Burn a minor asset to protect the cover.", "Approach": "compromise", "SkillWeightOverride": { "Deception": 10 }, "DifficultyModifier": -10, "StressModifier": 15, "WetWork": false, "Aftermath": "Sacrifice a pawn. The operative sinks deeper." },
+            { "Text": "Pull the operative out. The cover is too thin.", "Approach": "abort", "SkillWeightOverride": {}, "DifficultyModifier": 20, "StressModifier": 5, "WetWork": false, "Aftermath": "Early extraction. Less intel, but the operative lives." }
+          ]
+        },
+        {
+          "Phase": "ResolutionModifier",
+          "Text": "Final day. The operative has the intel — but their handler at {target} has invited them to a private meeting. Could be a promotion inside the cover story. Could be a trap.",
+          "Choices": [
+            { "Text": "Attend. Maximum intel, maximum risk.", "Approach": "social", "SkillWeightOverride": { "Persuasion": 15, "Deception": 15 }, "DifficultyModifier": 10, "StressModifier": 12, "WetWork": false, "Aftermath": "One last roll of the dice." },
+            { "Text": "Extract now. Take what we have and run.", "Approach": "stealth", "SkillWeightOverride": { "Stealth": 15 }, "DifficultyModifier": -10, "StressModifier": 5, "WetWork": false, "Aftermath": "Clean exit. Good enough is good enough." }
+          ]
+        }
+      ]
+    }
+  }
+]

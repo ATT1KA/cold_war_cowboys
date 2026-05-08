@@ -36,4 +36,10 @@ public sealed class MissionTemplate
 	public string PartialText { get; set; } = "";
 	public string FailureText { get; set; } = "";
 	public string CatastropheText { get; set; } = "";
+
+	/// <summary>
+	/// Interactive narrative sequence for high-stakes missions (difficulty >= 70).
+	/// Null for routine missions — they resolve immediately.
+	/// </summary>
+	public NarrativeSequence? NarrativeSequence { get; set; }
 }
