@@ -33,4 +33,10 @@ public sealed class EventBus
 		foreach ( var d in list.ToArray() )
 			((Action<T>)d).Invoke( evt );
 	}
+
+	/// <summary>
+	/// Drop all handlers. Called at the start of NewGame so old subscriptions
+	/// from a prior run don't fire against fresh systems and double-mutate state.
+	/// </summary>
+	public void Clear() => _handlers.Clear();
 }

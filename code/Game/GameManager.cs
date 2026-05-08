@@ -73,6 +73,10 @@ public sealed class GameManager
 		Rng = new Rng( seed );
 		Phase.Reset();
 
+		// Drop subscriptions from any prior run so old captured systems don't
+		// double-fire mutations on top of the new ones we'll wire below.
+		Bus.Clear();
+
 		var loader = new TemplateLoader();
 		try
 		{
