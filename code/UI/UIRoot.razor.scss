@@ -66,5 +66,7 @@ UIRoot, .uiroot {
 	}
 
 	&.phase-resolution { background-color: rgba(12, 6, 8, 0.96); }
+	&.phase-corporate  { background-color: rgba(8, 12, 18, 0.96); }
 	&.phase-aftermath  { background-color: rgba(6, 8, 14, 0.96); }
+	&.phase-review     { background-color: rgba(7, 10, 14, 0.96); }
 }

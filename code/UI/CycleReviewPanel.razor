@@ -1,0 +1,182 @@
+@using System.Linq
+@using Sandbox
+@using Sandbox.UI
+@using CWC.Core
+@using CWC.Domain
+@using CWC.Missions
+@using CWC.UI
+@inherits Panel
+@namespace CWC.UI
+
+<root class="cycle-review">
+	@if ( Vm == null )
+	{
+		<div class="empty">No data.</div>
+	}
+	else
+	{
+		<div class="review-frame">
+			<div class="review-head">
+				<div class="review-title">End of Cycle @Vm.World.Corporate.Cycle</div>
+				<div class="review-meta">@Vm.World.Setting.CorpName · Day @Vm.World.Day</div>
+			</div>
+
+			<div class="summary-grid">
+				<div class="summary-card">
+					<div class="card-label">Roster</div>
+					<div class="counts-row">
+						<div class="count-block ok">
+							<span class="count-val">@CountActive</span>
+							<span class="count-label">Active</span>
+						</div>
+						<div class="count-block warn">
+							<span class="count-val">@CountInjured</span>
+							<span class="count-label">Injured</span>
+						</div>
+						<div class="count-block bad">
+							<span class="count-val">@CountDead</span>
+							<span class="count-label">Lost</span>
+						</div>
+						<div class="count-block bad">
+							<span class="count-val">@CountDefected</span>
+							<span class="count-label">Defected</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="summary-card">
+					<div class="card-label">Cycle Outcome</div>
+					<div class="outcome-row">
+						<div class="outcome-block">
+							<span class="outcome-val ok">@CountSuccess</span>
+							<span class="outcome-label">Success</span>
+						</div>
+						<div class="outcome-block">
+							<span class="outcome-val warn">@CountPartial</span>
+							<span class="outcome-label">Partial</span>
+						</div>
+						<div class="outcome-block">
+							<span class="outcome-val bad">@CountFailure</span>
+							<span class="outcome-label">Failure</span>
+						</div>
+						<div class="outcome-block">
+							<span class="outcome-val crit">@CountCatastrophe</span>
+							<span class="outcome-label">Catastrophe</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="summary-card wide">
+					<div class="card-label">Posture</div>
+					<div class="posture-row">
+						<div class="posture-stat">
+							<span class="ps-label">Heat</span>
+							<span class="ps-val">@Vm.World.Corporate.Heat</span>
+						</div>
+						<div class="posture-stat">
+							<span class="ps-label">Suspicion</span>
+							<span class="ps-val">@Vm.World.Corporate.Suspicion</span>
+						</div>
+						<div class="posture-stat">
+							<span class="ps-label">Confidence</span>
+							<span class="ps-val">@Vm.World.Corporate.BoardConfidence</span>
+						</div>
+						<div class="posture-stat">
+							<span class="ps-label">Reputation</span>
+							<span class="ps-val">@Vm.World.Corporate.Reputation</span>
+						</div>
+						<div class="posture-stat">
+							<span class="ps-label">Corruption</span>
+							<span class="ps-val">@CorruptionDisplay</span>
+						</div>
+					</div>
+					@if ( !string.IsNullOrEmpty( Vm.World.Corruption.MilestoneName ) && Vm.World.Corruption.MilestoneName != "—" )
+					{
+						<div class="milestone-line">@MilestoneFlavor</div>
+					}
+				</div>
+			</div>
+
+			<div class="review-foot">
+				<div class="card-label">Field Roster</div>
+				<div class="roster-strip">
+					@foreach ( var op in Vm.FieldOperatives )
+					{
+						<div class="op-tile status-@(op.Status.ToString().ToLowerInvariant())">
+							<div class="op-name">@op.Codename</div>
+							<div class="op-arch">@op.Archetype</div>
+							<div class="op-bars">
+								<div class="op-bar">
+									<div class="op-fill" style="width: @op.Psychology.Stress%; background-color: @StressColor(op.Psychology.Stress);"></div>
+								</div>
+								<div class="op-bar">
+									<div class="op-fill" style="width: @op.Psychology.Loyalty%; background-color: rgb(140, 220, 240);"></div>
+								</div>
+								<div class="op-bar">
+									<div class="op-fill" style="width: @op.Psychology.Conscience%; background-color: rgb(180, 220, 180);"></div>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	}
+</root>
+
+@code
+{
+	[Property] public IGameViewModel? Vm { get; set; }
+
+	private int CountActive => Vm?.FieldOperatives.Count( o => o.Status == OperativeStatus.Active ) ?? 0;
+	private int CountInjured => Vm?.FieldOperatives.Count( o => o.Status == OperativeStatus.Injured ) ?? 0;
+	private int CountDead => Vm?.FieldOperatives.Count( o => o.Status == OperativeStatus.Dead ) ?? 0;
+	private int CountDefected => Vm?.FieldOperatives.Count( o => o.Status == OperativeStatus.Defected ) ?? 0;
+
+	private int CountSuccess => Vm?.LastResolutionResults.Count( r => r.Outcome == MissionOutcome.Success ) ?? 0;
+	private int CountPartial => Vm?.LastResolutionResults.Count( r => r.Outcome == MissionOutcome.PartialSuccess ) ?? 0;
+	private int CountFailure => Vm?.LastResolutionResults.Count( r => r.Outcome == MissionOutcome.Failure ) ?? 0;
+	private int CountCatastrophe => Vm?.LastResolutionResults.Count( r => r.Outcome == MissionOutcome.Catastrophe ) ?? 0;
+
+	private string CorruptionDisplay
+	{
+		get
+		{
+			if ( Vm == null ) return "0";
+			int v = (int)Vm.World.Corruption.CorruptionIndex;
+			string ms = Vm.World.Corruption.MilestoneName;
+			return ms == "—" ? v.ToString() : $"{v} · {ms}";
+		}
+	}
+
+	private string MilestoneFlavor
+	{
+		get
+		{
+			if ( Vm == null ) return "";
+			return Vm.World.Corruption.CurrentMilestone switch
+			{
+				CorruptionTracker.Milestone.Competent  => "The board notes the numbers; nothing more.",
+				CorruptionTracker.Milestone.Effective  => "Memos arrive with fewer questions attached.",
+				CorruptionTracker.Milestone.Feared     => "Conversations stop when you walk in.",
+				CorruptionTracker.Milestone.TheMachine => "No one asks how anymore. They only ask when.",
+				CorruptionTracker.Milestone.Jenkins    => "It is Tuesday.",
+				_                                      => "",
+			};
+		}
+	}
+
+	private static string StressColor( int v )
+	{
+		if ( v >= 80 ) return "rgb(230, 80, 80)";
+		if ( v >= 60 ) return "rgb(230, 160, 80)";
+		return "rgb(220, 200, 90)";
+	}
+
+	protected override int BuildHash() => System.HashCode.Combine(
+		Vm?.World.Corporate.Cycle,
+		Vm?.LastResolutionResults.Count,
+		Vm?.FieldOperatives.Count,
+		(int)( Vm?.World.Corruption.CorruptionIndex ?? 0 )
+	);
+}

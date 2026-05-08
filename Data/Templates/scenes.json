@@ -990,5 +990,157 @@
       }
     ],
     "FlagsOnFire": ["scene:final_confrontation_seen"]
+  },
+  {
+    "Id": "promotion_summons",
+    "Title": "Up the Glass",
+    "Speaker": "Director",
+    "Setting": "Executive elevator, ascending, {corp} logo etched in frosted glass that ripples as the floor numbers climb",
+    "RequiredFlags": ["corp:promotion_imminent"],
+    "ForbiddenFlags": ["scene:promotion_summons_seen"],
+    "Priority": "Pressing",
+    "OneShot": true,
+    "Cast": [],
+    "TextLines": [
+      "The summons came on hardline. No subject. Just a floor number — one you've never had access to before.",
+      "The elevator passes the executive levels and keeps going. Forty-eight. Forty-nine. The numbers stop being labeled around fifty.",
+      "\"The board has been watching you,\" the Director says. {gender:m|He|She} is reading something on a slate, not looking up. \"Your last several cycles have been instructive.\"",
+      "Somewhere above you, the building thins to spire. Below, the city is a puddle of light.",
+      "\"There's an opening at Liaison. Quiet office. Bigger purview. Different… latitude.\"",
+      "The Director finally looks up. \"It's not an offer yet. But it's not nothing.\""
+    ],
+    "Choices": [
+      {
+        "Label": "\"I'm interested. What's the price tag?\"",
+        "FlagsOnPick": ["choice:promotion_interested"],
+        "LoyaltyDelta": 3
+      },
+      {
+        "Label": "\"I'm fine where I am.\"",
+        "FlagsOnPick": ["choice:promotion_decline"],
+        "LoyaltyDelta": -2, "MoraleDelta": 2
+      },
+      {
+        "Label": "\"Tell me what the board actually wants.\"",
+        "FlagsOnPick": ["choice:promotion_audit"],
+        "LoyaltyDelta": 1, "ConscienceDelta": 2
+      }
+    ],
+    "FlagsOnFire": ["scene:promotion_summons_seen"]
+  },
+  {
+    "Id": "demotion_review",
+    "Title": "Performance Improvement",
+    "Speaker": "Director",
+    "Setting": "Director's office, blinds half-drawn, the lamp on the desk angled like an interrogation",
+    "RequiredFlags": ["corp:demotion_imminent"],
+    "ForbiddenFlags": ["scene:demotion_review_seen"],
+    "Priority": "Pressing",
+    "OneShot": true,
+    "Cast": [],
+    "TextLines": [
+      "The folder on the desk is yours. It's thicker than you remember it being.",
+      "\"The board is concerned,\" the Director says. The word *concerned* is doing a lot of work in that sentence.",
+      "Three paragraphs of metrics. Mission outcomes trending wrong. Asset attrition. Heat indicators the underwriters are flagging in their quarterly.",
+      "\"Nobody's saying you're done. We're saying we'd like you to be… smaller. For a while.\"",
+      "Outside, a maintenance drone is washing the windows of the building across the gap. It moves slowly, methodically, leaving the glass clean."
+    ],
+    "Choices": [
+      {
+        "Label": "\"What does smaller look like, exactly?\"",
+        "FlagsOnPick": ["choice:demotion_accept"],
+        "LoyaltyDelta": -3, "MoraleDelta": -4, "StressDelta": 4
+      },
+      {
+        "Label": "\"Give me one more cycle. I'll fix the numbers.\"",
+        "FlagsOnPick": ["choice:demotion_fight"],
+        "StressDelta": 8, "LoyaltyDelta": 2
+      },
+      {
+        "Label": "\"The metrics don't tell the whole story. Read the field reports.\"",
+        "FlagsOnPick": ["choice:demotion_defend"],
+        "ConscienceDelta": 3, "LoyaltyDelta": -1
+      }
+    ],
+    "FlagsOnFire": ["scene:demotion_review_seen"]
+  },
+  {
+    "Id": "audit_visit",
+    "Title": "Internal Affairs",
+    "Speaker": "Auditor",
+    "Setting": "Conference room B, {corp} compliance floor, fluorescent overheads and a pitcher of water nobody touches",
+    "RequiredFlags": ["corp:audit_triggered"],
+    "ForbiddenFlags": ["scene:audit_visit_seen"],
+    "Priority": "Critical",
+    "OneShot": true,
+    "Cast": [],
+    "TextLines": [
+      "The auditor arrived without notice. No name on the door slate. No ID badge — just an authorization code that opened every lock between the lobby and your floor.",
+      "She's already opened a notebook. Paper. That's what makes you nervous.",
+      "\"I'm not here to interview anyone yet. I'm here to walk through the last six cycles of your operational decisions and decide whether they constitute a pattern.\"",
+      "She slides a file across the table. Three highlighted line items. You recognize all three.",
+      "\"You'll have access to your files until tomorrow at 0900. After that, custody transfers. Cooperative posture is recommended.\"",
+      "She smiles. It doesn't change anything else about her face."
+    ],
+    "Choices": [
+      {
+        "Label": "\"Take whatever you need. We have nothing to hide.\"",
+        "FlagsOnPick": ["choice:audit_open"],
+        "LoyaltyDelta": -2, "StressDelta": 6, "ConscienceDelta": 4
+      },
+      {
+        "Label": "\"I'll have legal liaise. We'll get you everything within scope.\"",
+        "FlagsOnPick": ["choice:audit_lawyer"],
+        "HeatDelta": -3, "LoyaltyDelta": 2, "StressDelta": 4
+      },
+      {
+        "Label": "\"There are files you won't see tonight. Walk away.\"",
+        "FlagsOnPick": ["choice:audit_obstruct"],
+        "HeatDelta": 8, "ConscienceDelta": -3, "LoyaltyDelta": 3
+      }
+    ],
+    "FlagsOnFire": ["scene:audit_visit_seen"]
+  },
+  {
+    "Id": "faction_confrontation",
+    "Title": "The Other Side of the Table",
+    "Speaker": "",
+    "Setting": "Neutral conference site, {location} financial district, security personnel from both sides watching each other watch each other",
+    "RequiredFlags": [],
+    "ForbiddenFlags": ["scene:faction_confrontation_seen"],
+    "Priority": "Pressing",
+    "OneShot": true,
+    "Triggers": [
+      { "Type": "any_faction_relationship_below", "Key": "", "Threshold": -65 }
+    ],
+    "Cast": [
+      { "Name": "anchor", "Kind": "Role", "Resolver": "role:anchor" }
+    ],
+    "TextLines": [
+      "They asked for the meet. You didn't expect them to bring lawyers and an envoy with a rank you can't quite parse.",
+      "\"This isn't a negotiation,\" the envoy says, before anyone has spoken. \"This is a notification.\"",
+      "{operative.role:anchor} is at your shoulder, hand close to where a sidearm would be if security hadn't taken everyone's at the door.",
+      "\"You've been operating against our interests for six cycles. We've documented it. We're going to start responding.\"",
+      "There's no anger in their voice. That's worse than anger. Anger you can negotiate with.",
+      "\"You have the rest of this meeting to tell us why we shouldn't.\""
+    ],
+    "Choices": [
+      {
+        "Label": "\"What would it cost to make this go away?\"",
+        "FlagsOnPick": ["choice:faction_pay"],
+        "LoyaltyDelta": -2, "HeatDelta": -5
+      },
+      {
+        "Label": "\"Respond however you want. We'll meet it.\"",
+        "FlagsOnPick": ["choice:faction_defy"],
+        "LoyaltyDelta": 3, "HeatDelta": 8, "StressDelta": 6
+      },
+      {
+        "Label": "\"What did we do that you noticed? Specifically.\"",
+        "FlagsOnPick": ["choice:faction_clarify"],
+        "ConscienceDelta": 2, "MoraleDelta": 2
+      }
+    ],
+    "FlagsOnFire": ["scene:faction_confrontation_seen"]
   }
 ]

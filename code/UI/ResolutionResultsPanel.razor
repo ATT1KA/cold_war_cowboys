@@ -1,0 +1,140 @@
+@using System.Linq
+@using Sandbox
+@using Sandbox.UI
+@using CWC.Core
+@using CWC.Domain
+@using CWC.Missions
+@using CWC.UI
+@inherits Panel
+@namespace CWC.UI
+
+<root class="resolution-results">
+	@if ( Vm == null || Vm.LastResolutionResults.Count == 0 )
+	{
+		<div class="screen-msg">No missions resolved this cycle.</div>
+	}
+	else
+	{
+		<div class="results-frame">
+			<div class="results-head">
+				<div class="results-title">Mission Resolution · Cycle @Vm.World.Corporate.Cycle</div>
+				<div class="results-meta">@Vm.LastResolutionResults.Count operation(s) closed</div>
+			</div>
+
+			<div class="results-list">
+				@foreach ( var r in Vm.LastResolutionResults )
+				{
+					var mission = Vm.World.GetMission( r.MissionId );
+					<div class="result-card outcome-@OutcomeClass(r.Outcome)">
+						<div class="result-row title-row">
+							<span class="result-title">@(mission?.Title ?? r.MissionId)</span>
+							<span class="result-badge outcome-@OutcomeClass(r.Outcome)">@OutcomeLabel(r.Outcome)</span>
+						</div>
+
+						<div class="score-line">
+							<span class="score-key">Score</span>
+							<span class="score-val">@r.Score</span>
+							<span class="score-sep">vs</span>
+							<span class="score-key">Target</span>
+							<span class="score-val">@r.Target</span>
+							<span class="score-margin @MarginClass(r.Margin)">@MarginText(r.Margin)</span>
+						</div>
+
+						<div class="breakdown">
+							<span class="bd-item">SKILL @ScoreSign(r.SkillContribution)</span>
+							<span class="bd-item">PSYCH @ScoreSign(-r.PsychologyPenalty)</span>
+							<span class="bd-item">RELATIONS @ScoreSign(r.RelationshipSwing)</span>
+							<span class="bd-item">RNG @ScoreSign(r.RngSwing)</span>
+						</div>
+
+						@if ( !string.IsNullOrEmpty( r.NarrativeText ) )
+						{
+							<div class="narrative">@r.NarrativeText</div>
+						}
+
+						<div class="ops-deltas">
+							@foreach ( var kv in r.PerOperative )
+							{
+								var op = Vm.World.GetOperative( kv.Key );
+								if ( op != null )
+								{
+									<div class="op-delta">
+										<span class="op-codename">@op.Codename</span>
+										<span class="op-stats">
+											<span class="@StressDeltaClass(kv.Value.StressDelta)">Stress @ScoreSign(kv.Value.StressDelta)</span>
+											<span class="@PosDeltaClass(kv.Value.LoyaltyDelta)">Loyalty @ScoreSign(kv.Value.LoyaltyDelta)</span>
+											<span class="@PosDeltaClass(kv.Value.MoraleDelta)">Morale @ScoreSign(kv.Value.MoraleDelta)</span>
+											<span class="@PosDeltaClass(kv.Value.ConscienceDelta)">Conscience @ScoreSign(kv.Value.ConscienceDelta)</span>
+										</span>
+										<span class="op-flags">
+											@if ( kv.Value.WetWorkDelta > 0 )
+											{
+												<span class="op-flag wet">+@kv.Value.WetWorkDelta WET</span>
+											}
+											@if ( kv.Value.Injured )
+											{
+												<span class="op-flag injured">INJURED</span>
+											}
+											@if ( kv.Value.Killed )
+											{
+												<span class="op-flag killed">KIA</span>
+											}
+											@if ( kv.Value.Compromised )
+											{
+												<span class="op-flag burned">BURNED</span>
+											}
+										</span>
+									</div>
+								}
+							}
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	}
+</root>
+
+@code
+{
+	[Property] public IGameViewModel? Vm { get; set; }
+
+	private static string OutcomeClass( MissionOutcome o ) => o switch
+	{
+		MissionOutcome.Success        => "success",
+		MissionOutcome.PartialSuccess => "partial",
+		MissionOutcome.Failure        => "failure",
+		MissionOutcome.Catastrophe    => "catastrophe",
+		_                             => "unknown",
+	};
+
+	private static string OutcomeLabel( MissionOutcome o ) => o switch
+	{
+		MissionOutcome.Success        => "SUCCESS",
+		MissionOutcome.PartialSuccess => "PARTIAL",
+		MissionOutcome.Failure        => "FAILURE",
+		MissionOutcome.Catastrophe    => "CATASTROPHE",
+		_                             => "—",
+	};
+
+	private static string MarginClass( int m )
+		=> m >= 10 ? "big-pos" : m > 0 ? "pos" : m == 0 ? "even" : m > -10 ? "neg" : "big-neg";
+
+	private static string MarginText( int m ) => m > 0 ? $"+{m}" : m.ToString();
+
+	private static string ScoreSign( int v ) => v > 0 ? $"+{v}" : v.ToString();
+
+	// Higher stress is bad — invert color logic.
+	private static string StressDeltaClass( int delta )
+		=> delta == 0 ? "delta-neutral" : delta < 0 ? "delta-good" : "delta-bad";
+
+	// Loyalty / Morale / Conscience: higher is good.
+	private static string PosDeltaClass( int delta )
+		=> delta == 0 ? "delta-neutral" : delta > 0 ? "delta-good" : "delta-bad";
+
+	protected override int BuildHash() => System.HashCode.Combine(
+		Vm?.LastResolutionResults.Count,
+		Vm?.World.Corporate.Cycle,
+		Vm?.CurrentPhase
+	);
+}

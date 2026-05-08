@@ -40,13 +40,16 @@
 					}
 					break;
 				case CyclePhase.Resolution:
-					<div class="screen-msg">Resolving missions…</div>
+					<ResolutionResultsPanel Vm=@Vm/>
+					break;
+				case CyclePhase.Corporate:
+					<CorporatePhasePanel Vm=@Vm/>
 					break;
 				case CyclePhase.Aftermath:
 					<SceneReaderPanel Vm=@Vm/>
 					break;
 				case CyclePhase.Review:
-					<OperativeRosterPanel Vm=@Vm/>
+					<CycleReviewPanel Vm=@Vm/>
 					break;
 				default:
 					<div class="screen-msg">No active session.</div>

@@ -1,0 +1,186 @@
+ResolutionResultsPanel, .resolution-results {
+	flex-grow: 1;
+	flex-direction: column;
+	padding: 18px 24px;
+
+	.screen-msg {
+		flex-grow: 1;
+		justify-content: center;
+		align-items: center;
+		font-size: 15px;
+		letter-spacing: 2px;
+		text-transform: uppercase;
+		color: rgba(180, 200, 220, 0.4);
+	}
+
+	.results-frame {
+		flex-grow: 1;
+		flex-direction: column;
+		gap: 14px;
+
+		.results-head {
+			flex-direction: column;
+			gap: 4px;
+			padding-bottom: 12px;
+			border-bottom: 1px solid rgba(255, 130, 130, 0.25);
+
+			.results-title {
+				font-size: 18px;
+				letter-spacing: 2.6px;
+				text-transform: uppercase;
+				color: #ffe1e1;
+			}
+			.results-meta {
+				font-size: 11px;
+				letter-spacing: 1.4px;
+				text-transform: uppercase;
+				color: rgba(220, 180, 180, 0.65);
+			}
+		}
+
+		.results-list {
+			flex-grow: 1;
+			flex-direction: column;
+			gap: 12px;
+			overflow: scroll;
+		}
+
+		.result-card {
+			flex-direction: column;
+			gap: 8px;
+			padding: 14px 18px;
+			background-color: rgba(14, 18, 24, 0.85);
+			border-left: 3px solid rgba(140, 180, 200, 0.4);
+
+			&.outcome-success     { border-left-color: rgba(140, 230, 180, 0.85); }
+			&.outcome-partial     { border-left-color: rgba(220, 200, 90, 0.85); }
+			&.outcome-failure     { border-left-color: rgba(230, 140, 80, 0.85); }
+			&.outcome-catastrophe { border-left-color: rgba(230, 80, 80, 0.95); }
+
+			.result-row {
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+			}
+
+			.result-title {
+				font-size: 14px;
+				color: #e8eef4;
+				letter-spacing: 1px;
+			}
+
+			.result-badge {
+				font-size: 10px;
+				letter-spacing: 2px;
+				padding: 3px 8px;
+				border: 1px solid rgba(160, 200, 220, 0.5);
+
+				&.outcome-success     { color: rgb(140, 230, 180); border-color: rgb(140, 230, 180); }
+				&.outcome-partial     { color: rgb(220, 200, 90);  border-color: rgb(220, 200, 90); }
+				&.outcome-failure     { color: rgb(230, 140, 80);  border-color: rgb(230, 140, 80); }
+				&.outcome-catastrophe { color: rgb(230, 80, 80);   border-color: rgb(230, 80, 80); }
+			}
+
+			.score-line {
+				flex-direction: row;
+				align-items: center;
+				gap: 8px;
+
+				.score-key {
+					font-size: 10px;
+					letter-spacing: 1.4px;
+					color: rgba(160, 200, 220, 0.6);
+					text-transform: uppercase;
+				}
+				.score-val {
+					font-size: 14px;
+					color: #d8e8f4;
+				}
+				.score-sep {
+					font-size: 10px;
+					color: rgba(120, 140, 160, 0.5);
+				}
+				.score-margin {
+					margin-left: 12px;
+					font-size: 12px;
+					letter-spacing: 1px;
+
+					&.big-pos { color: rgb(140, 230, 180); }
+					&.pos     { color: rgb(180, 220, 160); }
+					&.even    { color: rgba(180, 200, 220, 0.7); }
+					&.neg     { color: rgb(220, 180, 90); }
+					&.big-neg { color: rgb(230, 80, 80); }
+				}
+			}
+
+			.breakdown {
+				flex-direction: row;
+				gap: 14px;
+				flex-wrap: wrap;
+
+				.bd-item {
+					font-size: 10px;
+					letter-spacing: 1.2px;
+					color: rgba(170, 200, 220, 0.7);
+				}
+			}
+
+			.narrative {
+				font-size: 12px;
+				line-height: 1.5;
+				color: rgba(210, 220, 230, 0.85);
+				font-style: italic;
+				padding: 6px 0;
+				border-top: 1px solid rgba(120, 140, 160, 0.18);
+			}
+
+			.ops-deltas {
+				flex-direction: column;
+				gap: 4px;
+				padding-top: 6px;
+				border-top: 1px solid rgba(120, 140, 160, 0.18);
+
+				.op-delta {
+					flex-direction: row;
+					align-items: center;
+					gap: 12px;
+
+					.op-codename {
+						width: 90px;
+						font-size: 11px;
+						letter-spacing: 1px;
+						color: rgba(120, 220, 240, 0.85);
+					}
+					.op-stats {
+						flex-direction: row;
+						gap: 10px;
+						flex-grow: 1;
+
+						span {
+							font-size: 10px;
+							letter-spacing: 0.8px;
+						}
+						.delta-good    { color: rgb(140, 230, 180); }
+						.delta-bad     { color: rgb(230, 140, 100); }
+						.delta-neutral { color: rgba(160, 180, 200, 0.45); }
+					}
+					.op-flags {
+						flex-direction: row;
+						gap: 4px;
+					}
+					.op-flag {
+						font-size: 9px;
+						letter-spacing: 1.6px;
+						padding: 2px 5px;
+						border: 1px solid;
+
+						&.wet      { color: rgb(255, 120, 120); border-color: rgb(255, 120, 120); }
+						&.injured  { color: rgb(230, 180, 80);  border-color: rgb(230, 180, 80); }
+						&.killed   { color: rgb(255, 80, 80);   border-color: rgb(255, 80, 80); background-color: rgba(255, 80, 80, 0.12); }
+						&.burned   { color: rgb(220, 80, 200);  border-color: rgb(220, 80, 200); }
+					}
+				}
+			}
+		}
+	}
+}

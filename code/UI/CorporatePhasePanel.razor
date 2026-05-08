@@ -1,0 +1,160 @@
+@using System.Linq
+@using Sandbox
+@using Sandbox.UI
+@using CWC.Core
+@using CWC.Domain
+@using CWC.UI
+@inherits Panel
+@namespace CWC.UI
+
+<root class="corporate-panel">
+	@if ( Vm == null )
+	{
+		<div class="empty">No data.</div>
+	}
+	else
+	{
+		<div class="corp-frame">
+			<div class="corp-head">
+				<div class="corp-title">Boardroom · Cycle @Vm.World.Corporate.Cycle</div>
+				<div class="corp-rank">Rank: @RankLabel · @Vm.World.Corporate.DirectorName</div>
+			</div>
+
+			<div class="corp-grid">
+				<div class="board-col">
+					<div class="col-label">Board Status</div>
+					<div class="status-row">
+						<span class="status-key">Confidence</span>
+						<div class="status-bar">
+							<div class="status-fill" style="width: @Vm.World.Corporate.BoardConfidence%; background-color: @ConfidenceColor;"></div>
+						</div>
+						<span class="status-val" style="color: @ConfidenceColor;">@Vm.World.Corporate.BoardConfidence</span>
+					</div>
+					<div class="status-row">
+						<span class="status-key">Internal Rep</span>
+						<div class="status-bar">
+							<div class="status-fill" style="width: @Vm.World.Corporate.InternalReputation%; background-color: #9aeebf;"></div>
+						</div>
+						<span class="status-val">@Vm.World.Corporate.InternalReputation</span>
+					</div>
+					<div class="status-row">
+						<span class="status-key">External Rep</span>
+						<div class="status-bar">
+							<div class="status-fill" style="width: @Vm.World.Corporate.ExternalReputation%; background-color: #c8b6ff;"></div>
+						</div>
+						<span class="status-val">@Vm.World.Corporate.ExternalReputation</span>
+					</div>
+					<div class="status-row">
+						<span class="status-key">Pol. Capital</span>
+						<span class="status-val pc">@Vm.World.Corporate.PoliticalCapital</span>
+					</div>
+
+					<div class="col-label dirs-label">Active Directives</div>
+					@if ( Vm.World.Corporate.ActiveDirectives.Count == 0 )
+					{
+						<div class="dir-empty">No active directives.</div>
+					}
+					else
+					{
+						@foreach ( var d in Vm.World.Corporate.ActiveDirectives.Where( x => !x.Resolved ).Take( 4 ) )
+						{
+							<div class="directive @(d.Mandatory ? "mandatory" : "optional")">
+								<div class="dir-row">
+									<span class="dir-title">@d.Title</span>
+									@if ( d.Mandatory )
+									{
+										<span class="dir-tag">MANDATORY</span>
+									}
+								</div>
+								<div class="dir-desc">@d.Description</div>
+								<div class="dir-meta">Deadline day @d.DeadlineDay</div>
+							</div>
+						}
+					}
+				</div>
+
+				<div class="factions-col">
+					<div class="col-label">Faction Standings</div>
+					@if ( Vm.World.Factions.Count == 0 )
+					{
+						<div class="fac-empty">No factions tracked.</div>
+					}
+					else
+					{
+						@foreach ( var f in Vm.World.Factions.OrderBy( ff => ff.RelationshipToPlayer ).Take( 8 ) )
+						{
+							<div class="faction-row">
+								<span class="fac-name">@f.Name</span>
+								<span class="fac-kind">@(f.Kind.ToString().ToUpperInvariant())</span>
+								<div class="fac-bar">
+									<div class="fac-fill" style="width: @(FacFillPct(f.RelationshipToPlayer))%; background-color: @(FacColor(f.RelationshipToPlayer));"></div>
+								</div>
+								<span class="fac-val" style="color: @FacColor(f.RelationshipToPlayer);">@f.RelationshipToPlayer</span>
+							</div>
+						}
+					}
+				</div>
+
+				<div class="events-col">
+					<div class="col-label">Recent Activity</div>
+					@if ( Vm.World.Corporate.RecentEventLog.Count == 0 )
+					{
+						<div class="event-empty">The boardroom is quiet.</div>
+					}
+					else
+					{
+						@foreach ( var entry in TailEvents() )
+						{
+							<div class="event-row">— @entry</div>
+						}
+					}
+				</div>
+			</div>
+		</div>
+	}
+</root>
+
+@code
+{
+	[Property] public IGameViewModel? Vm { get; set; }
+
+	private string RankLabel => Vm?.World.Corporate.Rank.ToString() ?? "—";
+
+	private System.Collections.Generic.IEnumerable<string> TailEvents()
+	{
+		if ( Vm == null ) yield break;
+		var log = Vm.World.Corporate.RecentEventLog;
+		int start = System.Math.Max( 0, log.Count - 10 );
+		for ( int i = log.Count - 1; i >= start; i-- ) yield return log[i];
+	}
+
+	private string ConfidenceColor
+	{
+		get
+		{
+			int v = Vm?.World.Corporate.BoardConfidence ?? 50;
+			if ( v >= 70 ) return "rgb(140,230,180)";
+			if ( v >= 40 ) return "rgb(220,200,90)";
+			return "rgb(230,90,90)";
+		}
+	}
+
+	// Map -100..+100 onto 0..100 so the bar always fills from the left edge.
+	private static int FacFillPct( int rel ) => System.Math.Clamp( ( rel + 100 ) / 2, 0, 100 );
+
+	private static string FacColor( int rel )
+	{
+		if ( rel >= 25 ) return "rgb(140,230,180)";
+		if ( rel >= -25 ) return "rgb(180,200,220)";
+		if ( rel >= -60 ) return "rgb(230,150,80)";
+		return "rgb(230,80,90)";
+	}
+
+	protected override int BuildHash() => System.HashCode.Combine(
+		Vm?.World.Corporate.Cycle,
+		Vm?.World.Corporate.BoardConfidence,
+		Vm?.World.Corporate.RecentEventLog.Count,
+		Vm?.World.Corporate.ActiveDirectives.Count,
+		Vm?.World.Factions.Count
+	);
+}
