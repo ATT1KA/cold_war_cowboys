@@ -276,14 +276,40 @@ public sealed class GameManager
 		}
 	}
 
+	/// <summary>
+	/// Night 7: Full psychology decay pass. Runs at start of each new cycle.
+	/// Tuned via balance_test.py (100-seed, 20-cycle simulation).
+	///
+	/// Rates:
+	///   Stress:     -3/cycle natural decay
+	///   Morale:     -1/cycle ambient drift (no longer recovers toward 70)
+	///   Conscience: -0.8/cycle ambient corporate erosion (rounded per-cycle)
+	///   Loyalty:    +1/cycle tenure bonus (after 2 cycles), -1 if stress>70, -1 if morale<35
+	/// </summary>
 	private void DecayStress()
 	{
 		foreach ( var op in World.Operatives )
 		{
-			if ( op.Psychology.Stress > 0 )
-				op.Psychology.Stress = Math.Max( 0, op.Psychology.Stress - 3 );
-			if ( op.Psychology.Morale < 70 )
-				op.Psychology.Morale = Math.Min( 70, op.Psychology.Morale + 1 );
+			if ( !op.Active ) continue;
+			var p = op.Psychology;
+
+			// Stress bleeds off naturally
+			p.Stress = Math.Clamp( p.Stress - 3, 0, 100 );
+
+			// Morale drifts down without active intervention
+			p.Morale = Math.Clamp( p.Morale - 1, 0, 100 );
+
+			// Conscience erodes from ambient corporate pressure
+			// (use cycle parity to approximate -0.8/cycle: lose 1 four out of five cycles)
+			if ( World.Corporate.Cycle % 5 != 0 )
+				p.Conscience = Math.Clamp( p.Conscience - 1, 0, 100 );
+
+			// Loyalty: tenure builds commitment, but stress and low morale erode it
+			int loyaltyDelta = 0;
+			if ( op.Tenure > 2 ) loyaltyDelta += 1;
+			if ( p.Stress > 70 ) loyaltyDelta -= 1;
+			if ( p.Morale < 35 ) loyaltyDelta -= 1;
+			p.Loyalty = Math.Clamp( p.Loyalty + loyaltyDelta, 0, 100 );
 		}
 	}
 

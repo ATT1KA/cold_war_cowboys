@@ -218,7 +218,9 @@ public sealed class FactionSystem
 					Description = "Filed grievance with the board against the player.",
 					Apply = c =>
 					{
-						c.BoardConfidence = Math.Max( 0, c.BoardConfidence - 5 );
+						// Night 7: softened from -5 to -3; balance_test.py showed board confidence
+						// bottoming out too aggressively with multiple factions escalating per cycle.
+						c.BoardConfidence = Math.Max( 0, c.BoardConfidence - 3 );
 						f.Standing = Math.Min( 100, f.Standing + 2 );
 					},
 				} );
