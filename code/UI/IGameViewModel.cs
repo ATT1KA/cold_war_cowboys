@@ -33,4 +33,7 @@ public interface IGameViewModel
 	// Night 4: narrative mission sequence
 	MissionNarrativeRunner NarrativeRunner { get; }
 	void PickNarrativeChoice( NarrativeChoice choice );
+
+	// Night 5: corruption index
+	bool ShouldInvertChoices { get; }
 }

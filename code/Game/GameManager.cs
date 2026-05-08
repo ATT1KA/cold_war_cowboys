@@ -134,6 +134,8 @@ public sealed class GameManager
 
 			case CyclePhase.Resolution:
 				ResolveActiveMissions();
+				// Night 5: recompute corruption index after mission outcomes
+				World.Corruption.Compute( World );
 				break;
 
 			case CyclePhase.Corporate:

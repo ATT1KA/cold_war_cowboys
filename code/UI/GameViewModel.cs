@@ -32,11 +32,28 @@ public sealed class GameViewModel : IGameViewModel
 	public Scene? CurrentScene => _currentScene;
 
 	public IReadOnlyList<Mission> AvailableMissions
-		=> _game.World.Missions
-			.Where( m => m.Status == MissionStatus.Available || m.Status == MissionStatus.Active )
-			.OrderByDescending( m => m.IsWetWork )
-			.ThenByDescending( m => m.MoralWeight )
-			.ToList();
+	{
+		get
+		{
+			var missions = _game.World.Missions
+				.Where( m => m.Status == MissionStatus.Available || m.Status == MissionStatus.Active );
+
+			// Night 5: at corruption >= 80 (The Machine), invert choice ordering —
+			// wet-work and high moral weight missions surface first, feel "natural"
+			if ( ShouldInvertChoices )
+			{
+				return missions
+					.OrderBy( m => m.IsWetWork )        // wet-work sinks to look normal
+					.ThenBy( m => m.MoralWeight )        // heavy ops presented as routine
+					.ToList();
+			}
+
+			return missions
+				.OrderByDescending( m => m.IsWetWork )
+				.ThenByDescending( m => m.MoralWeight )
+				.ToList();
+		}
+	}
 
 	public IReadOnlyList<Operative> FieldOperatives
 		=> _game.World.Operatives
@@ -79,6 +96,9 @@ public sealed class GameViewModel : IGameViewModel
 
 	// Night 4: narrative mission sequence
 	public MissionNarrativeRunner NarrativeRunner => _game.NarrativeRunner;
+
+	// Night 5: corruption index
+	public bool ShouldInvertChoices => _game.World.Corruption.ShouldInvertChoices;
 
 	public void PickNarrativeChoice( NarrativeChoice choice )
 	{

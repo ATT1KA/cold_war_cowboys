@@ -4,7 +4,7 @@
 @inherits Panel
 @namespace CWC.UI
 
-<root class="cyclehud">
+<root class="cyclehud" style="filter: saturate(@SaturationPct%);">
 	<div class="corp">
 		<div class="corp-name">@Vm?.World.Setting.CorpName</div>
 		<div class="corp-meta">@Vm?.World.Setting.Location · @Vm?.World.Setting.Year</div>
@@ -39,6 +39,16 @@
 			<div class="dial-label">Budget</div>
 			<div class="dial-value">$@(Vm?.World.Corporate.Budget.ToString("N0") ?? "0")</div>
 		</div>
+
+		<div class="dial-block corruption-dial">
+			<div class="dial-label">Corruption</div>
+			<div class="dial-bar">
+				<div class="dial-fill" style="width: @CorruptionPct%; background-color: @CorruptionColor;"></div>
+			</div>
+			<div class="dial-value" style="color: @CorruptionColor;">
+				@(CorruptionValue) · @CorruptionLabel
+			</div>
+		</div>
 	</div>
 
 	<div class="cycle">
@@ -56,6 +66,24 @@
 	private int SuspPct => Vm?.World.Corporate.Suspicion ?? 0;
 	private int RepPct => Vm?.World.Corporate.Reputation ?? 0;
 
+	// Night 5: corruption display
+	private int CorruptionPct => (int)( Vm?.World.Corruption.CorruptionIndex ?? 0 );
+	private int CorruptionValue => (int)( Vm?.World.Corruption.CorruptionIndex ?? 0 );
+	private string CorruptionLabel => Vm?.World.Corruption.MilestoneName ?? "—";
+
+	private string CorruptionColor
+	{
+		get
+		{
+			if ( Vm == null ) return "rgb(120,160,200)";
+			var (r, g, b) = Vm.World.Corruption.GetColor();
+			return $"rgb({r},{g},{b})";
+		}
+	}
+
+	// Night 5: HUD saturation — desaturates at high corruption
+	private int SaturationPct => (int)( (Vm?.World.Corruption.HudSaturation ?? 1.0) * 100 );
+
 	// Cyan → amber → red lerp on the pressure dials.
 	private string HeatColor => LerpColor( HeatPct );
 	private string SuspColor => LerpColor( SuspPct );
@@ -63,7 +91,6 @@
 	private static string LerpColor( int v )
 	{
 		v = System.Math.Clamp( v, 0, 100 );
-		// 0..50: cyan → amber. 50..100: amber → red.
 		(int r, int g, int b) c = v < 50
 			? Lerp( (90, 220, 240), (255, 200, 90), v / 50.0 )
 			: Lerp( (255, 200, 90), (255, 90, 80), (v - 50) / 50.0 );
@@ -81,6 +108,7 @@
 	protected override int BuildHash() => System.HashCode.Combine(
 		Vm?.World.Corporate.Heat, Vm?.World.Corporate.Suspicion,
 		Vm?.World.Corporate.Reputation, Vm?.World.Corporate.Budget,
-		Vm?.World.Corporate.Cycle, Vm?.CurrentPhase
+		Vm?.World.Corporate.Cycle, Vm?.CurrentPhase,
+		CorruptionValue, SaturationPct
 	);
 }

@@ -28,6 +28,9 @@ public sealed class WorldState
 	/// <summary>Night 3: protagonist gender for token resolution. Values: "m", "f", "nb".</summary>
 	public string ProtagonistGender { get; set; } = "m";
 
+	/// <summary>Night 5: corruption tracker — computed each cycle, drives milestones + UI.</summary>
+	public CorruptionTracker Corruption { get; set; } = new();
+
 	public int Day { get; set; } = 1;
 	public int HeatLevel { get; set; } = 0;
 	public int PublicTrust { get; set; } = 50;

@@ -1,3 +1,4 @@
+@using System.Linq
 @using Sandbox
 @using Sandbox.UI
 @using CWC.Narrative
@@ -32,7 +33,13 @@
 				}
 				else
 				{
-					@foreach ( var c in scene.Choices )
+					@{
+						// Night 5: invert choice ordering at corruption >= 80
+						var orderedChoices = Vm?.ShouldInvertChoices == true
+							? scene.Choices.AsEnumerable().Reverse().ToList()
+							: scene.Choices;
+					}
+					@foreach ( var c in orderedChoices )
 					{
 						<button class="choice-button" @onclick=@(() => OnPick(c))>@c.Label</button>
 					}

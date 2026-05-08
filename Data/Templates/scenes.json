@@ -432,5 +432,162 @@
       }
     ],
     "FlagsOnFire": ["scene:quiet_moment_seen"]
+  },
+  {
+    "Id": "corruption_competent",
+    "Title": "Competent",
+    "Speaker": "Director Vale",
+    "Setting": "Corner office, morning light through venetian blinds",
+    "RequiredFlags": ["corruption:competent"],
+    "ForbiddenFlags": ["scene:corruption_competent_seen"],
+    "Priority": "Pressing",
+    "OneShot": true,
+    "Cast": [],
+    "TextLines": [
+      "Vale closes a folder. Your name is on the tab.",
+      "\"The board noticed your division's numbers. Clean operations, minimal exposure, acceptable losses.\"",
+      "A pause. The kind that means something.",
+      "\"They're giving you harder contracts. Consider it a compliment.\""
+    ],
+    "Choices": [
+      {
+        "Label": "\"I'll handle whatever comes.\"",
+        "FlagsOnPick": ["choice:confident"],
+        "LoyaltyDelta": 2, "MoraleDelta": 3
+      },
+      {
+        "Label": "\"Define 'harder.'\"",
+        "FlagsOnPick": ["choice:cautious"],
+        "StressDelta": 2
+      }
+    ],
+    "FlagsOnFire": ["scene:corruption_competent_seen"]
+  },
+  {
+    "Id": "corruption_effective",
+    "Title": "Effective",
+    "Speaker": "Director Vale",
+    "Setting": "Executive dining room, empty except for two place settings",
+    "RequiredFlags": ["corruption:effective"],
+    "ForbiddenFlags": ["scene:corruption_effective_seen"],
+    "Priority": "Critical",
+    "OneShot": true,
+    "Cast": [
+      { "Name": "conscience", "Kind": "Role", "Resolver": "role:conscience" }
+    ],
+    "TextLines": [
+      "Vale pours wine you didn't ask for.",
+      "\"Your people are efficient. The board is using words like 'reliable' and 'dependable.' In this company, those words mean something specific.\"",
+      "\"It means they'll start asking you to do things that don't come with written orders.\"",
+      "Somewhere below, {operative.role:conscience} is probably still at their desk. Still believing the mission statements."
+    ],
+    "Choices": [
+      {
+        "Label": "\"I understand the arrangement.\"",
+        "FlagsOnPick": ["choice:complicit"],
+        "ConscienceDelta": -5, "LoyaltyDelta": 3
+      },
+      {
+        "Label": "\"My team follows policy. So do I.\"",
+        "FlagsOnPick": ["choice:principled"],
+        "ConscienceDelta": 3, "LoyaltyDelta": -2, "HeatDelta": 3
+      },
+      {
+        "Label": "\"What's the upside?\"",
+        "FlagsOnPick": ["choice:transactional"],
+        "ConscienceDelta": -2
+      }
+    ],
+    "FlagsOnFire": ["scene:corruption_effective_seen"]
+  },
+  {
+    "Id": "corruption_feared",
+    "Title": "Feared",
+    "Speaker": "",
+    "Setting": "Elevator, between floors, camera disabled",
+    "RequiredFlags": ["corruption:feared"],
+    "ForbiddenFlags": ["scene:corruption_feared_seen"],
+    "Priority": "Critical",
+    "OneShot": true,
+    "Cast": [
+      { "Name": "weapon", "Kind": "Role", "Resolver": "role:weapon" }
+    ],
+    "TextLines": [
+      "The elevator stops between floors. Not a malfunction. A conversation.",
+      "A voice from the board's security detail: \"Your division's reputation precedes it. Rival divisions are requesting transfers out. Three this quarter.\"",
+      "\"The board finds this... useful. Fear is a resource, and you've learned to spend it.\"",
+      "The elevator resumes. {operative.role:weapon} is waiting in the lobby, reading something on their phone. They don't look up when the doors open."
+    ],
+    "Choices": [
+      {
+        "Label": "Fear is just efficiency with better PR.",
+        "FlagsOnPick": ["choice:embraced_fear"],
+        "ConscienceDelta": -8, "MoraleDelta": -5
+      },
+      {
+        "Label": "This isn't what I built.",
+        "FlagsOnPick": ["choice:doubt"],
+        "ConscienceDelta": 3, "StressDelta": 8
+      }
+    ],
+    "FlagsOnFire": ["scene:corruption_feared_seen"]
+  },
+  {
+    "Id": "corruption_the_machine",
+    "Title": "The Machine",
+    "Speaker": "",
+    "Setting": "Your office. Late. The lights are off but you haven't noticed.",
+    "RequiredFlags": ["corruption:the_machine"],
+    "ForbiddenFlags": ["scene:corruption_machine_seen"],
+    "Priority": "Critical",
+    "OneShot": true,
+    "Cast": [
+      { "Name": "mirror", "Kind": "Role", "Resolver": "role:mirror" }
+    ],
+    "TextLines": [
+      "The org chart on your wall has more red lines than black ones now. Terminated. Transferred. Reassigned. The euphemisms have their own euphemisms.",
+      "You realise you've been sitting in the dark for forty minutes, reviewing personnel files by screen light. Not reading them. Processing them.",
+      "{operative.role:mirror} knocked earlier. You heard it. You chose not to answer.",
+      "The building hums. Climate control, server cooling, security systems. It sounds like breathing. It sounds like you."
+    ],
+    "Choices": [
+      {
+        "Label": "Close the file. Open the next one.",
+        "FlagsOnPick": ["choice:machine_continues"],
+        "ConscienceDelta": -10, "StressDelta": -5, "MoraleDelta": -8
+      },
+      {
+        "Label": "Turn on the lights.",
+        "FlagsOnPick": ["choice:machine_hesitates"],
+        "ConscienceDelta": 5, "StressDelta": 10
+      }
+    ],
+    "FlagsOnFire": ["scene:corruption_machine_seen"]
+  },
+  {
+    "Id": "corruption_jenkins",
+    "Title": "",
+    "Speaker": "",
+    "Setting": "",
+    "RequiredFlags": ["corruption:jenkins"],
+    "ForbiddenFlags": ["scene:corruption_jenkins_seen"],
+    "Priority": "Critical",
+    "OneShot": true,
+    "Cast": [],
+    "TextLines": [
+      "You don't remember when the names stopped mattering.",
+      "The reports are clean. The numbers are good. The board is satisfied.",
+      "Somewhere in the building, someone is having the worst day of their life because of a decision you made before your second coffee.",
+      "You didn't make it to hurt them. You didn't make it not to. You just made it.",
+      "This is Tuesday."
+    ],
+    "Choices": [
+      {
+        "Label": "Next.",
+        "FlagsOnPick": ["choice:jenkins"],
+        "ConscienceDelta": -3
+      }
+    ],
+    "FlagsOnFire": ["scene:corruption_jenkins_seen"]
   }
 ]
