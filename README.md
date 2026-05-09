@@ -106,7 +106,7 @@ All gameplay content is JSON, loaded from [Data/Templates/](Data/Templates/) at 
 - `world.json`, `scenarios.json` — world setting and scenario seeds.
 - `corporate/` — faction, directive, and corporate-event templates.
 
-For the comprehensive scene-writing guide covering JSON format reference, use-case walkthroughs, and the cyberpunk register guide, see the [Content Authoring Manual](docs/CWC_Content_Authoring_Manual.docx).
+For the comprehensive scene-writing guide covering JSON format reference, use-case walkthroughs, and the cyberpunk register guide, see the [Content Authoring Manual](docs/CWC_Content_Authoring_Manual.pdf).
 
 ---
 
@@ -135,6 +135,6 @@ cold_war_cowboys/
 ├── tests/SmokeTest/          # engine-independent .NET 8 smoke test
 ├── tools/                    # auxiliary scripts (e.g., balance_test.py)
 └── docs/
-    ├── CWC_Content_Authoring_Manual.docx
+    ├── CWC_Content_Authoring_Manual.pdf
     └── QA_AUDIT.md
 ```
