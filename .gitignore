@@ -26,3 +26,7 @@ code/Properties/*
 
 # Exported / standalone games
 Exports/
+
+
+# Claude Code worktree scratch space — local-only, do not track
+.claude/worktrees/
