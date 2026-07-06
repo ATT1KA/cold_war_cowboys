@@ -30,3 +30,6 @@ Exports/
 
 # Claude Code worktree scratch space — local-only, do not track
 .claude/worktrees/
+
+# Save files are player data, not content
+Data/Saves/

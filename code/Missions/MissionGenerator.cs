@@ -51,8 +51,18 @@ public sealed class MissionGenerator
 	{
 		int cycle = world.Corporate.Cycle;
 		int diffBase = rng.BellInt( t.MinDifficulty, t.MaxDifficulty );
-		int cycleBoost = Math.Min( 30, (cycle - 1) * 2 );
+		// Late-game pressure, but a wall operatives can actually climb: skills
+		// grow with fieldwork (ConsequenceProcessor), so +2/cycle capped +26
+		// outpaces a rotated roster slightly — by the mid-teens the player is
+		// reaching for edges (sequences, negotiation, the gray market) instead
+		// of hitting a mathematically impossible ceiling.
+		int cycleBoost = Math.Min( 26, (cycle - 1) * 2 );
 		int difficulty = Math.Clamp( diffBase + cycleBoost, 5, 95 );
+
+		// The economy is real: contracts pay what they say. Wet work pays a
+		// ~60% premium — cruelty buys money; the cost is heat and people.
+		int reward = t.Reward > 0 ? t.Reward : 8_000 + difficulty * 120;
+		if ( t.IsWetWork ) reward = (int)( reward * 1.6 );
 
 		var weights = new Dictionary<SkillKind, int>();
 		foreach ( var (k, v) in t.StatWeights )
@@ -77,11 +87,16 @@ public sealed class MissionGenerator
 			StatWeights = weights,
 			CycleAvailable = cycle,
 			CycleDeadline = cycle + Math.Max( 1, t.CycleWindow ),
+			Reward = reward,
 			NarrativeFlagsOnSuccess = new List<string>( t.NarrativeFlagsOnSuccess ),
 			NarrativeFlagsOnPartialSuccess = new List<string>( t.NarrativeFlagsOnPartialSuccess ),
 			NarrativeFlagsOnFailure = new List<string>( t.NarrativeFlagsOnFailure ),
 			NarrativeFlagsOnCatastrophe = new List<string>( t.NarrativeFlagsOnCatastrophe ),
-			// Night 4: attach narrative sequence for high-stakes missions
+			SuccessText = InterpolateTokens( t.SuccessText, world, client, target ),
+			PartialText = InterpolateTokens( t.PartialText, world, client, target ),
+			FailureText = InterpolateTokens( t.FailureText, world, client, target ),
+			CatastropheText = InterpolateTokens( t.CatastropheText, world, client, target ),
+			// Attach narrative sequence for high-stakes missions
 			NarrativeSequence = difficulty >= 70 ? t.NarrativeSequence : null,
 		};
 

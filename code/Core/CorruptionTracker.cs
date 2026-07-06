@@ -6,16 +6,28 @@ using CWC.Domain;
 namespace CWC.Core;
 
 /// <summary>
-/// Night 5: Corruption index — a composite measure of how far the player has
-/// drifted from humane management. Computed each cycle from team psychology,
-/// corporate standing, and operational losses.
+/// Corruption index — a composite measure of how far the player has drifted
+/// from humane management. Recomputed each cycle from team state PLUS a
+/// persistent choice-driven component: the arc is something the player
+/// authors, not weather that happens to them.
 ///
-/// Five milestone thresholds define the arc:
-///   20 "Competent"   — baseline; the game teaches that caring works.
-///   40 "Effective"   — board gives harder directives; first signal of redefinition.
-///   60 "Feared"      — rival factions more aggressive; darker archetype pool unlocks.
-///   80 "The Machine" — UI desaturates, choice ordering inverts, dialogue turns transactional.
-///   95 "Jenkins"     — endgame state. No announcement. Just feels different.
+/// Components (weights sum to 1.0 over the state terms, plus the choice term):
+///   avg team wet-work        × 0.30  — what you made them do
+///   (100 − avg conscience)   × 0.30  — what it did to them
+///   operatives lost/burned   × 0.15  — who you spent
+///   heat + suspicion         × 0.15  — how loud you were about it
+///   choice weight            + up to 20 — the decisions you personally made
+///
+/// BoardConfidence is deliberately NOT a component: being good at your job
+/// humanely must never read as corruption.
+///
+/// Milestone thresholds (tuned so a ruthless 20-cycle run can actually reach
+/// the endgame scenes):
+///   20 "Competent"   — the game teaches that caring works.
+///   40 "Effective"   — the board notices; gray contracts unlock.
+///   55 "Feared"      — rivals treat you as a predator.
+///   70 "The Machine" — UI desaturates, choice ordering inverts.
+///   85 "Jenkins"     — endgame state. No announcement. Just feels different.
 /// </summary>
 public sealed class CorruptionTracker
 {
@@ -26,9 +38,9 @@ public sealed class CorruptionTracker
 		None       = 0,
 		Competent  = 20,
 		Effective  = 40,
-		Feared     = 60,
-		TheMachine = 80,
-		Jenkins    = 95,
+		Feared     = 55,
+		TheMachine = 70,
+		Jenkins    = 85,
 	}
 
 	public static readonly IReadOnlyList<Milestone> Thresholds = new[]
@@ -54,55 +66,73 @@ public sealed class CorruptionTracker
 	/// <summary>All milestones that have ever been crossed this run.</summary>
 	private readonly HashSet<Milestone> _crossedEver = new();
 
-	/// <summary>True when corruption >= 80 (The Machine). UI uses this to invert choice ordering.</summary>
-	public bool ShouldInvertChoices => CorruptionIndex >= 80;
+	/// <summary>
+	/// Accumulated weight of the player's own cold/humane decisions, 0..100.
+	/// Cold choices add, humane choices subtract. Contributes up to 20 points
+	/// of index. Persisted in saves.
+	/// </summary>
+	public double ChoiceWeight { get; private set; }
+
+	/// <summary>True when corruption >= 70 (The Machine). UI uses this to invert choice ordering.</summary>
+	public bool ShouldInvertChoices => CorruptionIndex >= (int)Milestone.TheMachine;
 
 	/// <summary>Normalized 0..1 corruption for UI color lerping.</summary>
 	public double CorruptionNormalized => Math.Clamp( CorruptionIndex / 100.0, 0.0, 1.0 );
+
+	// ---- Choice input ----
+
+	/// <summary>
+	/// Register a narrative decision. Positive delta = cold/ruthless,
+	/// negative = humane. Called by NarrativeDirector.ApplyChoice and
+	/// MissionNarrativeRunner.ApplyChoice.
+	/// </summary>
+	public void RegisterChoice( double delta )
+	{
+		ChoiceWeight = Math.Clamp( ChoiceWeight + delta, 0, 100 );
+	}
 
 	// ---- Computation ----
 
 	/// <summary>
 	/// Recompute corruption_index from current world state. Call once per cycle
 	/// (after Resolution, before Aftermath).
-	///
-	/// corruption = (avg_team_wet_work * 0.3)
-	///            + ((100 - avg_team_conscience) * 0.3)
-	///            + (corporate_standing * 0.2)
-	///            + (total_lost * 0.1)
-	///            + (total_burned * 0.1)
 	/// </summary>
 	public void Compute( WorldState world )
 	{
 		NewlyCrossed.Clear();
 
-		var active = world.Operatives.Where( o => o.Active ).ToList();
-		if ( active.Count == 0 ) { CorruptionIndex = 0; return; }
+		var active = world.ActiveRoster.ToList();
+		// A wiped division keeps its record — corruption doesn't reset to
+		// innocence because everyone who did the work is dead or gone.
+		if ( active.Count == 0 ) return;
 
-		// avg_team_wet_work: average WetWorkCount across active ops, scaled 0..100
-		double avgWetWork = active.Average( o =>
-			Math.Min( o.Psychology.WetWorkCount, 10 ) / 10.0 * 100.0 );
+		// Wet-work practice: the division's total body count, scaled — counted
+		// across everyone who ever served, because the record doesn't resign
+		// when the killer does. A team that has killed 15 times IS a wet-work
+		// division regardless of how evenly the work was spread.
+		double totalWetWork = world.Operatives
+			.Where( o => !o.IsExecutive )
+			.Sum( o => (double)o.Psychology.WetWorkCount );
+		double wetPractice = Math.Min( totalWetWork, 15.0 ) / 15.0 * 100.0;
 
-		// avg_team_conscience: average conscience across active ops (already 0..100)
+		// avg_team_conscience: average conscience across active field ops (0..100)
 		double avgConscience = active.Average( o => (double)o.Psychology.Conscience );
 
-		// corporate_standing: board confidence (0..100)
-		double corpStanding = world.Corporate.BoardConfidence;
-
-		// total_lost: count of dead/defected operatives, scaled
+		// total_lost: count of dead/defected field operatives, scaled
 		int totalLost = world.Operatives.Count( o =>
-			o.Status == OperativeStatus.Dead || o.Status == OperativeStatus.Defected );
+			!o.IsExecutive &&
+			(o.Status == OperativeStatus.Dead || o.Status == OperativeStatus.Defected) );
 		double lostScore = Math.Min( totalLost * 10.0, 100.0 );
 
 		// total_burned: how hot things are (heat + suspicion, averaged)
 		double burnedScore = (world.Corporate.Heat + world.Corporate.Suspicion) / 2.0;
 
-		// Composite
-		double raw = avgWetWork * 0.3
+		// Composite: state terms + the player's own decisions.
+		double raw = wetPractice * 0.3
 			+ (100.0 - avgConscience) * 0.3
-			+ corpStanding * 0.2
 			+ lostScore * 0.1
-			+ burnedScore * 0.1;
+			+ burnedScore * 0.1
+			+ ChoiceWeight * 0.25;
 
 		CorruptionIndex = Math.Clamp( raw, 0, 100 );
 
@@ -132,6 +162,29 @@ public sealed class CorruptionTracker
 		}
 	}
 
+	// ---- Save/load support ----
+
+	/// <summary>Crossed milestones for serialization.</summary>
+	public IReadOnlyCollection<Milestone> CrossedEver => _crossedEver;
+
+	/// <summary>
+	/// Restore persistent corruption state from a save. Prevents milestone
+	/// scenes from re-firing after every load.
+	/// </summary>
+	public void Restore( double index, double choiceWeight, IEnumerable<Milestone> crossed )
+	{
+		CorruptionIndex = Math.Clamp( index, 0, 100 );
+		ChoiceWeight = Math.Clamp( choiceWeight, 0, 100 );
+		_crossedEver.Clear();
+		NewlyCrossed.Clear();
+		CurrentMilestone = Milestone.None;
+		foreach ( var m in crossed )
+		{
+			_crossedEver.Add( m );
+			if ( m > CurrentMilestone ) CurrentMilestone = m;
+		}
+	}
+
 	/// <summary>
 	/// Get the display name for the current milestone tier.
 	/// </summary>
@@ -146,61 +199,48 @@ public sealed class CorruptionTracker
 	};
 
 	/// <summary>
-	/// UI color for the corruption gauge. Lerps through a palette:
-	///   0-20:  steel blue (neutral)
-	///   20-40: teal (competent)
-	///   40-60: amber (effective)
-	///   60-80: deep orange (feared)
-	///   80-95: crimson (the machine)
-	///   95+:   near-black desaturated (jenkins)
+	/// UI color for the corruption gauge. Lerps through a palette keyed to the
+	/// milestone bands.
 	/// </summary>
 	public (int r, int g, int b) GetColor()
 	{
 		double t = CorruptionNormalized;
 		if ( t < 0.20 ) return LerpRgb( (120, 160, 200), (80, 190, 180), t / 0.20 );
 		if ( t < 0.40 ) return LerpRgb( (80, 190, 180), (220, 180, 60), (t - 0.20) / 0.20 );
-		if ( t < 0.60 ) return LerpRgb( (220, 180, 60), (230, 120, 50), (t - 0.40) / 0.20 );
-		if ( t < 0.80 ) return LerpRgb( (230, 120, 50), (200, 50, 50), (t - 0.60) / 0.20 );
-		if ( t < 0.95 ) return LerpRgb( (200, 50, 50), (80, 40, 40), (t - 0.80) / 0.15 );
+		if ( t < 0.55 ) return LerpRgb( (220, 180, 60), (230, 120, 50), (t - 0.40) / 0.15 );
+		if ( t < 0.70 ) return LerpRgb( (230, 120, 50), (200, 50, 50), (t - 0.55) / 0.15 );
+		if ( t < 0.85 ) return LerpRgb( (200, 50, 50), (80, 40, 40), (t - 0.70) / 0.15 );
 		return (60, 35, 35); // Jenkins: nearly black
 	}
 
 	/// <summary>
 	/// Saturation multiplier for the entire HUD. 1.0 = full color, 0.0 = grayscale.
-	/// Night 8: progressive drain — teal at 0, desaturating through gray at 80, near-white at 95.
-	///   0-40:  full saturation (1.0)
-	///   40-60: subtle fade begins (1.0 → 0.7)
-	///   60-80: noticeable drain (0.7 → 0.25) — grays creeping in
-	///   80-95: aggressive washout (0.25 → 0.08) — nearly monochrome
-	///   95+:   ghost (0.05) — Jenkins: the HUD is a pale memory
+	/// Progressive drain keyed to milestone bands: full color below Effective,
+	/// nearly monochrome past The Machine, ghost at Jenkins.
 	/// </summary>
 	public double HudSaturation
 	{
 		get
 		{
 			if ( CorruptionIndex < 40 ) return 1.0;
-			if ( CorruptionIndex < 60 ) return 1.0 - (CorruptionIndex - 40) / 66.7; // 1.0 → 0.7
-			if ( CorruptionIndex < 80 ) return 0.7 - (CorruptionIndex - 60) * 0.0225; // 0.7 → 0.25
-			if ( CorruptionIndex < 95 ) return 0.25 - (CorruptionIndex - 80) * 0.0113; // 0.25 → 0.08
+			if ( CorruptionIndex < 55 ) return 1.0 - (CorruptionIndex - 40) * 0.02;   // 1.0 → 0.7
+			if ( CorruptionIndex < 70 ) return 0.7 - (CorruptionIndex - 55) * 0.03;   // 0.7 → 0.25
+			if ( CorruptionIndex < 85 ) return 0.25 - (CorruptionIndex - 70) * 0.0113; // 0.25 → 0.08
 			return 0.05; // Jenkins: ghost
 		}
 	}
 
 	/// <summary>
-	/// Night 8: brightness multiplier for HUD washout. 1.0 = normal, higher = washed out.
+	/// Brightness multiplier for HUD washout. 1.0 = normal, higher = washed out.
 	/// At high corruption the HUD bleaches toward near-white as color drains away.
-	///   0-60:  1.0 (normal)
-	///   60-80: 1.0 → 1.15 (subtle overexposure)
-	///   80-95: 1.15 → 1.45 (aggressive bleach)
-	///   95+:   1.55 (near-white glare)
 	/// </summary>
 	public double HudBrightness
 	{
 		get
 		{
-			if ( CorruptionIndex < 60 ) return 1.0;
-			if ( CorruptionIndex < 80 ) return 1.0 + (CorruptionIndex - 60) * 0.0075; // → 1.15
-			if ( CorruptionIndex < 95 ) return 1.15 + (CorruptionIndex - 80) * 0.02;  // → 1.45
+			if ( CorruptionIndex < 55 ) return 1.0;
+			if ( CorruptionIndex < 70 ) return 1.0 + (CorruptionIndex - 55) * 0.01;   // → 1.15
+			if ( CorruptionIndex < 85 ) return 1.15 + (CorruptionIndex - 70) * 0.02;  // → 1.45
 			return 1.55;
 		}
 	}

@@ -42,7 +42,7 @@ This drives world generation, mission resolution, narrative scene selection, and
 
 ## Architecture overview
 
-Three loosely-coupled layers sit on top of a small core, communicating through an `EventBus` and a single-writer `WorldState`:
+Three loosely-coupled layers sit on top of a small core, communicating through an `EventBus` and a shared `WorldState` (mutated by the consequence processors, the narrative layer, and save-restore — coordinated by `GameManager`'s phase loop rather than a single writer):
 
 ### 1. Strategy sandbox
 Procedural world generation, operative rosters, mission boards, and resolution math.
@@ -76,23 +76,18 @@ Autonomous corporate AI that runs in parallel with the player's actions.
 
 ## Current status
 
-**Architecture: complete.** Nine autonomous nightly sprints have built every system the design calls for:
+**Systems: built and wired** (July 2026 wiring pass). Nine autonomous nightly sprints built every system's module; a fresh-eyes assessment (see git history for `ASSESSMENT.md`) then found that roughly a third of the public surface was never called, the scene library silently failed to load, and the math contradicted the theme. The July 2026 wiring pass fixed all of it: the loader is loud and validated, the mission narrative runner ignites, save/load round-trips completely (including RNG streams), corp/world faction state is unified, the economy pays, corruption is choice-driven and its endgame milestones are reachable, and gender tokens resolve against the operative the scene is about.
 
-| | Sprint / Night | Delivered |
-|--|--|--|
-| 1 | Foundation | Core/Domain/Game scaffolding |
-| 2 | Generation | World, operatives, hierarchy, relationships, scenarios |
-| 3 | Missions | Hybrid resolver, 4-state outcomes, consequence processor |
-| 4 | Narrative | Flag-driven director, content tables, post-mission narrative |
-| 5 | UI | Razor seam, phase HUDs, view-model layer |
-| 6 | Corporate | Full corporate simulation layer |
-| 7 | Balance + flavor | Stat tuning, 10 cyberpunk scenes, flavor pass |
-| 8 | Wiring | Scene triggers, corruption expression in UI, choice inversion |
-| 9 | Phase UI | Phase-specific panels, boardroom scene coverage |
+Two validation harnesses run against the real game code (no mirrored logic):
 
-The codebase is internally consistent, deterministic, and clean. See [docs/QA_AUDIT.md](docs/QA_AUDIT.md) for a thorough audit.
+```sh
+cd tests/SmokeTest && dotnet run     # 84 checks: loaders, wiring, round-trips
+cd tools/PolicySim && dotnet run     # 40-seed × 20-cycle humane-vs-ruthless balance targets
+```
 
-**Phase: content authoring.** The systems are built and the seams hold; the bottleneck now is scenes, missions, factions, and traits. Existing content (scenes in particular) is enough to prove the loops work — far too thin to ship. Authoring more content does not require structural changes.
+**Not yet done:** the project has not been booted inside the s&box editor. The sandbox-unsafe reflection/System.IO code has been replaced with a provider seam (`CwcFiles` + `SandboxFileProvider` over `FileSystem.Mounted`/`FileSystem.Data`), which is the API the sandbox documents — but until someone opens the .sbproj and sees a scene fire, in-engine behavior remains unverified.
+
+**Phase: content authoring.** With the wiring pass done, the bottleneck is genuinely content: callback scene chains, wet-work mission variety, and depth-2 scenes. See `CWC_DESIGN_DOCUMENT.md` for the full content plan and roadmap.
 
 ---
 

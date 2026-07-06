@@ -5,29 +5,86 @@
     "Background": "ExMilitary",
     "NarrativeRole": "anchor",
     "SkillBands": {
-      "Combat":       { "Min": 60, "Max": 85 },
-      "Stealth":      { "Min": 30, "Max": 55 },
-      "Hacking":      { "Min": 15, "Max": 35 },
-      "Deception":    { "Min": 25, "Max": 50 },
-      "Intimidation": { "Min": 55, "Max": 80 },
-      "Persuasion":   { "Min": 35, "Max": 60 }
+      "Combat": {
+        "Min": 60,
+        "Max": 85
+      },
+      "Stealth": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Hacking": {
+        "Min": 15,
+        "Max": 35
+      },
+      "Deception": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Intimidation": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Persuasion": {
+        "Min": 35,
+        "Max": 60
+      }
     },
-    "Loyalty":    { "Min": 70, "Max": 90 },
-    "Stress":     { "Min": 20, "Max": 40 },
-    "Morale":     { "Min": 60, "Max": 80 },
-    "Conscience": { "Min": 65, "Max": 85 },
-    "Ambition":   { "Min": 30, "Max": 55 },
-    "TraitPool": ["dutiful", "volatile", "ex_military", "comp_loyalty", "vice_drink", "compassionate"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 70,
+      "Max": 90
+    },
+    "Stress": {
+      "Min": 20,
+      "Max": 40
+    },
+    "Morale": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Conscience": {
+      "Min": 65,
+      "Max": 85
+    },
+    "Ambition": {
+      "Min": 30,
+      "Max": 55
+    },
+    "TraitPool": [
+      "dutiful",
+      "volatile",
+      "ex_military",
+      "comp_loyalty",
+      "vice_drink",
+      "compassionate",
+      "stoic",
+      "ex_medic"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Three tours in the Kamchatka Exclusion Zone left medals on the chest and shrapnel in the spine.",
       "The brass pinned a star on the dress uniform the same week the nightmares started.",
       "Retirement meant a pension and a studio apartment; the corp offered purpose instead."
     ],
-    "PersonalityPool": ["dutiful", "volatile", "compassionate"],
-    "BackgroundPool":  ["ex_military"],
-    "VicePool":        ["vice_drink", "vice_thrill"],
-    "CompulsionPool":  ["comp_loyalty", "comp_perfectionist"]
+    "PersonalityPool": [
+      "dutiful",
+      "volatile",
+      "compassionate"
+    ],
+    "BackgroundPool": [
+      "ex_military"
+    ],
+    "VicePool": [
+      "vice_drink",
+      "vice_thrill"
+    ],
+    "CompulsionPool": [
+      "comp_loyalty",
+      "comp_perfectionist"
+    ]
   },
   {
     "Id": "disgraced_officer",
@@ -35,29 +92,82 @@
     "Background": "ExMilitary",
     "NarrativeRole": "mirror",
     "SkillBands": {
-      "Combat":       { "Min": 45, "Max": 70 },
-      "Stealth":      { "Min": 25, "Max": 50 },
-      "Hacking":      { "Min": 20, "Max": 40 },
-      "Deception":    { "Min": 45, "Max": 70 },
-      "Intimidation": { "Min": 50, "Max": 75 },
-      "Persuasion":   { "Min": 40, "Max": 65 }
+      "Combat": {
+        "Min": 45,
+        "Max": 70
+      },
+      "Stealth": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Hacking": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Deception": {
+        "Min": 45,
+        "Max": 70
+      },
+      "Intimidation": {
+        "Min": 50,
+        "Max": 75
+      },
+      "Persuasion": {
+        "Min": 40,
+        "Max": 65
+      }
     },
-    "Loyalty":    { "Min": 30, "Max": 55 },
-    "Stress":     { "Min": 30, "Max": 50 },
-    "Morale":     { "Min": 40, "Max": 60 },
-    "Conscience": { "Min": 35, "Max": 60 },
-    "Ambition":   { "Min": 55, "Max": 80 },
-    "TraitPool": ["cynical", "volatile", "ex_military", "vice_drink", "vice_gambling", "comp_records"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 30,
+      "Max": 55
+    },
+    "Stress": {
+      "Min": 30,
+      "Max": 50
+    },
+    "Morale": {
+      "Min": 40,
+      "Max": 60
+    },
+    "Conscience": {
+      "Min": 35,
+      "Max": 60
+    },
+    "Ambition": {
+      "Min": 55,
+      "Max": 80
+    },
+    "TraitPool": [
+      "cynical",
+      "volatile",
+      "ex_military",
+      "vice_drink",
+      "vice_gambling",
+      "comp_records"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Court-martial records are sealed but the rumor mill runs on diesel.",
       "Lost a platoon to a call that looked right on paper. The paper was wrong.",
       "Command stripped the rank but couldn't strip the instinct to lead from the front."
     ],
-    "PersonalityPool": ["cynical", "volatile"],
-    "BackgroundPool":  ["ex_military"],
-    "VicePool":        ["vice_drink", "vice_gambling"],
-    "CompulsionPool":  ["comp_records"]
+    "PersonalityPool": [
+      "cynical",
+      "volatile"
+    ],
+    "BackgroundPool": [
+      "ex_military"
+    ],
+    "VicePool": [
+      "vice_drink",
+      "vice_gambling"
+    ],
+    "CompulsionPool": [
+      "comp_records"
+    ]
   },
   {
     "Id": "specops_washout",
@@ -65,29 +175,83 @@
     "Background": "ExMilitary",
     "NarrativeRole": "weapon",
     "SkillBands": {
-      "Combat":       { "Min": 70, "Max": 95 },
-      "Stealth":      { "Min": 55, "Max": 80 },
-      "Hacking":      { "Min": 10, "Max": 30 },
-      "Deception":    { "Min": 30, "Max": 55 },
-      "Intimidation": { "Min": 60, "Max": 85 },
-      "Persuasion":   { "Min": 15, "Max": 35 }
+      "Combat": {
+        "Min": 70,
+        "Max": 95
+      },
+      "Stealth": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Hacking": {
+        "Min": 10,
+        "Max": 30
+      },
+      "Deception": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Intimidation": {
+        "Min": 60,
+        "Max": 85
+      },
+      "Persuasion": {
+        "Min": 15,
+        "Max": 35
+      }
     },
-    "Loyalty":    { "Min": 25, "Max": 50 },
-    "Stress":     { "Min": 35, "Max": 55 },
-    "Morale":     { "Min": 45, "Max": 65 },
-    "Conscience": { "Min": 20, "Max": 45 },
-    "Ambition":   { "Min": 25, "Max": 50 },
-    "TraitPool": ["volatile", "cynical", "ex_military", "vice_stim", "vice_thrill", "comp_perfectionist"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 25,
+      "Max": 50
+    },
+    "Stress": {
+      "Min": 35,
+      "Max": 55
+    },
+    "Morale": {
+      "Min": 45,
+      "Max": 65
+    },
+    "Conscience": {
+      "Min": 20,
+      "Max": 45
+    },
+    "Ambition": {
+      "Min": 25,
+      "Max": 50
+    },
+    "TraitPool": [
+      "volatile",
+      "cynical",
+      "ex_military",
+      "vice_stim",
+      "vice_thrill",
+      "comp_perfectionist",
+      "vice_arena"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Failed the psych eval on the third rotation. Nobody argued.",
       "Muscle memory from black-site drills doesn't unlearn; it just waits.",
       "The discharge papers say 'medical' but the scars say otherwise."
     ],
-    "PersonalityPool": ["volatile", "cynical"],
-    "BackgroundPool":  ["ex_military"],
-    "VicePool":        ["vice_stim", "vice_thrill"],
-    "CompulsionPool":  ["comp_perfectionist"]
+    "PersonalityPool": [
+      "volatile",
+      "cynical"
+    ],
+    "BackgroundPool": [
+      "ex_military"
+    ],
+    "VicePool": [
+      "vice_stim",
+      "vice_thrill"
+    ],
+    "CompulsionPool": [
+      "comp_perfectionist"
+    ]
   },
   {
     "Id": "mil_intel_analyst",
@@ -95,60 +259,165 @@
     "Background": "ExMilitary",
     "NarrativeRole": "conscience",
     "SkillBands": {
-      "Combat":       { "Min": 25, "Max": 45 },
-      "Stealth":      { "Min": 35, "Max": 60 },
-      "Hacking":      { "Min": 50, "Max": 75 },
-      "Deception":    { "Min": 50, "Max": 75 },
-      "Intimidation": { "Min": 20, "Max": 40 },
-      "Persuasion":   { "Min": 35, "Max": 60 }
+      "Combat": {
+        "Min": 25,
+        "Max": 45
+      },
+      "Stealth": {
+        "Min": 35,
+        "Max": 60
+      },
+      "Hacking": {
+        "Min": 50,
+        "Max": 75
+      },
+      "Deception": {
+        "Min": 50,
+        "Max": 75
+      },
+      "Intimidation": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Persuasion": {
+        "Min": 35,
+        "Max": 60
+      }
     },
-    "Loyalty":    { "Min": 55, "Max": 75 },
-    "Stress":     { "Min": 25, "Max": 45 },
-    "Morale":     { "Min": 55, "Max": 75 },
-    "Conscience": { "Min": 70, "Max": 90 },
-    "Ambition":   { "Min": 35, "Max": 55 },
-    "TraitPool": ["calculating", "compassionate", "ex_intel", "comp_records", "vice_stim"],
-    "TraitCount": [2, 3],
+    "Loyalty": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Stress": {
+      "Min": 25,
+      "Max": 45
+    },
+    "Morale": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Conscience": {
+      "Min": 70,
+      "Max": 90
+    },
+    "Ambition": {
+      "Min": 35,
+      "Max": 55
+    },
+    "TraitPool": [
+      "calculating",
+      "compassionate",
+      "ex_intel",
+      "comp_records",
+      "vice_stim",
+      "precise"
+    ],
+    "TraitCount": [
+      2,
+      3
+    ],
     "FlavorFragments": [
       "Spent four years reading satellite feeds until the faces in the crosshairs started looking familiar.",
       "Knows exactly how many people died from bad intel. Keeps the number updated.",
       "Traded a security clearance for a severance check and a non-disclosure that could fill a novel."
     ],
-    "PersonalityPool": ["calculating", "compassionate"],
-    "BackgroundPool":  ["ex_intel"],
-    "VicePool":        ["vice_stim"],
-    "CompulsionPool":  ["comp_records", "comp_perfectionist"]
+    "PersonalityPool": [
+      "calculating",
+      "compassionate"
+    ],
+    "BackgroundPool": [
+      "ex_intel"
+    ],
+    "VicePool": [
+      "vice_stim"
+    ],
+    "CompulsionPool": [
+      "comp_records",
+      "comp_perfectionist"
+    ]
   },
-
   {
     "Id": "idealist_hacktivist",
     "DisplayName": "Idealist Hacktivist",
     "Background": "Hacker",
     "NarrativeRole": "conscience",
     "SkillBands": {
-      "Combat":       { "Min": 10, "Max": 30 },
-      "Stealth":      { "Min": 40, "Max": 65 },
-      "Hacking":      { "Min": 70, "Max": 95 },
-      "Deception":    { "Min": 35, "Max": 60 },
-      "Intimidation": { "Min": 10, "Max": 30 },
-      "Persuasion":   { "Min": 40, "Max": 65 }
+      "Combat": {
+        "Min": 10,
+        "Max": 30
+      },
+      "Stealth": {
+        "Min": 40,
+        "Max": 65
+      },
+      "Hacking": {
+        "Min": 70,
+        "Max": 95
+      },
+      "Deception": {
+        "Min": 35,
+        "Max": 60
+      },
+      "Intimidation": {
+        "Min": 10,
+        "Max": 30
+      },
+      "Persuasion": {
+        "Min": 40,
+        "Max": 65
+      }
     },
-    "Loyalty":    { "Min": 35, "Max": 60 },
-    "Stress":     { "Min": 20, "Max": 40 },
-    "Morale":     { "Min": 65, "Max": 85 },
-    "Conscience": { "Min": 75, "Max": 95 },
-    "Ambition":   { "Min": 55, "Max": 75 },
-    "TraitPool": ["compassionate", "calculating", "ex_press", "vice_stim", "comp_records"],
-    "TraitCount": [2, 3],
+    "Loyalty": {
+      "Min": 35,
+      "Max": 60
+    },
+    "Stress": {
+      "Min": 20,
+      "Max": 40
+    },
+    "Morale": {
+      "Min": 65,
+      "Max": 85
+    },
+    "Conscience": {
+      "Min": 75,
+      "Max": 95
+    },
+    "Ambition": {
+      "Min": 55,
+      "Max": 75
+    },
+    "TraitPool": [
+      "compassionate",
+      "calculating",
+      "ex_press",
+      "vice_stim",
+      "comp_records",
+      "paranoid",
+      "comp_codes"
+    ],
+    "TraitCount": [
+      2,
+      3
+    ],
     "FlavorFragments": [
       "Used to dump corporate payrolls on public boards and call it journalism.",
       "Believed the net could set people free. Still believes it, which is the problem.",
       "The manifesto got a million reads. The arrest warrant got one."
     ],
-    "PersonalityPool": ["compassionate", "calculating"],
-    "BackgroundPool":  ["ex_press"],
-    "VicePool":        ["vice_stim"],
-    "CompulsionPool":  ["comp_records"]
+    "PersonalityPool": [
+      "compassionate",
+      "calculating"
+    ],
+    "BackgroundPool": [
+      "ex_press"
+    ],
+    "VicePool": [
+      "vice_stim"
+    ],
+    "CompulsionPool": [
+      "comp_records"
+    ]
   },
   {
     "Id": "corpsec_defector",
@@ -156,29 +425,81 @@
     "Background": "Hacker",
     "NarrativeRole": "mirror",
     "SkillBands": {
-      "Combat":       { "Min": 30, "Max": 50 },
-      "Stealth":      { "Min": 40, "Max": 65 },
-      "Hacking":      { "Min": 60, "Max": 85 },
-      "Deception":    { "Min": 50, "Max": 75 },
-      "Intimidation": { "Min": 25, "Max": 45 },
-      "Persuasion":   { "Min": 30, "Max": 55 }
+      "Combat": {
+        "Min": 30,
+        "Max": 50
+      },
+      "Stealth": {
+        "Min": 40,
+        "Max": 65
+      },
+      "Hacking": {
+        "Min": 60,
+        "Max": 85
+      },
+      "Deception": {
+        "Min": 50,
+        "Max": 75
+      },
+      "Intimidation": {
+        "Min": 25,
+        "Max": 45
+      },
+      "Persuasion": {
+        "Min": 30,
+        "Max": 55
+      }
     },
-    "Loyalty":    { "Min": 30, "Max": 55 },
-    "Stress":     { "Min": 25, "Max": 45 },
-    "Morale":     { "Min": 50, "Max": 70 },
-    "Conscience": { "Min": 50, "Max": 75 },
-    "Ambition":   { "Min": 40, "Max": 65 },
-    "TraitPool": ["cynical", "calculating", "ex_corporate", "vice_drink", "comp_perfectionist"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 30,
+      "Max": 55
+    },
+    "Stress": {
+      "Min": 25,
+      "Max": 45
+    },
+    "Morale": {
+      "Min": 50,
+      "Max": 70
+    },
+    "Conscience": {
+      "Min": 50,
+      "Max": 75
+    },
+    "Ambition": {
+      "Min": 40,
+      "Max": 65
+    },
+    "TraitPool": [
+      "cynical",
+      "calculating",
+      "ex_corporate",
+      "vice_drink",
+      "comp_perfectionist",
+      "paranoid"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Built the firewall, found the backdoor, and walked through it on the last day.",
       "Knows every zero-day the old employer is sitting on. That's the real severance package.",
       "Switched sides because the paycheck stopped being worth what they were protecting."
     ],
-    "PersonalityPool": ["cynical", "calculating"],
-    "BackgroundPool":  ["ex_corporate"],
-    "VicePool":        ["vice_drink"],
-    "CompulsionPool":  ["comp_perfectionist"]
+    "PersonalityPool": [
+      "cynical",
+      "calculating"
+    ],
+    "BackgroundPool": [
+      "ex_corporate"
+    ],
+    "VicePool": [
+      "vice_drink"
+    ],
+    "CompulsionPool": [
+      "comp_perfectionist"
+    ]
   },
   {
     "Id": "data_broker",
@@ -186,29 +507,82 @@
     "Background": "Hacker",
     "NarrativeRole": "wildcard",
     "SkillBands": {
-      "Combat":       { "Min": 15, "Max": 35 },
-      "Stealth":      { "Min": 35, "Max": 60 },
-      "Hacking":      { "Min": 55, "Max": 80 },
-      "Deception":    { "Min": 60, "Max": 85 },
-      "Intimidation": { "Min": 30, "Max": 55 },
-      "Persuasion":   { "Min": 50, "Max": 75 }
+      "Combat": {
+        "Min": 15,
+        "Max": 35
+      },
+      "Stealth": {
+        "Min": 35,
+        "Max": 60
+      },
+      "Hacking": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Deception": {
+        "Min": 60,
+        "Max": 85
+      },
+      "Intimidation": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Persuasion": {
+        "Min": 50,
+        "Max": 75
+      }
     },
-    "Loyalty":    { "Min": 20, "Max": 45 },
-    "Stress":     { "Min": 15, "Max": 35 },
-    "Morale":     { "Min": 55, "Max": 75 },
-    "Conscience": { "Min": 25, "Max": 50 },
-    "Ambition":   { "Min": 65, "Max": 85 },
-    "TraitPool": ["cynical", "calculating", "ex_street", "vice_gambling", "comp_records", "volatile"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 20,
+      "Max": 45
+    },
+    "Stress": {
+      "Min": 15,
+      "Max": 35
+    },
+    "Morale": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Conscience": {
+      "Min": 25,
+      "Max": 50
+    },
+    "Ambition": {
+      "Min": 65,
+      "Max": 85
+    },
+    "TraitPool": [
+      "cynical",
+      "calculating",
+      "ex_street",
+      "vice_gambling",
+      "comp_records",
+      "volatile",
+      "vice_data"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Sells secrets the way other people sell furniture — volume, margin, no questions.",
       "Has a dead man's switch on three corporate databases. Insurance, not leverage.",
       "Loyalty is a product listing; the current employer is just the highest bidder."
     ],
-    "PersonalityPool": ["cynical", "calculating"],
-    "BackgroundPool":  ["ex_street"],
-    "VicePool":        ["vice_gambling"],
-    "CompulsionPool":  ["comp_records"]
+    "PersonalityPool": [
+      "cynical",
+      "calculating"
+    ],
+    "BackgroundPool": [
+      "ex_street"
+    ],
+    "VicePool": [
+      "vice_gambling"
+    ],
+    "CompulsionPool": [
+      "comp_records"
+    ]
   },
   {
     "Id": "neural_interface_spec",
@@ -216,60 +590,166 @@
     "Background": "Hacker",
     "NarrativeRole": "innocent",
     "SkillBands": {
-      "Combat":       { "Min": 10, "Max": 25 },
-      "Stealth":      { "Min": 25, "Max": 50 },
-      "Hacking":      { "Min": 75, "Max": 95 },
-      "Deception":    { "Min": 30, "Max": 55 },
-      "Intimidation": { "Min": 10, "Max": 25 },
-      "Persuasion":   { "Min": 25, "Max": 45 }
+      "Combat": {
+        "Min": 10,
+        "Max": 25
+      },
+      "Stealth": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Hacking": {
+        "Min": 75,
+        "Max": 95
+      },
+      "Deception": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Intimidation": {
+        "Min": 10,
+        "Max": 25
+      },
+      "Persuasion": {
+        "Min": 25,
+        "Max": 45
+      }
     },
-    "Loyalty":    { "Min": 55, "Max": 80 },
-    "Stress":     { "Min": 30, "Max": 50 },
-    "Morale":     { "Min": 55, "Max": 75 },
-    "Conscience": { "Min": 60, "Max": 80 },
-    "Ambition":   { "Min": 45, "Max": 65 },
-    "TraitPool": ["calculating", "compassionate", "ex_intel", "vice_stim", "comp_perfectionist"],
-    "TraitCount": [2, 3],
+    "Loyalty": {
+      "Min": 55,
+      "Max": 80
+    },
+    "Stress": {
+      "Min": 30,
+      "Max": 50
+    },
+    "Morale": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Conscience": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Ambition": {
+      "Min": 45,
+      "Max": 65
+    },
+    "TraitPool": [
+      "calculating",
+      "compassionate",
+      "ex_intel",
+      "vice_stim",
+      "comp_perfectionist",
+      "vice_synth"
+    ],
+    "TraitCount": [
+      2,
+      3
+    ],
     "FlavorFragments": [
       "Jacks into cortical stacks that would fry a baseline brain. The nosebleeds are getting worse.",
       "Designed the interface protocol three corps are fighting over. Never saw a dime.",
       "Can read a neural signature the way a sommelier reads wine. The headaches are the price."
     ],
-    "PersonalityPool": ["calculating", "compassionate"],
-    "BackgroundPool":  ["ex_intel"],
-    "VicePool":        ["vice_stim"],
-    "CompulsionPool":  ["comp_perfectionist"]
+    "PersonalityPool": [
+      "calculating",
+      "compassionate"
+    ],
+    "BackgroundPool": [
+      "ex_intel"
+    ],
+    "VicePool": [
+      "vice_stim"
+    ],
+    "CompulsionPool": [
+      "comp_perfectionist"
+    ]
   },
-
   {
     "Id": "burned_analyst",
     "DisplayName": "Burned Analyst",
     "Background": "CorpoClimber",
     "NarrativeRole": "survivor",
     "SkillBands": {
-      "Combat":       { "Min": 15, "Max": 35 },
-      "Stealth":      { "Min": 30, "Max": 55 },
-      "Hacking":      { "Min": 45, "Max": 70 },
-      "Deception":    { "Min": 55, "Max": 80 },
-      "Intimidation": { "Min": 25, "Max": 50 },
-      "Persuasion":   { "Min": 45, "Max": 70 }
+      "Combat": {
+        "Min": 15,
+        "Max": 35
+      },
+      "Stealth": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Hacking": {
+        "Min": 45,
+        "Max": 70
+      },
+      "Deception": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Intimidation": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Persuasion": {
+        "Min": 45,
+        "Max": 70
+      }
     },
-    "Loyalty":    { "Min": 40, "Max": 65 },
-    "Stress":     { "Min": 30, "Max": 50 },
-    "Morale":     { "Min": 40, "Max": 60 },
-    "Conscience": { "Min": 55, "Max": 75 },
-    "Ambition":   { "Min": 50, "Max": 75 },
-    "TraitPool": ["cynical", "calculating", "ex_corporate", "vice_drink", "comp_records", "dutiful"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 40,
+      "Max": 65
+    },
+    "Stress": {
+      "Min": 30,
+      "Max": 50
+    },
+    "Morale": {
+      "Min": 40,
+      "Max": 60
+    },
+    "Conscience": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Ambition": {
+      "Min": 50,
+      "Max": 75
+    },
+    "TraitPool": [
+      "cynical",
+      "calculating",
+      "ex_corporate",
+      "vice_drink",
+      "comp_records",
+      "dutiful",
+      "paranoid",
+      "vice_data"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Flagged the accounting irregularity. Got thanked with a severance envelope and a parking escort.",
       "Three years of quarterly reports nobody read, then one that everybody did.",
       "Knows where the bodies are buried because they helped write the budget that paid for the shovels."
     ],
-    "PersonalityPool": ["cynical", "calculating", "dutiful"],
-    "BackgroundPool":  ["ex_corporate"],
-    "VicePool":        ["vice_drink"],
-    "CompulsionPool":  ["comp_records"]
+    "PersonalityPool": [
+      "cynical",
+      "calculating",
+      "dutiful"
+    ],
+    "BackgroundPool": [
+      "ex_corporate"
+    ],
+    "VicePool": [
+      "vice_drink"
+    ],
+    "CompulsionPool": [
+      "comp_records"
+    ]
   },
   {
     "Id": "internal_affairs_refugee",
@@ -277,29 +757,84 @@
     "Background": "CorpoClimber",
     "NarrativeRole": "conscience",
     "SkillBands": {
-      "Combat":       { "Min": 20, "Max": 40 },
-      "Stealth":      { "Min": 35, "Max": 60 },
-      "Hacking":      { "Min": 40, "Max": 65 },
-      "Deception":    { "Min": 50, "Max": 75 },
-      "Intimidation": { "Min": 40, "Max": 65 },
-      "Persuasion":   { "Min": 50, "Max": 75 }
+      "Combat": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Stealth": {
+        "Min": 35,
+        "Max": 60
+      },
+      "Hacking": {
+        "Min": 40,
+        "Max": 65
+      },
+      "Deception": {
+        "Min": 50,
+        "Max": 75
+      },
+      "Intimidation": {
+        "Min": 40,
+        "Max": 65
+      },
+      "Persuasion": {
+        "Min": 50,
+        "Max": 75
+      }
     },
-    "Loyalty":    { "Min": 50, "Max": 70 },
-    "Stress":     { "Min": 30, "Max": 50 },
-    "Morale":     { "Min": 50, "Max": 70 },
-    "Conscience": { "Min": 70, "Max": 90 },
-    "Ambition":   { "Min": 40, "Max": 60 },
-    "TraitPool": ["dutiful", "compassionate", "ex_corporate", "comp_records", "vice_drink"],
-    "TraitCount": [2, 3],
+    "Loyalty": {
+      "Min": 50,
+      "Max": 70
+    },
+    "Stress": {
+      "Min": 30,
+      "Max": 50
+    },
+    "Morale": {
+      "Min": 50,
+      "Max": 70
+    },
+    "Conscience": {
+      "Min": 70,
+      "Max": 90
+    },
+    "Ambition": {
+      "Min": 40,
+      "Max": 60
+    },
+    "TraitPool": [
+      "dutiful",
+      "compassionate",
+      "ex_corporate",
+      "comp_records",
+      "vice_drink",
+      "ex_clergy",
+      "comp_codes",
+      "comp_confess"
+    ],
+    "TraitCount": [
+      2,
+      3
+    ],
     "FlavorFragments": [
       "Investigated the wrong executive. Now the investigator needs investigating.",
       "Built cases against fourteen employees. Twelve were guilty. The other two haunt the dreams.",
       "The compliance manual is memorized. The exit interview was improvised."
     ],
-    "PersonalityPool": ["dutiful", "compassionate"],
-    "BackgroundPool":  ["ex_corporate"],
-    "VicePool":        ["vice_drink"],
-    "CompulsionPool":  ["comp_records", "comp_perfectionist"]
+    "PersonalityPool": [
+      "dutiful",
+      "compassionate"
+    ],
+    "BackgroundPool": [
+      "ex_corporate"
+    ],
+    "VicePool": [
+      "vice_drink"
+    ],
+    "CompulsionPool": [
+      "comp_records",
+      "comp_perfectionist"
+    ]
   },
   {
     "Id": "exec_assistant",
@@ -307,29 +842,83 @@
     "Background": "CorpoClimber",
     "NarrativeRole": "mirror",
     "SkillBands": {
-      "Combat":       { "Min": 10, "Max": 25 },
-      "Stealth":      { "Min": 30, "Max": 55 },
-      "Hacking":      { "Min": 35, "Max": 60 },
-      "Deception":    { "Min": 55, "Max": 80 },
-      "Intimidation": { "Min": 20, "Max": 40 },
-      "Persuasion":   { "Min": 65, "Max": 90 }
+      "Combat": {
+        "Min": 10,
+        "Max": 25
+      },
+      "Stealth": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Hacking": {
+        "Min": 35,
+        "Max": 60
+      },
+      "Deception": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Intimidation": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Persuasion": {
+        "Min": 65,
+        "Max": 90
+      }
     },
-    "Loyalty":    { "Min": 55, "Max": 80 },
-    "Stress":     { "Min": 20, "Max": 40 },
-    "Morale":     { "Min": 60, "Max": 80 },
-    "Conscience": { "Min": 45, "Max": 70 },
-    "Ambition":   { "Min": 60, "Max": 85 },
-    "TraitPool": ["calculating", "dutiful", "ex_corporate", "vice_gambling", "comp_perfectionist", "cynical"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 55,
+      "Max": 80
+    },
+    "Stress": {
+      "Min": 20,
+      "Max": 40
+    },
+    "Morale": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Conscience": {
+      "Min": 45,
+      "Max": 70
+    },
+    "Ambition": {
+      "Min": 60,
+      "Max": 85
+    },
+    "TraitPool": [
+      "calculating",
+      "dutiful",
+      "ex_corporate",
+      "vice_gambling",
+      "comp_perfectionist",
+      "cynical",
+      "magnetic"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Managed the calendar, the affairs, and the plausible deniability. In that order.",
       "Knows the C-suite's secrets because someone had to schedule around them.",
       "The corner office never noticed who was actually running it."
     ],
-    "PersonalityPool": ["calculating", "dutiful", "cynical"],
-    "BackgroundPool":  ["ex_corporate"],
-    "VicePool":        ["vice_gambling"],
-    "CompulsionPool":  ["comp_perfectionist"]
+    "PersonalityPool": [
+      "calculating",
+      "dutiful",
+      "cynical"
+    ],
+    "BackgroundPool": [
+      "ex_corporate"
+    ],
+    "VicePool": [
+      "vice_gambling"
+    ],
+    "CompulsionPool": [
+      "comp_perfectionist"
+    ]
   },
   {
     "Id": "pr_fixer",
@@ -337,29 +926,83 @@
     "Background": "CorpoClimber",
     "NarrativeRole": "climber",
     "SkillBands": {
-      "Combat":       { "Min": 10, "Max": 25 },
-      "Stealth":      { "Min": 25, "Max": 50 },
-      "Hacking":      { "Min": 30, "Max": 55 },
-      "Deception":    { "Min": 65, "Max": 90 },
-      "Intimidation": { "Min": 35, "Max": 60 },
-      "Persuasion":   { "Min": 70, "Max": 95 }
+      "Combat": {
+        "Min": 10,
+        "Max": 25
+      },
+      "Stealth": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Hacking": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Deception": {
+        "Min": 65,
+        "Max": 90
+      },
+      "Intimidation": {
+        "Min": 35,
+        "Max": 60
+      },
+      "Persuasion": {
+        "Min": 70,
+        "Max": 95
+      }
     },
-    "Loyalty":    { "Min": 35, "Max": 60 },
-    "Stress":     { "Min": 15, "Max": 35 },
-    "Morale":     { "Min": 60, "Max": 80 },
-    "Conscience": { "Min": 20, "Max": 45 },
-    "Ambition":   { "Min": 75, "Max": 95 },
-    "TraitPool": ["cynical", "calculating", "ex_press", "vice_drink", "comp_perfectionist", "volatile"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 35,
+      "Max": 60
+    },
+    "Stress": {
+      "Min": 15,
+      "Max": 35
+    },
+    "Morale": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Conscience": {
+      "Min": 20,
+      "Max": 45
+    },
+    "Ambition": {
+      "Min": 75,
+      "Max": 95
+    },
+    "TraitPool": [
+      "cynical",
+      "calculating",
+      "ex_press",
+      "vice_drink",
+      "comp_perfectionist",
+      "volatile",
+      "magnetic",
+      "vice_synth"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Made a CEO's harassment scandal disappear in forty-eight hours. Got a bonus and a migraine.",
       "Writes press releases the way snipers write eulogies — clean, final, no fingerprints.",
       "The truth is a raw material. Refining it is the actual skill."
     ],
-    "PersonalityPool": ["cynical", "calculating"],
-    "BackgroundPool":  ["ex_press"],
-    "VicePool":        ["vice_drink"],
-    "CompulsionPool":  ["comp_perfectionist"]
+    "PersonalityPool": [
+      "cynical",
+      "calculating"
+    ],
+    "BackgroundPool": [
+      "ex_press"
+    ],
+    "VicePool": [
+      "vice_drink"
+    ],
+    "CompulsionPool": [
+      "comp_perfectionist"
+    ]
   },
   {
     "Id": "compliance_enforcer",
@@ -367,60 +1010,167 @@
     "Background": "CorpoClimber",
     "NarrativeRole": "anchor",
     "SkillBands": {
-      "Combat":       { "Min": 20, "Max": 40 },
-      "Stealth":      { "Min": 25, "Max": 50 },
-      "Hacking":      { "Min": 40, "Max": 65 },
-      "Deception":    { "Min": 45, "Max": 70 },
-      "Intimidation": { "Min": 50, "Max": 75 },
-      "Persuasion":   { "Min": 40, "Max": 65 }
+      "Combat": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Stealth": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Hacking": {
+        "Min": 40,
+        "Max": 65
+      },
+      "Deception": {
+        "Min": 45,
+        "Max": 70
+      },
+      "Intimidation": {
+        "Min": 50,
+        "Max": 75
+      },
+      "Persuasion": {
+        "Min": 40,
+        "Max": 65
+      }
     },
-    "Loyalty":    { "Min": 60, "Max": 80 },
-    "Stress":     { "Min": 20, "Max": 40 },
-    "Morale":     { "Min": 55, "Max": 75 },
-    "Conscience": { "Min": 55, "Max": 75 },
-    "Ambition":   { "Min": 45, "Max": 65 },
-    "TraitPool": ["dutiful", "calculating", "ex_corporate", "comp_records", "comp_loyalty", "vice_drink"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Stress": {
+      "Min": 20,
+      "Max": 40
+    },
+    "Morale": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Conscience": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Ambition": {
+      "Min": 45,
+      "Max": 65
+    },
+    "TraitPool": [
+      "dutiful",
+      "calculating",
+      "ex_corporate",
+      "comp_records",
+      "comp_loyalty",
+      "vice_drink",
+      "comp_codes"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Enforced the rules until the rules stopped making sense. Then enforced them harder.",
       "The audit trail is immaculate. The conscience trail has gaps.",
       "Knows regulation chapter and verse. Knows which verses management skips."
     ],
-    "PersonalityPool": ["dutiful", "calculating"],
-    "BackgroundPool":  ["ex_corporate"],
-    "VicePool":        ["vice_drink"],
-    "CompulsionPool":  ["comp_records", "comp_loyalty"]
+    "PersonalityPool": [
+      "dutiful",
+      "calculating"
+    ],
+    "BackgroundPool": [
+      "ex_corporate"
+    ],
+    "VicePool": [
+      "vice_drink"
+    ],
+    "CompulsionPool": [
+      "comp_records",
+      "comp_loyalty"
+    ]
   },
-
   {
     "Id": "gang_lieutenant",
     "DisplayName": "Gang Lieutenant",
     "Background": "Street",
     "NarrativeRole": "weapon",
     "SkillBands": {
-      "Combat":       { "Min": 55, "Max": 80 },
-      "Stealth":      { "Min": 30, "Max": 55 },
-      "Hacking":      { "Min": 10, "Max": 30 },
-      "Deception":    { "Min": 40, "Max": 65 },
-      "Intimidation": { "Min": 65, "Max": 90 },
-      "Persuasion":   { "Min": 35, "Max": 60 }
+      "Combat": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Stealth": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Hacking": {
+        "Min": 10,
+        "Max": 30
+      },
+      "Deception": {
+        "Min": 40,
+        "Max": 65
+      },
+      "Intimidation": {
+        "Min": 65,
+        "Max": 90
+      },
+      "Persuasion": {
+        "Min": 35,
+        "Max": 60
+      }
     },
-    "Loyalty":    { "Min": 55, "Max": 80 },
-    "Stress":     { "Min": 20, "Max": 40 },
-    "Morale":     { "Min": 55, "Max": 75 },
-    "Conscience": { "Min": 25, "Max": 50 },
-    "Ambition":   { "Min": 60, "Max": 80 },
-    "TraitPool": ["volatile", "dutiful", "ex_street", "vice_thrill", "comp_loyalty", "cynical"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 55,
+      "Max": 80
+    },
+    "Stress": {
+      "Min": 20,
+      "Max": 40
+    },
+    "Morale": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Conscience": {
+      "Min": 25,
+      "Max": 50
+    },
+    "Ambition": {
+      "Min": 60,
+      "Max": 80
+    },
+    "TraitPool": [
+      "volatile",
+      "dutiful",
+      "ex_street",
+      "vice_thrill",
+      "comp_loyalty",
+      "cynical",
+      "vice_arena"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Ran a crew of twenty before the age of twenty-two. Retirement wasn't voluntary.",
       "Understands loyalty as a currency that only spends once.",
       "The street taught negotiation. The kind where someone leaves on a stretcher."
     ],
-    "PersonalityPool": ["volatile", "dutiful", "cynical"],
-    "BackgroundPool":  ["ex_street"],
-    "VicePool":        ["vice_thrill"],
-    "CompulsionPool":  ["comp_loyalty"]
+    "PersonalityPool": [
+      "volatile",
+      "dutiful",
+      "cynical"
+    ],
+    "BackgroundPool": [
+      "ex_street"
+    ],
+    "VicePool": [
+      "vice_thrill"
+    ],
+    "CompulsionPool": [
+      "comp_loyalty"
+    ]
   },
   {
     "Id": "street_fixer",
@@ -428,29 +1178,81 @@
     "Background": "Street",
     "NarrativeRole": "wildcard",
     "SkillBands": {
-      "Combat":       { "Min": 30, "Max": 50 },
-      "Stealth":      { "Min": 35, "Max": 60 },
-      "Hacking":      { "Min": 30, "Max": 55 },
-      "Deception":    { "Min": 60, "Max": 85 },
-      "Intimidation": { "Min": 40, "Max": 65 },
-      "Persuasion":   { "Min": 65, "Max": 90 }
+      "Combat": {
+        "Min": 30,
+        "Max": 50
+      },
+      "Stealth": {
+        "Min": 35,
+        "Max": 60
+      },
+      "Hacking": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Deception": {
+        "Min": 60,
+        "Max": 85
+      },
+      "Intimidation": {
+        "Min": 40,
+        "Max": 65
+      },
+      "Persuasion": {
+        "Min": 65,
+        "Max": 90
+      }
     },
-    "Loyalty":    { "Min": 25, "Max": 50 },
-    "Stress":     { "Min": 15, "Max": 35 },
-    "Morale":     { "Min": 60, "Max": 80 },
-    "Conscience": { "Min": 30, "Max": 55 },
-    "Ambition":   { "Min": 55, "Max": 80 },
-    "TraitPool": ["cynical", "calculating", "ex_street", "vice_gambling", "comp_records", "volatile"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 25,
+      "Max": 50
+    },
+    "Stress": {
+      "Min": 15,
+      "Max": 35
+    },
+    "Morale": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Conscience": {
+      "Min": 30,
+      "Max": 55
+    },
+    "Ambition": {
+      "Min": 55,
+      "Max": 80
+    },
+    "TraitPool": [
+      "cynical",
+      "calculating",
+      "ex_street",
+      "vice_gambling",
+      "comp_records",
+      "volatile"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Knows a guy who knows a guy. The chain is never longer than two links.",
       "Neutral ground is wherever this one is standing. Everyone owes a favor.",
       "Moves product, people, and problems across borders that don't exist on maps."
     ],
-    "PersonalityPool": ["cynical", "calculating"],
-    "BackgroundPool":  ["ex_street"],
-    "VicePool":        ["vice_gambling"],
-    "CompulsionPool":  ["comp_records"]
+    "PersonalityPool": [
+      "cynical",
+      "calculating"
+    ],
+    "BackgroundPool": [
+      "ex_street"
+    ],
+    "VicePool": [
+      "vice_gambling"
+    ],
+    "CompulsionPool": [
+      "comp_records"
+    ]
   },
   {
     "Id": "combat_medic",
@@ -458,29 +1260,82 @@
     "Background": "Street",
     "NarrativeRole": "conscience",
     "SkillBands": {
-      "Combat":       { "Min": 40, "Max": 65 },
-      "Stealth":      { "Min": 30, "Max": 55 },
-      "Hacking":      { "Min": 20, "Max": 40 },
-      "Deception":    { "Min": 25, "Max": 50 },
-      "Intimidation": { "Min": 20, "Max": 40 },
-      "Persuasion":   { "Min": 40, "Max": 65 }
+      "Combat": {
+        "Min": 40,
+        "Max": 65
+      },
+      "Stealth": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Hacking": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Deception": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Intimidation": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Persuasion": {
+        "Min": 40,
+        "Max": 65
+      }
     },
-    "Loyalty":    { "Min": 60, "Max": 80 },
-    "Stress":     { "Min": 25, "Max": 45 },
-    "Morale":     { "Min": 55, "Max": 75 },
-    "Conscience": { "Min": 75, "Max": 95 },
-    "Ambition":   { "Min": 25, "Max": 45 },
-    "TraitPool": ["compassionate", "dutiful", "ex_street", "vice_stim", "comp_loyalty"],
-    "TraitCount": [2, 3],
+    "Loyalty": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Stress": {
+      "Min": 25,
+      "Max": 45
+    },
+    "Morale": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Conscience": {
+      "Min": 75,
+      "Max": 95
+    },
+    "Ambition": {
+      "Min": 25,
+      "Max": 45
+    },
+    "TraitPool": [
+      "compassionate",
+      "dutiful",
+      "ex_street",
+      "vice_stim",
+      "comp_loyalty",
+      "ex_medic",
+      "ex_clergy"
+    ],
+    "TraitCount": [
+      2,
+      3
+    ],
     "FlavorFragments": [
       "Learned triage in back-alley clinics where the anesthetic was a leather strap.",
       "Hippocratic oath doesn't have a clause for corporate black ops. Made one up.",
       "Keeps a kill count and a save count. Only one of them matters."
     ],
-    "PersonalityPool": ["compassionate", "dutiful"],
-    "BackgroundPool":  ["ex_street"],
-    "VicePool":        ["vice_stim"],
-    "CompulsionPool":  ["comp_loyalty"]
+    "PersonalityPool": [
+      "compassionate",
+      "dutiful"
+    ],
+    "BackgroundPool": [
+      "ex_street"
+    ],
+    "VicePool": [
+      "vice_stim"
+    ],
+    "CompulsionPool": [
+      "comp_loyalty"
+    ]
   },
   {
     "Id": "smuggler",
@@ -488,60 +1343,167 @@
     "Background": "Street",
     "NarrativeRole": "survivor",
     "SkillBands": {
-      "Combat":       { "Min": 30, "Max": 55 },
-      "Stealth":      { "Min": 55, "Max": 80 },
-      "Hacking":      { "Min": 25, "Max": 45 },
-      "Deception":    { "Min": 55, "Max": 80 },
-      "Intimidation": { "Min": 25, "Max": 50 },
-      "Persuasion":   { "Min": 40, "Max": 65 }
+      "Combat": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Stealth": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Hacking": {
+        "Min": 25,
+        "Max": 45
+      },
+      "Deception": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Intimidation": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Persuasion": {
+        "Min": 40,
+        "Max": 65
+      }
     },
-    "Loyalty":    { "Min": 30, "Max": 55 },
-    "Stress":     { "Min": 15, "Max": 35 },
-    "Morale":     { "Min": 60, "Max": 80 },
-    "Conscience": { "Min": 35, "Max": 60 },
-    "Ambition":   { "Min": 50, "Max": 70 },
-    "TraitPool": ["cynical", "calculating", "ex_street", "vice_thrill", "comp_perfectionist", "volatile"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 30,
+      "Max": 55
+    },
+    "Stress": {
+      "Min": 15,
+      "Max": 35
+    },
+    "Morale": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Conscience": {
+      "Min": 35,
+      "Max": 60
+    },
+    "Ambition": {
+      "Min": 50,
+      "Max": 70
+    },
+    "TraitPool": [
+      "cynical",
+      "calculating",
+      "ex_street",
+      "vice_thrill",
+      "comp_perfectionist",
+      "volatile",
+      "comp_ritual"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Ran contraband through checkpoints that would make a customs AI weep.",
       "The route changes every week. The instinct to find the next one doesn't.",
       "Cargo is cargo. The manifest is whatever the buyer needs it to say."
     ],
-    "PersonalityPool": ["cynical", "calculating"],
-    "BackgroundPool":  ["ex_street"],
-    "VicePool":        ["vice_thrill"],
-    "CompulsionPool":  ["comp_perfectionist"]
+    "PersonalityPool": [
+      "cynical",
+      "calculating"
+    ],
+    "BackgroundPool": [
+      "ex_street"
+    ],
+    "VicePool": [
+      "vice_thrill"
+    ],
+    "CompulsionPool": [
+      "comp_perfectionist"
+    ]
   },
-
   {
     "Id": "burned_agent",
     "DisplayName": "Burned Agent",
     "Background": "Spook",
     "NarrativeRole": "survivor",
     "SkillBands": {
-      "Combat":       { "Min": 45, "Max": 70 },
-      "Stealth":      { "Min": 50, "Max": 75 },
-      "Hacking":      { "Min": 35, "Max": 60 },
-      "Deception":    { "Min": 60, "Max": 85 },
-      "Intimidation": { "Min": 40, "Max": 65 },
-      "Persuasion":   { "Min": 45, "Max": 70 }
+      "Combat": {
+        "Min": 45,
+        "Max": 70
+      },
+      "Stealth": {
+        "Min": 50,
+        "Max": 75
+      },
+      "Hacking": {
+        "Min": 35,
+        "Max": 60
+      },
+      "Deception": {
+        "Min": 60,
+        "Max": 85
+      },
+      "Intimidation": {
+        "Min": 40,
+        "Max": 65
+      },
+      "Persuasion": {
+        "Min": 45,
+        "Max": 70
+      }
     },
-    "Loyalty":    { "Min": 20, "Max": 45 },
-    "Stress":     { "Min": 35, "Max": 55 },
-    "Morale":     { "Min": 35, "Max": 55 },
-    "Conscience": { "Min": 40, "Max": 65 },
-    "Ambition":   { "Min": 35, "Max": 55 },
-    "TraitPool": ["cynical", "volatile", "ex_intel", "vice_drink", "comp_records", "calculating"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 20,
+      "Max": 45
+    },
+    "Stress": {
+      "Min": 35,
+      "Max": 55
+    },
+    "Morale": {
+      "Min": 35,
+      "Max": 55
+    },
+    "Conscience": {
+      "Min": 40,
+      "Max": 65
+    },
+    "Ambition": {
+      "Min": 35,
+      "Max": 55
+    },
+    "TraitPool": [
+      "cynical",
+      "volatile",
+      "ex_intel",
+      "vice_drink",
+      "comp_records",
+      "calculating",
+      "paranoid",
+      "comp_confess"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "The agency burned the cover, then burned the agent. No one sent flowers.",
       "Three identities deep when the recall order came. Only two of them came back.",
       "Trust is a wound that doesn't close. Professionally speaking."
     ],
-    "PersonalityPool": ["cynical", "volatile", "calculating"],
-    "BackgroundPool":  ["ex_intel"],
-    "VicePool":        ["vice_drink"],
-    "CompulsionPool":  ["comp_records"]
+    "PersonalityPool": [
+      "cynical",
+      "volatile",
+      "calculating"
+    ],
+    "BackgroundPool": [
+      "ex_intel"
+    ],
+    "VicePool": [
+      "vice_drink"
+    ],
+    "CompulsionPool": [
+      "comp_records"
+    ]
   },
   {
     "Id": "deep_cover",
@@ -549,29 +1511,84 @@
     "Background": "Spook",
     "NarrativeRole": "mirror",
     "SkillBands": {
-      "Combat":       { "Min": 35, "Max": 55 },
-      "Stealth":      { "Min": 55, "Max": 80 },
-      "Hacking":      { "Min": 30, "Max": 55 },
-      "Deception":    { "Min": 70, "Max": 95 },
-      "Intimidation": { "Min": 25, "Max": 50 },
-      "Persuasion":   { "Min": 55, "Max": 80 }
+      "Combat": {
+        "Min": 35,
+        "Max": 55
+      },
+      "Stealth": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Hacking": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Deception": {
+        "Min": 70,
+        "Max": 95
+      },
+      "Intimidation": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Persuasion": {
+        "Min": 55,
+        "Max": 80
+      }
     },
-    "Loyalty":    { "Min": 30, "Max": 55 },
-    "Stress":     { "Min": 30, "Max": 50 },
-    "Morale":     { "Min": 45, "Max": 65 },
-    "Conscience": { "Min": 35, "Max": 60 },
-    "Ambition":   { "Min": 40, "Max": 60 },
-    "TraitPool": ["calculating", "cynical", "ex_intel", "vice_stim", "comp_perfectionist", "compassionate"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 30,
+      "Max": 55
+    },
+    "Stress": {
+      "Min": 30,
+      "Max": 50
+    },
+    "Morale": {
+      "Min": 45,
+      "Max": 65
+    },
+    "Conscience": {
+      "Min": 35,
+      "Max": 60
+    },
+    "Ambition": {
+      "Min": 40,
+      "Max": 60
+    },
+    "TraitPool": [
+      "calculating",
+      "cynical",
+      "ex_intel",
+      "vice_stim",
+      "comp_perfectionist",
+      "compassionate",
+      "stoic",
+      "magnetic"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Lived as someone else for so long the original person feels like the cover.",
       "The legend is flawless. The person underneath has cracks.",
       "Fluent in four languages and two personalities. Not always sure which is real."
     ],
-    "PersonalityPool": ["calculating", "cynical", "compassionate"],
-    "BackgroundPool":  ["ex_intel"],
-    "VicePool":        ["vice_stim"],
-    "CompulsionPool":  ["comp_perfectionist"]
+    "PersonalityPool": [
+      "calculating",
+      "cynical",
+      "compassionate"
+    ],
+    "BackgroundPool": [
+      "ex_intel"
+    ],
+    "VicePool": [
+      "vice_stim"
+    ],
+    "CompulsionPool": [
+      "comp_perfectionist"
+    ]
   },
   {
     "Id": "interrogation_specialist",
@@ -579,29 +1596,84 @@
     "Background": "Spook",
     "NarrativeRole": "weapon",
     "SkillBands": {
-      "Combat":       { "Min": 35, "Max": 55 },
-      "Stealth":      { "Min": 25, "Max": 50 },
-      "Hacking":      { "Min": 20, "Max": 40 },
-      "Deception":    { "Min": 55, "Max": 80 },
-      "Intimidation": { "Min": 70, "Max": 95 },
-      "Persuasion":   { "Min": 55, "Max": 80 }
+      "Combat": {
+        "Min": 35,
+        "Max": 55
+      },
+      "Stealth": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Hacking": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Deception": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Intimidation": {
+        "Min": 70,
+        "Max": 95
+      },
+      "Persuasion": {
+        "Min": 55,
+        "Max": 80
+      }
     },
-    "Loyalty":    { "Min": 50, "Max": 75 },
-    "Stress":     { "Min": 15, "Max": 35 },
-    "Morale":     { "Min": 55, "Max": 75 },
-    "Conscience": { "Min": 15, "Max": 40 },
-    "Ambition":   { "Min": 45, "Max": 65 },
-    "TraitPool": ["calculating", "volatile", "ex_intel", "vice_thrill", "comp_perfectionist", "cynical"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 50,
+      "Max": 75
+    },
+    "Stress": {
+      "Min": 15,
+      "Max": 35
+    },
+    "Morale": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Conscience": {
+      "Min": 15,
+      "Max": 40
+    },
+    "Ambition": {
+      "Min": 45,
+      "Max": 65
+    },
+    "TraitPool": [
+      "calculating",
+      "volatile",
+      "ex_intel",
+      "vice_thrill",
+      "comp_perfectionist",
+      "cynical",
+      "precise",
+      "ex_assassin"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Reads micro-expressions the way a programmer reads code. Fluently and without mercy.",
       "The room is always too warm. The chair is always too hard. That's the point.",
       "Knows that everyone talks eventually. The art is in how quickly and how cleanly."
     ],
-    "PersonalityPool": ["calculating", "volatile", "cynical"],
-    "BackgroundPool":  ["ex_intel"],
-    "VicePool":        ["vice_thrill"],
-    "CompulsionPool":  ["comp_perfectionist"]
+    "PersonalityPool": [
+      "calculating",
+      "volatile",
+      "cynical"
+    ],
+    "BackgroundPool": [
+      "ex_intel"
+    ],
+    "VicePool": [
+      "vice_thrill"
+    ],
+    "CompulsionPool": [
+      "comp_perfectionist"
+    ]
   },
   {
     "Id": "wetwork_contractor",
@@ -609,29 +1681,84 @@
     "Background": "Spook",
     "NarrativeRole": "weapon",
     "SkillBands": {
-      "Combat":       { "Min": 65, "Max": 90 },
-      "Stealth":      { "Min": 60, "Max": 85 },
-      "Hacking":      { "Min": 10, "Max": 30 },
-      "Deception":    { "Min": 40, "Max": 65 },
-      "Intimidation": { "Min": 50, "Max": 75 },
-      "Persuasion":   { "Min": 15, "Max": 35 }
+      "Combat": {
+        "Min": 65,
+        "Max": 90
+      },
+      "Stealth": {
+        "Min": 60,
+        "Max": 85
+      },
+      "Hacking": {
+        "Min": 10,
+        "Max": 30
+      },
+      "Deception": {
+        "Min": 40,
+        "Max": 65
+      },
+      "Intimidation": {
+        "Min": 50,
+        "Max": 75
+      },
+      "Persuasion": {
+        "Min": 15,
+        "Max": 35
+      }
     },
-    "Loyalty":    { "Min": 35, "Max": 60 },
-    "Stress":     { "Min": 10, "Max": 30 },
-    "Morale":     { "Min": 50, "Max": 70 },
-    "Conscience": { "Min": 10, "Max": 30 },
-    "Ambition":   { "Min": 30, "Max": 50 },
-    "TraitPool": ["volatile", "cynical", "ex_military", "vice_stim", "vice_drink", "comp_perfectionist"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 35,
+      "Max": 60
+    },
+    "Stress": {
+      "Min": 10,
+      "Max": 30
+    },
+    "Morale": {
+      "Min": 50,
+      "Max": 70
+    },
+    "Conscience": {
+      "Min": 10,
+      "Max": 30
+    },
+    "Ambition": {
+      "Min": 30,
+      "Max": 50
+    },
+    "TraitPool": [
+      "volatile",
+      "cynical",
+      "ex_military",
+      "vice_stim",
+      "vice_drink",
+      "comp_perfectionist",
+      "ex_assassin",
+      "comp_ritual"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "The invoice says 'consulting.' The scope of work is measured in caliber.",
       "Professionalism means a clean scene and a cold trail. Nothing personal.",
       "Stopped counting after the first dozen. Math doesn't help you sleep."
     ],
-    "PersonalityPool": ["volatile", "cynical"],
-    "BackgroundPool":  ["ex_military"],
-    "VicePool":        ["vice_stim", "vice_drink"],
-    "CompulsionPool":  ["comp_perfectionist"]
+    "PersonalityPool": [
+      "volatile",
+      "cynical"
+    ],
+    "BackgroundPool": [
+      "ex_military"
+    ],
+    "VicePool": [
+      "vice_stim",
+      "vice_drink"
+    ],
+    "CompulsionPool": [
+      "comp_perfectionist"
+    ]
   },
   {
     "Id": "surveillance_ghost",
@@ -639,60 +1766,165 @@
     "Background": "Spook",
     "NarrativeRole": "anchor",
     "SkillBands": {
-      "Combat":       { "Min": 20, "Max": 40 },
-      "Stealth":      { "Min": 70, "Max": 95 },
-      "Hacking":      { "Min": 50, "Max": 75 },
-      "Deception":    { "Min": 45, "Max": 70 },
-      "Intimidation": { "Min": 15, "Max": 35 },
-      "Persuasion":   { "Min": 25, "Max": 50 }
+      "Combat": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Stealth": {
+        "Min": 70,
+        "Max": 95
+      },
+      "Hacking": {
+        "Min": 50,
+        "Max": 75
+      },
+      "Deception": {
+        "Min": 45,
+        "Max": 70
+      },
+      "Intimidation": {
+        "Min": 15,
+        "Max": 35
+      },
+      "Persuasion": {
+        "Min": 25,
+        "Max": 50
+      }
     },
-    "Loyalty":    { "Min": 55, "Max": 75 },
-    "Stress":     { "Min": 25, "Max": 45 },
-    "Morale":     { "Min": 50, "Max": 70 },
-    "Conscience": { "Min": 55, "Max": 75 },
-    "Ambition":   { "Min": 25, "Max": 45 },
-    "TraitPool": ["calculating", "compassionate", "ex_intel", "comp_records", "vice_stim"],
-    "TraitCount": [2, 3],
+    "Loyalty": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Stress": {
+      "Min": 25,
+      "Max": 45
+    },
+    "Morale": {
+      "Min": 50,
+      "Max": 70
+    },
+    "Conscience": {
+      "Min": 55,
+      "Max": 75
+    },
+    "Ambition": {
+      "Min": 25,
+      "Max": 45
+    },
+    "TraitPool": [
+      "calculating",
+      "compassionate",
+      "ex_intel",
+      "comp_records",
+      "vice_stim",
+      "precise",
+      "paranoid"
+    ],
+    "TraitCount": [
+      2,
+      3
+    ],
     "FlavorFragments": [
       "Can sit in a van for forty hours and reconstruct a life from signal noise.",
       "Sees everything. Touches nothing. The perfect witness to the worst things.",
       "Invisible isn't a skill — it's a lifestyle. One that costs relationships."
     ],
-    "PersonalityPool": ["calculating", "compassionate"],
-    "BackgroundPool":  ["ex_intel"],
-    "VicePool":        ["vice_stim"],
-    "CompulsionPool":  ["comp_records"]
+    "PersonalityPool": [
+      "calculating",
+      "compassionate"
+    ],
+    "BackgroundPool": [
+      "ex_intel"
+    ],
+    "VicePool": [
+      "vice_stim"
+    ],
+    "CompulsionPool": [
+      "comp_records"
+    ]
   },
-
   {
     "Id": "robotics_researcher",
     "DisplayName": "Robotics Researcher",
     "Background": "Academic",
     "NarrativeRole": "innocent",
     "SkillBands": {
-      "Combat":       { "Min": 10, "Max": 25 },
-      "Stealth":      { "Min": 15, "Max": 35 },
-      "Hacking":      { "Min": 55, "Max": 80 },
-      "Deception":    { "Min": 20, "Max": 45 },
-      "Intimidation": { "Min": 10, "Max": 25 },
-      "Persuasion":   { "Min": 35, "Max": 60 }
+      "Combat": {
+        "Min": 10,
+        "Max": 25
+      },
+      "Stealth": {
+        "Min": 15,
+        "Max": 35
+      },
+      "Hacking": {
+        "Min": 55,
+        "Max": 80
+      },
+      "Deception": {
+        "Min": 20,
+        "Max": 45
+      },
+      "Intimidation": {
+        "Min": 10,
+        "Max": 25
+      },
+      "Persuasion": {
+        "Min": 35,
+        "Max": 60
+      }
     },
-    "Loyalty":    { "Min": 60, "Max": 80 },
-    "Stress":     { "Min": 20, "Max": 40 },
-    "Morale":     { "Min": 65, "Max": 85 },
-    "Conscience": { "Min": 70, "Max": 90 },
-    "Ambition":   { "Min": 55, "Max": 75 },
-    "TraitPool": ["calculating", "compassionate", "ex_press", "vice_stim", "comp_perfectionist"],
-    "TraitCount": [2, 3],
+    "Loyalty": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Stress": {
+      "Min": 20,
+      "Max": 40
+    },
+    "Morale": {
+      "Min": 65,
+      "Max": 85
+    },
+    "Conscience": {
+      "Min": 70,
+      "Max": 90
+    },
+    "Ambition": {
+      "Min": 55,
+      "Max": 75
+    },
+    "TraitPool": [
+      "calculating",
+      "compassionate",
+      "ex_press",
+      "vice_stim",
+      "comp_perfectionist",
+      "precise",
+      "ex_academy"
+    ],
+    "TraitCount": [
+      2,
+      3
+    ],
     "FlavorFragments": [
       "Published a paper on autonomous swarm behavior. Three governments classified it.",
       "Built machines that think. Now worries about the ones that think for themselves.",
       "The lab was supposed to save lives. The contract addendum had other plans."
     ],
-    "PersonalityPool": ["calculating", "compassionate"],
-    "BackgroundPool":  ["ex_press"],
-    "VicePool":        ["vice_stim"],
-    "CompulsionPool":  ["comp_perfectionist"]
+    "PersonalityPool": [
+      "calculating",
+      "compassionate"
+    ],
+    "BackgroundPool": [
+      "ex_press"
+    ],
+    "VicePool": [
+      "vice_stim"
+    ],
+    "CompulsionPool": [
+      "comp_perfectionist"
+    ]
   },
   {
     "Id": "behavioral_psychologist",
@@ -700,29 +1932,84 @@
     "Background": "Academic",
     "NarrativeRole": "mirror",
     "SkillBands": {
-      "Combat":       { "Min": 10, "Max": 25 },
-      "Stealth":      { "Min": 20, "Max": 40 },
-      "Hacking":      { "Min": 25, "Max": 50 },
-      "Deception":    { "Min": 50, "Max": 75 },
-      "Intimidation": { "Min": 30, "Max": 55 },
-      "Persuasion":   { "Min": 60, "Max": 85 }
+      "Combat": {
+        "Min": 10,
+        "Max": 25
+      },
+      "Stealth": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Hacking": {
+        "Min": 25,
+        "Max": 50
+      },
+      "Deception": {
+        "Min": 50,
+        "Max": 75
+      },
+      "Intimidation": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Persuasion": {
+        "Min": 60,
+        "Max": 85
+      }
     },
-    "Loyalty":    { "Min": 50, "Max": 70 },
-    "Stress":     { "Min": 20, "Max": 40 },
-    "Morale":     { "Min": 60, "Max": 80 },
-    "Conscience": { "Min": 55, "Max": 80 },
-    "Ambition":   { "Min": 50, "Max": 70 },
-    "TraitPool": ["calculating", "compassionate", "ex_corporate", "vice_drink", "comp_records", "cynical"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 50,
+      "Max": 70
+    },
+    "Stress": {
+      "Min": 20,
+      "Max": 40
+    },
+    "Morale": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Conscience": {
+      "Min": 55,
+      "Max": 80
+    },
+    "Ambition": {
+      "Min": 50,
+      "Max": 70
+    },
+    "TraitPool": [
+      "calculating",
+      "compassionate",
+      "ex_corporate",
+      "vice_drink",
+      "comp_records",
+      "cynical",
+      "magnetic",
+      "ex_academy"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Wrote the conditioning protocols that three corps use on their operatives. Feels complicated about it.",
       "Can predict what someone will do before they know themselves. The trick is pretending not to.",
       "The research grant came from defense. The findings went to marketing. Nobody asked which was worse."
     ],
-    "PersonalityPool": ["calculating", "compassionate", "cynical"],
-    "BackgroundPool":  ["ex_corporate"],
-    "VicePool":        ["vice_drink"],
-    "CompulsionPool":  ["comp_records"]
+    "PersonalityPool": [
+      "calculating",
+      "compassionate",
+      "cynical"
+    ],
+    "BackgroundPool": [
+      "ex_corporate"
+    ],
+    "VicePool": [
+      "vice_drink"
+    ],
+    "CompulsionPool": [
+      "comp_records"
+    ]
   },
   {
     "Id": "corporate_anthropologist",
@@ -730,28 +2017,82 @@
     "Background": "Academic",
     "NarrativeRole": "climber",
     "SkillBands": {
-      "Combat":       { "Min": 10, "Max": 25 },
-      "Stealth":      { "Min": 30, "Max": 55 },
-      "Hacking":      { "Min": 30, "Max": 55 },
-      "Deception":    { "Min": 45, "Max": 70 },
-      "Intimidation": { "Min": 20, "Max": 40 },
-      "Persuasion":   { "Min": 55, "Max": 80 }
+      "Combat": {
+        "Min": 10,
+        "Max": 25
+      },
+      "Stealth": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Hacking": {
+        "Min": 30,
+        "Max": 55
+      },
+      "Deception": {
+        "Min": 45,
+        "Max": 70
+      },
+      "Intimidation": {
+        "Min": 20,
+        "Max": 40
+      },
+      "Persuasion": {
+        "Min": 55,
+        "Max": 80
+      }
     },
-    "Loyalty":    { "Min": 40, "Max": 65 },
-    "Stress":     { "Min": 15, "Max": 35 },
-    "Morale":     { "Min": 60, "Max": 80 },
-    "Conscience": { "Min": 40, "Max": 65 },
-    "Ambition":   { "Min": 65, "Max": 85 },
-    "TraitPool": ["cynical", "calculating", "ex_corporate", "vice_gambling", "comp_records", "compassionate"],
-    "TraitCount": [2, 4],
+    "Loyalty": {
+      "Min": 40,
+      "Max": 65
+    },
+    "Stress": {
+      "Min": 15,
+      "Max": 35
+    },
+    "Morale": {
+      "Min": 60,
+      "Max": 80
+    },
+    "Conscience": {
+      "Min": 40,
+      "Max": 65
+    },
+    "Ambition": {
+      "Min": 65,
+      "Max": 85
+    },
+    "TraitPool": [
+      "cynical",
+      "calculating",
+      "ex_corporate",
+      "vice_gambling",
+      "comp_records",
+      "compassionate",
+      "ex_academy"
+    ],
+    "TraitCount": [
+      2,
+      4
+    ],
     "FlavorFragments": [
       "Studies corporate culture the way biologists study colonies — from inside, with detachment.",
       "Wrote a thesis on organizational pathology. Got hired by the organism.",
       "Understands why people follow orders. That's the useful part, and the dangerous part."
     ],
-    "PersonalityPool": ["cynical", "calculating", "compassionate"],
-    "BackgroundPool":  ["ex_corporate"],
-    "VicePool":        ["vice_gambling"],
-    "CompulsionPool":  ["comp_records"]
+    "PersonalityPool": [
+      "cynical",
+      "calculating",
+      "compassionate"
+    ],
+    "BackgroundPool": [
+      "ex_corporate"
+    ],
+    "VicePool": [
+      "vice_gambling"
+    ],
+    "CompulsionPool": [
+      "comp_records"
+    ]
   }
 ]

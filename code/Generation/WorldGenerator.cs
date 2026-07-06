@@ -77,12 +77,10 @@ public sealed class WorldGenerator
 
 	private static void BuildRoster( WorldState world, Rng r, OperativeGenerator opGen, int size )
 	{
-		string[] mix = { "operator", "ghost", "decker", "fixer" };
-		for ( int i = 0; i < size; i++ )
-		{
-			var arch = mix[i % mix.Length];
-			world.Operatives.Add( opGen.Generate( i + 1, r, arch ) );
-		}
+		// Team-variety enforcement: distinct archetypes, capped backgrounds,
+		// and guaranteed psychological spread (a conscience, a cynic, a
+		// climber, a flight risk) so every run starts with story fuel.
+		world.Operatives.AddRange( opGen.GenerateTeam( size, r ) );
 	}
 
 	private static void BuildHierarchy( WorldState world, Rng r, NameGenerator names )
@@ -95,10 +93,10 @@ public sealed class WorldGenerator
 	private static void BuildRelationships( WorldState world, Rng r )
 	{
 		var seeder = new RelationshipSeeder();
-		// Field roster only — IDs <1000.
+		// Field roster only — executives don't get bunk-room relationships.
 		var roster = new List<Operative>();
 		foreach ( var o in world.Operatives )
-			if ( o.Id < CorporateHierarchyGenerator.BossId ) roster.Add( o );
+			if ( !o.IsExecutive ) roster.Add( o );
 		var edges = seeder.Seed( roster, r );
 		world.Relationships.AddRange( edges );
 	}

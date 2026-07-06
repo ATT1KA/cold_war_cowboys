@@ -36,7 +36,7 @@ public sealed class ContractSystem
 		_consequences = consequences;
 	}
 
-	public void RefreshContracts( CorporateState corp )
+	public void RefreshContracts( CorporateState corp, WorldState world )
 	{
 		corp.AvailableContracts.RemoveAll( c =>
 			c.Status == MissionStatus.Available &&
@@ -49,6 +49,22 @@ public sealed class ContractSystem
 			if ( c != null ) corp.AvailableContracts.Add( c );
 		}
 
+		// Past "Effective", the gray market opens: contracts clean divisions
+		// never see. High pay, wet work, real exposure — the other half of the
+		// devil's bargain.
+		if ( world.Corruption.CorruptionIndex >= 40 )
+		{
+			var brokers = corp.Factions.Values
+				.Where( f => f.Kind != FactionKind.HostCorp && f.RelationshipToPlayer < 25 )
+				.ToList();
+			if ( brokers.Count > 0 && !corp.AvailableContracts.Any( m => m.Tags.Contains( "gray_market" ) ) )
+			{
+				var broker = brokers[_rng.Next( brokers.Count )];
+				var black = GenerateGrayContract( broker, corp );
+				corp.AvailableContracts.Add( black );
+			}
+		}
+
 		foreach ( var d in corp.ActiveDirectives )
 		{
 			if ( d.Resolved ) continue;
@@ -57,6 +73,11 @@ public sealed class ContractSystem
 		}
 	}
 
+	/// <summary>
+	/// Spend political capital on better contract terms. Applies immediately —
+	/// the player negotiates during Briefing/Assignment and the mission may
+	/// resolve the same cycle, so a deferred consequence would arrive too late.
+	/// </summary>
 	public NegotiationResult Negotiate( CorporateState corp, Mission contract, NegotiationLever lever )
 	{
 		if ( contract.IsMandatory )
@@ -77,18 +98,38 @@ public sealed class ContractSystem
 		if ( corp.PoliticalCapital < cost )
 			return new NegotiationResult( false, "Not enough political capital.", 0 );
 
-		_consequences.Enqueue( new CorporateConsequence
-		{
-			Source = "Negotiation",
-			Description = $"Spent {cost} capital negotiating {lever} on '{contract.Title}'.",
-			Apply = c =>
-			{
-				c.PoliticalCapital = Math.Max( 0, c.PoliticalCapital - cost );
-				ApplyLever( contract, lever );
-			},
-		} );
+		corp.PoliticalCapital = Math.Max( 0, corp.PoliticalCapital - cost );
+		ApplyLever( contract, lever );
+		corp.RecentEventLog.Add(
+			$"[Negotiation] Spent {cost} capital negotiating {lever} on '{contract.Title}'." );
 
 		return new NegotiationResult( true, $"Accepted at cost {cost}.", cost );
+	}
+
+	private Mission GenerateGrayContract( Faction broker, CorporateState corp )
+	{
+		int reward = 35_000 + _rng.Next( 0, 15_000 );
+		var m = new Mission
+		{
+			Id = $"gray_{broker.Id}_{corp.Cycle}_{_rng.Next( 1000, 9999 )}",
+			TemplateId = $"gray:{broker.Id}",
+			Type = MissionType.Assassination,
+			Status = MissionStatus.Available,
+			Title = $"Off-ledger resolution ({broker.Name})",
+			Briefing = $"No paper. No questions. {broker.Leader} pays on completion, in full, through three shells.",
+			IssuingFactionId = broker.Id,
+			ClientFactionId = broker.Id,
+			IsWetWork = true,
+			MoralWeight = 70,
+			Difficulty = Math.Clamp( 55 + _rng.Next( 0, 20 ) + Math.Min( 20, corp.Cycle ), 5, 95 ),
+			Reward = reward,
+			Risk = 45,
+			Exposure = 30,
+			CycleAvailable = corp.Cycle,
+			CycleDeadline = corp.Cycle + 2,
+		};
+		m.Tags.Add( "gray_market" );
+		return m;
 	}
 
 	private static void ApplyLever( Mission contract, NegotiationLever lever )
@@ -118,6 +159,9 @@ public sealed class ContractSystem
 		int reward = 10_000 + (int)(quality * 20_000) + _rng.Next( 0, 5_000 );
 		int riskShown = Math.Max( 5, 40 - (int)(quality * 30) + _rng.Next( -5, 6 ) );
 		int exposureShown = Math.Max( 0, 20 - (int)(quality * 15) );
+		// Contract work hardens with the campaign like everything else — an
+		// unscaled easy-money channel would dissolve all late-game pressure.
+		int cycleBoost = Math.Min( 26, (corp.Cycle - 1) * 2 );
 
 		var m = new Mission
 		{
@@ -129,7 +173,7 @@ public sealed class ContractSystem
 			Briefing = $"Contract surfaced by {f.Name}. Issued by {f.Leader}.",
 			IssuingFactionId = f.Id,
 			ClientFactionId = f.Id,
-			Difficulty = Math.Clamp( riskShown + 30, 5, 95 ),
+			Difficulty = Math.Clamp( riskShown + 30 + cycleBoost, 5, 95 ),
 			Reward = reward,
 			Risk = riskShown,
 			Exposure = exposureShown,
@@ -137,7 +181,7 @@ public sealed class ContractSystem
 			CycleDeadline = corp.Cycle + 3,
 		};
 
-		if ( f.RelationshipToPlayer < -25 )
+		if ( f.RelationshipToPlayer < -40 )
 		{
 			int hiddenRisk = _rng.Next( 10, 26 );
 			int hiddenExposure = _rng.Next( 5, 16 );
@@ -182,7 +226,7 @@ public sealed class ContractSystem
 			Reward = 25_000,
 			Risk = 30,
 			Exposure = 15,
-			Difficulty = 60,
+			Difficulty = Math.Clamp( 60 + Math.Min( 20, corp.Cycle ), 5, 95 ),
 			CycleAvailable = corp.Cycle,
 			CycleDeadline = corp.Cycle + 2,
 		};

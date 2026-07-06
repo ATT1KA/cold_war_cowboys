@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
-using CWC.Core;
-using CWC.Domain;
 
 namespace CWC.Save;
 
 /// <summary>
-/// Night 6: Serializable snapshot of a complete game state.
+/// Serializable snapshot of a complete game state.
 /// JSON-friendly — no circular refs, no engine types.
+///
+/// Version 2: adds directives (active + pending pool), fired one-shot scenes,
+/// corruption crossed-milestones + choice weight, full mission fields
+/// (weights, flags, contract metadata), choice log, executive flags, and
+/// persistent RNG stream states — the whole save/load defect cluster.
 /// </summary>
 public sealed class SaveData
 {
-	public int Version { get; set; } = 1;
+	public int Version { get; set; } = 2;
 	public string SaveId { get; set; } = "";
 	public string SlotName { get; set; } = "";
 	public DateTime Timestamp { get; set; }
@@ -31,14 +34,27 @@ public sealed class SaveData
 	public int Day { get; set; }
 	public int HeatLevel { get; set; }
 	public int PublicTrust { get; set; }
+	public int ConsecutiveSuccesses { get; set; }
 	public List<string> ActiveCrises { get; set; } = new();
+
+	// ---- Choice history ----
+	public List<ChoiceRecordSave> ChoiceLog { get; set; } = new();
+
+	// ---- Narrative director state ----
+	public List<string> FiredOneShotScenes { get; set; } = new();
 
 	// ---- Corruption state ----
 	public double CorruptionIndex { get; set; }
+	public double CorruptionChoiceWeight { get; set; }
 	public string CurrentMilestone { get; set; } = "None";
 	public List<string> CrossedMilestones { get; set; } = new();
 
+	// ---- RNG stream positions (long-lived corporate streams) ----
+	public Dictionary<string, ulong[]> RngStreams { get; set; } = new();
+
 	// ---- Phase ----
+	// Recorded for diagnostics; loads deliberately resume at the Briefing
+	// boundary of the saved cycle (auto-saves are taken there).
 	public string CurrentPhase { get; set; } = "Briefing";
 	public string SeedMissionTemplateId { get; set; } = "";
 
@@ -73,6 +89,34 @@ public sealed class CorporateStateSave
 	public int PoliticalCapital { get; set; }
 	public string DirectorName { get; set; } = "";
 	public string DirectorAgenda { get; set; } = "";
+	public List<DirectiveSave> ActiveDirectives { get; set; } = new();
+	public List<DirectiveSave> PendingDirectivePool { get; set; } = new();
+	public List<string> AvailableContractIds { get; set; } = new();
+	public List<string> RecentEventLog { get; set; } = new();
+}
+
+public sealed class DirectiveSave
+{
+	public string Id { get; set; } = "";
+	public string Title { get; set; } = "";
+	public string Description { get; set; } = "";
+	public bool Mandatory { get; set; }
+	public int IgnoreConfidencePenalty { get; set; }
+	public int ComplyConfidenceReward { get; set; }
+	public int DeadlineDay { get; set; }
+	public int DeadlineDayOffset { get; set; }
+	public bool Resolved { get; set; }
+	public bool Complied { get; set; }
+}
+
+public sealed class ChoiceRecordSave
+{
+	public int Cycle { get; set; }
+	public string Source { get; set; } = "";
+	public string SourceId { get; set; } = "";
+	public string Label { get; set; } = "";
+	public List<string> Flags { get; set; } = new();
+	public int? OperativeId { get; set; }
 }
 
 public sealed class OperativeSave
@@ -86,6 +130,7 @@ public sealed class OperativeSave
 	public string NarrativeRole { get; set; } = "";
 	public string Status { get; set; } = "Active";
 	public int Tenure { get; set; }
+	public bool IsExecutive { get; set; }
 	public string? CurrentMissionId { get; set; }
 	public string? FactionLoyalty { get; set; }
 	public List<string> Tags { get; set; } = new();
@@ -137,6 +182,25 @@ public sealed class MissionSave
 	public int Reward { get; set; }
 	public int Risk { get; set; }
 	public int Exposure { get; set; }
+
+	// Full round-trip fields (v2): weights, flags, contract metadata.
+	public Dictionary<string, int> StatWeights { get; set; } = new();
+	public List<string> NarrativeFlagsOnSuccess { get; set; } = new();
+	public List<string> NarrativeFlagsOnPartialSuccess { get; set; } = new();
+	public List<string> NarrativeFlagsOnFailure { get; set; } = new();
+	public List<string> NarrativeFlagsOnCatastrophe { get; set; } = new();
+	public string SuccessText { get; set; } = "";
+	public string PartialText { get; set; } = "";
+	public string FailureText { get; set; } = "";
+	public string CatastropheText { get; set; } = "";
+	public string? IssuingFactionId { get; set; }
+	public List<string> OpposesFactionIds { get; set; } = new();
+	public List<string> AlliedFactionIds { get; set; } = new();
+	public bool IsBoardDirective { get; set; }
+	public bool IsMandatory { get; set; }
+	public List<string> Tags { get; set; } = new();
+	/// <summary>Sequence bodies live in templates; on load the sequence is reattached by TemplateId.</summary>
+	public bool HasNarrativeSequence { get; set; }
 }
 
 public sealed class FactionSave
@@ -150,6 +214,7 @@ public sealed class FactionSave
 	public string Agenda { get; set; } = "";
 	public string Leader { get; set; } = "";
 	public int RelationshipToPlayer { get; set; }
+	public List<string> Personality { get; set; } = new();
 }
 
 public sealed class RelationshipSave

@@ -89,34 +89,12 @@ public sealed class ReputationSystem
 			{
 				c.InternalReputation = Drift( c.InternalReputation, fastUp: 1, fastDown: 2 );
 				c.ExternalReputation = Drift( c.ExternalReputation, fastUp: 1, fastDown: 2 );
-				int decay = world.PublicTrust >= 60 ? 2 : 1;
+				int decay = world.PublicTrust >= 60 ? 4 : 3;
 				c.Suspicion = Math.Max( 0, c.Suspicion - decay );
-			},
-		} );
-	}
-
-	public void Adjust( CorporateState corp, ReputationKind kind, int delta, string reason )
-	{
-		_consequences.Enqueue( new CorporateConsequence
-		{
-			Source = "Reputation",
-			Description = $"{kind} {Sign( delta )} ({reason})",
-			Apply = c =>
-			{
-				int beforeSus = c.Suspicion;
-				switch ( kind )
-				{
-					case ReputationKind.Internal:
-						c.InternalReputation = Math.Clamp( c.InternalReputation + delta, 0, 100 );
-						break;
-					case ReputationKind.External:
-						c.ExternalReputation = Math.Clamp( c.ExternalReputation + delta, 0, 100 );
-						break;
-					case ReputationKind.Suspicion:
-						c.Suspicion = Math.Clamp( c.Suspicion + delta, 0, 100 );
-						break;
-				}
-				CheckThresholds( beforeSus, c );
+				// The street forgets too — slower than the auditors. Without a
+				// heat sink every run pins at 100 by mid-game and the dial
+				// stops meaning anything.
+				c.Heat = Math.Max( 0, c.Heat - 3 );
 			},
 		} );
 	}

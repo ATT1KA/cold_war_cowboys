@@ -74,6 +74,12 @@ public sealed class Mission
 	/// <summary>Free-form tags; Sprint 6 uses "hidden_risk:N" / "hidden_exposure:N".</summary>
 	public List<string> Tags { get; set; } = new();
 
+	// ---- authored outcome texts (from template; resolver falls back to stock lines) ----
+	public string SuccessText { get; set; } = "";
+	public string PartialText { get; set; } = "";
+	public string FailureText { get; set; } = "";
+	public string CatastropheText { get; set; } = "";
+
 	// ---- Night 4: narrative sequence layer ----
 
 	/// <summary>

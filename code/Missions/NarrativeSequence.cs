@@ -62,4 +62,11 @@ public sealed class NarrativeChoice
 
 	/// <summary>Optional narrative text shown after choice is made.</summary>
 	public string? Aftermath { get; set; }
+
+	/// <summary>
+	/// Narrative flags written to WorldState when this choice is picked, so the
+	/// scene director can reference sequence decisions later ("you did that").
+	/// The runner also auto-emits seq:{missionTemplateId}:{approach}.
+	/// </summary>
+	public List<string> FlagsOnPick { get; set; } = new();
 }

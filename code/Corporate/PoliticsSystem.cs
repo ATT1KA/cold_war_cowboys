@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using CWC.Core;
 using CWC.Missions;
 
@@ -33,6 +34,7 @@ public sealed class PoliticsSystem
 	public void EvaluateBoard( CorporateState corp, WorldState world )
 	{
 		ReviewDirectives( corp, world );
+		IssueFromPool( corp, world );
 		ApplyDirectorAgenda( corp );
 		ConsiderRankChange( corp );
 	}
@@ -48,6 +50,34 @@ public sealed class PoliticsSystem
 			_                              => 0,
 		};
 		if ( result.Mission.IsBoardDirective ) delta *= 2;
+		// The board pays a premium for decisive (wet) work — this is half of
+		// the devil's bargain the corruption arc is built on.
+		if ( result.Mission.IsWetWork && result.Outcome == MissionOutcome.Success ) delta += 2;
+
+		// Directive compliance: completing the directive's mission marks it
+		// complied and pays the reward — succeeding must never still eat the
+		// non-compliance penalty.
+		if ( result.Mission.IsBoardDirective
+			&& result.Mission.TemplateId.StartsWith( "directive:" )
+			&& result.Outcome is MissionOutcome.Success or MissionOutcome.PartialSuccess )
+		{
+			string directiveId = result.Mission.TemplateId.Substring( "directive:".Length );
+			var directive = corp.ActiveDirectives.Find( d => d.Id == directiveId && !d.Resolved );
+			if ( directive != null )
+			{
+				directive.Resolved = true;
+				directive.Complied = true;
+				int reward = directive.ComplyConfidenceReward;
+				_consequences.Enqueue( new CorporateConsequence
+				{
+					Source = "Board",
+					Description = $"Directive '{directive.Title}' fulfilled (+{reward} confidence).",
+					Apply = c => c.BoardConfidence = Math.Clamp( c.BoardConfidence + reward, 0, 100 ),
+				} );
+				_bus.Publish( new DirectiveResolved( directive.Id, true, reward ) );
+			}
+		}
+
 		if ( delta == 0 ) return;
 
 		_consequences.Enqueue( new CorporateConsequence
@@ -56,6 +86,23 @@ public sealed class PoliticsSystem
 			Description = $"Confidence {(delta >= 0 ? "+" : "")}{delta} ({result.Mission.Title})",
 			Apply = c => c.BoardConfidence = Math.Clamp( c.BoardConfidence + delta, 0, 100 ),
 		} );
+	}
+
+	/// <summary>
+	/// The board drip-feeds directives from the pending pool over the run
+	/// instead of dumping them all on cycle 1.
+	/// </summary>
+	private void IssueFromPool( CorporateState corp, WorldState world )
+	{
+		int unresolved = corp.ActiveDirectives.Count( d => !d.Resolved );
+		if ( unresolved >= 2 ) return;
+		if ( corp.PendingDirectivePool.Count == 0 ) return;
+		if ( !_rng.Chance( 0.4 ) ) return;
+
+		var directive = corp.PendingDirectivePool[0];
+		corp.PendingDirectivePool.RemoveAt( 0 );
+		directive.DeadlineDay = world.Day + directive.DeadlineDayOffset;
+		IssueDirective( corp, directive );
 	}
 
 	public void IssueDirective( CorporateState corp, BoardDirective directive )

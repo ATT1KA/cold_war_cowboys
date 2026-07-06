@@ -15,11 +15,42 @@ public sealed class ConsequenceProcessor
 	public void Apply( MissionResult result, WorldState world )
 	{
 		ApplyOperativeImpacts( result, world );
+		ApplySkillGrowth( result, world );
 		ApplyWorldConsequences( result, world );
 		ApplyMissionStatus( result, world );
 		EmitTripwireFlags( result, world );
 		AppendNarrativeFlags( result, world );
 		ClearAssignments( result, world );
+	}
+
+	// Fieldwork teaches. Each op grows the mission's top-weighted skill by +1
+	// on success or partial success; nothing from failure or catastrophe.
+	// Capped at 95 so mastery stays asymptotic. This is the counterweight to
+	// per-cycle difficulty scaling: a worked roster climbs the late-game wall
+	// slower than the wall rises — the squeeze is the design.
+	private static void ApplySkillGrowth( MissionResult result, WorldState world )
+	{
+		if ( result.Outcome is MissionOutcome.Failure or MissionOutcome.Catastrophe ) return;
+		var mission = world.GetMission( result.MissionId );
+		if ( mission == null ) return;
+
+		SkillKind topSkill = SkillKind.Stealth;
+		int topWeight = -1;
+		foreach ( var kv in MissionWeights.EffectiveWeights( mission ) )
+		{
+			if ( kv.Value > topWeight ) { topWeight = kv.Value; topSkill = kv.Key; }
+		}
+		if ( topWeight <= 0 ) return;
+
+		const int gain = 1;
+		foreach ( var id in result.AssignedOperativeIds )
+		{
+			var op = world.GetOperative( id );
+			if ( op == null ) continue;
+			int current = op.Skills.Get( topSkill );
+			if ( current < 95 )
+				op.Skills.Add( topSkill, Math.Min( gain, 95 - current ) );
+		}
 	}
 
 	private static void ApplyOperativeImpacts( MissionResult result, WorldState world )

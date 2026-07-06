@@ -40,6 +40,19 @@ public sealed class WorldState
 	public List<string> ActiveCrises { get; } = new();
 	public List<string> Headlines { get; } = new();
 
+	/// <summary>
+	/// Permanent record of every narrative decision (scene choices and mission
+	/// sequence choices). Enables callbacks, epilogues, and "X will remember"
+	/// content. Serialized in saves.
+	/// </summary>
+	public List<ChoiceRecord> ChoiceLog { get; } = new();
+
+	/// <summary>Active field operatives — excludes executives and the dead/defected.
+	/// This is the population every team-average, decay pass, and corruption
+	/// computation must use.</summary>
+	public IEnumerable<Operative> ActiveRoster
+		=> Operatives.Where( o => o.Active && !o.IsExecutive );
+
 	public Operative? GetOperative( int id ) => Operatives.FirstOrDefault( o => o.Id == id );
 	public Mission? GetMission( string id ) => Missions.FirstOrDefault( m => m.Id == id );
 	public Faction? GetFaction( string id ) => Factions.FirstOrDefault( f => f.Id == id );

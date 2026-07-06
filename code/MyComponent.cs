@@ -1,3 +1,4 @@
+using CWC.Core;
 using CWC.Game;
 using CWC.UI;
 
@@ -15,9 +16,16 @@ public sealed class CwcGame : Component
 
 	protected override void OnAwake()
 	{
+		// Wire the sandbox-safe seams before anything touches templates or saves.
+		CwcFiles.Provider = new SandboxFileProvider();
+		CwcLog.Sink = line => Log.Info( "[CWC] " + line );
+
 		Game = new GameManager();
 		Game.NewGame( Seed );
 		ViewModel = new GameViewModel( Game );
+
+		foreach ( var problem in Game.ContentWarnings )
+			Log.Warning( "[CWC content] " + problem );
 	}
 
 	protected override void OnUpdate()

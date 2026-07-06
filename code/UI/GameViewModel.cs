@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CWC.Core;
+using CWC.Corporate;
 using CWC.Domain;
 using CWC.Game;
-using CWC.Generation;
 using CWC.Missions;
 using CWC.Narrative;
 using CWC.Save;
@@ -39,7 +39,7 @@ public sealed class GameViewModel : IGameViewModel
 			var missions = _game.World.Missions
 				.Where( m => m.Status == MissionStatus.Available || m.Status == MissionStatus.Active );
 
-			// Night 5: at corruption >= 80 (The Machine), invert choice ordering —
+			// Past The Machine, invert choice ordering —
 			// wet-work and high moral weight missions surface first, feel "natural"
 			if ( ShouldInvertChoices )
 			{
@@ -58,7 +58,7 @@ public sealed class GameViewModel : IGameViewModel
 
 	public IReadOnlyList<Operative> FieldOperatives
 		=> _game.World.Operatives
-			.Where( o => o.Id < CorporateHierarchyGenerator.BossId )
+			.Where( o => !o.IsExecutive )
 			.OrderBy( o => o.Codename )
 			.ToList();
 
@@ -128,11 +128,21 @@ public sealed class GameViewModel : IGameViewModel
 	public List<SaveSlotInfo> ListSaveSlots()
 		=> _game.SaveSystem.ListSlots();
 
-	public void PickNarrativeChoice( NarrativeChoice choice )
+	/// <summary>
+	/// Apply a narrative-sequence choice. Single application point — the panel
+	/// must not also call the runner directly. Returns the aftermath text.
+	/// </summary>
+	public string? PickNarrativeChoice( NarrativeChoice choice )
 	{
-		_game.NarrativeRunner.ApplyChoice( choice, World );
+		var aftermath = _game.NarrativeRunner.ApplyChoice( choice, World );
 		Changed?.Invoke();
+		return aftermath;
 	}
+
+	public NegotiationResult NegotiateContract( string missionId, NegotiationLever lever )
+		=> _game.NegotiateContract( missionId, lever );
+
+	public FitTier FitTierFor( Operative op, Mission m ) => MissionWeights.TierFor( op, m );
 
 	private void OnGameChanged() => Changed?.Invoke();
 }

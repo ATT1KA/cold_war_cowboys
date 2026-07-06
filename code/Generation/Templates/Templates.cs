@@ -98,10 +98,15 @@ public sealed class FactionTemplate
 	public int Cash { get; set; } = 50_000;
 }
 
-public readonly struct IntRange
+/// <summary>
+/// Inclusive stat band. Properties must stay settable: System.Text.Json
+/// silently leaves a getter-only struct at default(0,0), which zeroed every
+/// archetype skill and psychology roll whenever archetypes.json loaded.
+/// </summary>
+public struct IntRange
 {
-	public int Min { get; }
-	public int Max { get; }
+	public int Min { get; set; }
+	public int Max { get; set; }
 	public IntRange( int min, int max ) { Min = min; Max = max; }
 	public int Roll( Rng r ) => r.BellInt( Min, Max );
 }

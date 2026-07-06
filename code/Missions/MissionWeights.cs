@@ -92,6 +92,24 @@ public static class MissionWeights
 		>= 40 => FitTier.Ok,
 		_     => FitTier.Poor,
 	};
+
+	/// <summary>
+	/// Honest fit-vs-difficulty tier: compares the operative's fit score to the
+	/// mission difficulty INCLUDING the resolver's success margin, so "Great"
+	/// on the picker means a genuinely strong success chance at the table —
+	/// the hint and the dice can't disagree.
+	/// </summary>
+	public static FitTier TierFor( Operative op, Mission m )
+	{
+		int margin = FitScore( op, m ) - m.Difficulty - MissionResolver.SuccessMargin;
+		return margin switch
+		{
+			>= 10  => FitTier.Great,  // solid success odds
+			>= -5  => FitTier.Good,   // success plausible, partial likely
+			>= -20 => FitTier.Ok,     // partial territory
+			_      => FitTier.Poor,   // failure risk is real
+		};
+	}
 }
 
 public enum FitTier

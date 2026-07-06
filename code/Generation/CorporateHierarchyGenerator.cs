@@ -51,6 +51,7 @@ public sealed class CorporateHierarchyGenerator
 			Gender = _names.Gender( r.Fork( "gen" ) ),
 			Status = OperativeStatus.Active,
 			Tenure = r.BellInt( 4, 30 ),
+			IsExecutive = true,
 		};
 		// Executives aren't field operatives, but stat them so consumers can
 		// reason about pressure / influence (and so audits don't trip on zeros).

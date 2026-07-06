@@ -41,7 +41,15 @@
 					<div class="card-meta">
 						<span>Difficulty @m.Difficulty</span>
 						<span>·</span>
+						<span>Pays $@m.Reward.ToString("N0")</span>
+						<span>·</span>
 						<span>Deadline cycle @m.CycleDeadline</span>
+						@if ( CanNegotiate( m ) )
+						{
+							<button class="negotiate-btn" @onclick=@(() => Negotiate( m.Id ))>
+								Negotiate (@(Vm?.World.Corporate.PoliticalCapital ?? 0) PC)
+							</button>
+						}
 					</div>
 					<div class="assigned-row">
 						<span class="assigned-label">Assigned:</span>
@@ -64,7 +72,11 @@
 					<div class="picker-row">
 						@foreach ( var op in EligibleFor( m ) )
 						{
-							<button class="picker-button" @onclick=@(() => Assign(op.Id, m.Id))>+ @op.Codename</button>
+							var tier = Vm!.FitTierFor( op, m );
+							<button class="picker-button fit-@tier.ToString().ToLowerInvariant()"
+							        @onclick=@(() => Assign(op.Id, m.Id))>
+								+ @op.Codename <span class="fit-tag">@tier</span>
+							</button>
 						}
 					</div>
 				</div>
@@ -91,9 +103,21 @@
 	private void Assign( int opId, string missionId )  => Vm?.Assign( opId, missionId );
 	private void Unassign( int opId, string missionId ) => Vm?.Unassign( opId, missionId );
 
+	private bool CanNegotiate( Mission m )
+		=> Vm != null
+		&& !m.IsMandatory
+		&& m.IssuingFactionId != null
+		&& m.Status == MissionStatus.Available
+		&& Vm.World.Corporate.PoliticalCapital > 0;
+
+	private void Negotiate( string missionId )
+		=> Vm?.NegotiateContract( missionId, CWC.Corporate.NegotiationLever.BetterReward );
+
 	protected override int BuildHash() => System.HashCode.Combine(
 		Vm?.AvailableMissions.Count,
 		Vm?.AvailableMissions.Sum( m => m.AssignedOperativeIds.Count ),
+		Vm?.AvailableMissions.Sum( m => m.Reward ),
+		Vm?.World.Corporate.PoliticalCapital,
 		Vm?.FieldOperatives.Count
 	);
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CWC.Core;
+using CWC.Corporate;
 using CWC.Domain;
 using CWC.Missions;
 using CWC.Narrative;
@@ -31,9 +32,13 @@ public interface IGameViewModel
 	void PickChoice( SceneChoice choice );
 	void DismissScene();
 
-	// Night 4: narrative mission sequence
+	// Narrative mission sequence
 	MissionNarrativeRunner NarrativeRunner { get; }
-	void PickNarrativeChoice( NarrativeChoice choice );
+	string? PickNarrativeChoice( NarrativeChoice choice );
+
+	// Contract negotiation (political-capital sink) + honest fit hints
+	NegotiationResult NegotiateContract( string missionId, NegotiationLever lever );
+	FitTier FitTierFor( Operative op, Mission m );
 
 	// Night 5: corruption index
 	bool ShouldInvertChoices { get; }

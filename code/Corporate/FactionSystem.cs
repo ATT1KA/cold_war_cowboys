@@ -157,6 +157,9 @@ public sealed class FactionSystem
 						Description = $"Poached operative {target.Codename} from the player.",
 						Apply = c =>
 						{
+							// Another faction may have poached the same target
+							// earlier this cycle — you can't steal a ghost.
+							if ( target.Status == OperativeStatus.Defected ) return;
 							c.Roster.Remove( target );
 							c.PoliticalCapital = Math.Max( 0, c.PoliticalCapital - 1 );
 							target.Status = OperativeStatus.Defected;

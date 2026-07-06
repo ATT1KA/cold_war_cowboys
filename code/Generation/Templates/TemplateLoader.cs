@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using CWC.Core;
 
 namespace CWC.Generation.Templates;
 
 /// <summary>
 /// Centralised JSON loader for Data/Templates/*. Reads once, caches by path.
-/// Path resolution: tries Sandbox FileSystem.Mounted first (S&amp;box runtime),
-/// falls back to plain disk (smoke tests, editor tools).
+/// File access goes through <see cref="CwcFiles"/> — sandbox-safe in-engine,
+/// System.IO-backed in tests. Every load failure is recorded in
+/// <see cref="Errors"/> and logged; nothing fails silently.
 /// </summary>
 public sealed class TemplateLoader
 {
@@ -17,10 +19,19 @@ public sealed class TemplateLoader
 		PropertyNameCaseInsensitive = true,
 		ReadCommentHandling = JsonCommentHandling.Skip,
 		AllowTrailingCommas = true,
+		// scenes.json / narrative_missions.json write enums as strings
+		// ("Priority": "Pressing", "Phase": "Briefing"). Without this converter
+		// System.Text.Json throws — and the whole scene library used to vanish
+		// into a catch{return null}.
+		Converters = { new JsonStringEnumConverter() },
 	};
 
 	private readonly string _root;
 	private readonly Dictionary<string, string> _textCache = new();
+	private readonly List<string> _errors = new();
+
+	/// <summary>Human-readable load errors accumulated across all Deserialize calls.</summary>
+	public IReadOnlyList<string> Errors => _errors;
 
 	public TemplateLoader( string root = "Data/Templates" )
 	{
@@ -45,85 +56,40 @@ public sealed class TemplateLoader
 	public T? Deserialize<T>( string filename ) where T : class
 	{
 		var text = ReadText( filename );
-		if ( text is null ) return null;
-		try { return JsonSerializer.Deserialize<T>( text, _opts ); }
-		catch ( Exception ) { return null; }
+		if ( text is null )
+		{
+			RecordError( $"{filename}: file not found under {_root}" );
+			return null;
+		}
+		try
+		{
+			var result = JsonSerializer.Deserialize<T>( text, _opts );
+			if ( result == null )
+				RecordError( $"{filename}: deserialized to null" );
+			return result;
+		}
+		catch ( Exception e )
+		{
+			RecordError( $"{filename}: {e.Message}" );
+			return null;
+		}
+	}
+
+	private void RecordError( string message )
+	{
+		_errors.Add( message );
+		CwcLog.Warn( "TemplateLoader: " + message );
 	}
 
 	private string? ReadText( string filename )
 	{
 		if ( _textCache.TryGetValue( filename, out var cached ) ) return cached;
 
-		// Try S&box sandbox filesystem first (works in-engine).
-		string? text = TryReadSandbox( filename );
-
-		// Fall back to disk walk (smoke tests, editor tools).
-		text ??= TryReadDisk( filename );
-
+		var text = CwcFiles.ReadAllText( _root + "/" + filename );
 		if ( text is not null )
 		{
 			_textCache[filename] = text;
 			return text;
-		}
-		return null;
-	}
-
-	/// <summary>
-	/// Attempts to load via Sandbox.FileSystem.Mounted — the only API
-	/// available to sandboxed S&amp;box code. Returns null when not
-	/// running inside the engine (e.g. smoke tests).
-	/// </summary>
-	private string? TryReadSandbox( string filename )
-	{
-		try
-		{
-			var fsType = Type.GetType( "Sandbox.FileSystem, Sandbox.System" )
-				?? Type.GetType( "Sandbox.FileSystem" );
-			if ( fsType == null ) return null;
-
-			var mountedProp = fsType.GetProperty( "Mounted",
-				System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static );
-			if ( mountedProp == null ) return null;
-
-			var mounted = mountedProp.GetValue( null );
-			if ( mounted == null ) return null;
-
-			var mountedType = mounted.GetType();
-
-			// Check FileSystem.Mounted.FileExists( path )
-			var existsMethod = mountedType.GetMethod( "FileExists", new[] { typeof( string ) } );
-			var readMethod = mountedType.GetMethod( "ReadAllText", new[] { typeof( string ) } );
-			if ( existsMethod == null || readMethod == null ) return null;
-
-			var path = _root + "/" + filename;
-			bool exists = (bool)( existsMethod.Invoke( mounted, new object[] { path } ) ?? false );
-			if ( !exists ) return null;
-
-			return readMethod.Invoke( mounted, new object[] { path } ) as string;
-		}
-		catch
-		{
-			return null;
-		}
-	}
-
-	private string? TryReadDisk( string filename )
-	{
-		// Walk up from the working dir looking for Data/Templates/<file>.
-		// This lets the smoke test (runs from bin/Debug/netX) find the same
-		// templates the in-engine runtime sees at the project root.
-		var dir = Directory.GetCurrentDirectory();
-		for ( int i = 0; i < 8; i++ )
-		{
-			var candidate = Path.Combine( dir, _root, filename );
-			try
-			{
-				if ( File.Exists( candidate ) ) return File.ReadAllText( candidate );
-			}
-			catch { /* keep walking */ }
-			var parent = Directory.GetParent( dir );
-			if ( parent is null ) break;
-			dir = parent.FullName;
 		}
 		return null;
 	}

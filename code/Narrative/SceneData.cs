@@ -138,17 +138,18 @@ public sealed class SceneChoice
 /// Concrete queued scene. Resolved against specific operatives via cast slots.
 /// </summary>
 /// <summary>
-/// Night 8: tone modifier applied to operative dialogue at high corruption.
-/// At corruption >= 80, operative responses become more transactional —
+/// Tone modifier applied to operative dialogue at high corruption.
+/// Past The Machine, operative responses become more transactional —
 /// shorter, flatter, stripped of personality. The UI uses this to adjust
 /// text rendering (muted color, reduced line spacing, clinical font weight).
+/// Bands follow the corruption milestones.
 /// </summary>
 public enum ToneModifier
 {
 	Normal,
-	Guarded,       // corruption 60-79: operatives hedge, fewer personal details
-	Transactional, // corruption 80-94: clipped, professional, emotionally flat
-	Hollow,        // corruption 95+: monosyllabic, affectless, mechanical
+	Guarded,       // corruption 55-69 (Feared): operatives hedge, fewer personal details
+	Transactional, // corruption 70-84 (The Machine): clipped, professional, emotionally flat
+	Hollow,        // corruption 85+ (Jenkins): monosyllabic, affectless, mechanical
 }
 
 public sealed class Scene

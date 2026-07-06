@@ -65,8 +65,10 @@
 
 	private void OnPick( NarrativeChoice choice )
 	{
-		_lastAftermath = Vm?.NarrativeRunner?.ApplyChoice( choice, Vm.World );
-		Vm?.PickNarrativeChoice( choice );
+		// Single application point — the VM applies the choice and returns the
+		// aftermath. (Calling the runner directly here too used to double-apply
+		// every choice: double stress, double node advance.)
+		_lastAftermath = Vm?.PickNarrativeChoice( choice );
 	}
 
 	protected override int BuildHash() => System.HashCode.Combine(

@@ -85,7 +85,7 @@ public sealed class OperativeGenerator
 				if ( eligible.Count == 0 ) break;
 
 				var archetype = fork.Pick( eligible );
-				var op = Generate( i, fork.Fork( $"op:{i}" ), archetype.Id );
+				var op = Generate( i + 1, fork.Fork( $"op:{i}" ), archetype.Id );
 				team.Add( op );
 				usedArchetypes.Add( archetype.Id );
 				backgroundCounts[archetype.Background] = backgroundCounts.GetValueOrDefault( archetype.Background ) + 1;
@@ -99,7 +99,7 @@ public sealed class OperativeGenerator
 		// Fallback: generate without variety constraints rather than fail
 		var fallback = new List<Operative>();
 		for ( int i = 0; i < count; i++ )
-			fallback.Add( Generate( i, r.Fork( $"fallback:{i}" ) ) );
+			fallback.Add( Generate( i + 1, r.Fork( $"fallback:{i}" ) ) );
 		return fallback;
 	}
 

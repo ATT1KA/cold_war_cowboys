@@ -47,9 +47,16 @@ public static class CorporateDataLoader
 		public List<string> Conditions { get; set; } = new();
 	}
 
-	/// <summary>Loads factions.json and seeds CorporateState.Factions.</summary>
-	public static int LoadFactions( CorporateState corp, TemplateLoader loader )
+	/// <summary>
+	/// Loads factions.json and MERGES the corporate-layer fields into the
+	/// world's faction objects. Corp and world views must reference the SAME
+	/// instances — the old behavior replaced shared references with divergent
+	/// duplicates, which made faction AI mutations invisible to the UI and
+	/// narrative triggers.
+	/// </summary>
+	public static int LoadFactions( WorldState world, TemplateLoader loader )
 	{
+		var corp = world.Corporate;
 		var list = loader.Deserialize<List<CorporateFactionTemplate>>( "corporate/factions.json" )
 			?? new List<CorporateFactionTemplate>();
 		int count = 0;
@@ -59,34 +66,56 @@ public static class CorporateDataLoader
 				agenda = FactionAgenda.Cooperative;
 			if ( !Enum.TryParse<FactionKind>( t.Kind, true, out var kind ) )
 				kind = FactionKind.RivalCorp;
-			var f = new Faction
+
+			var existing = world.Factions.Find( f => f.Id == t.Id );
+			if ( existing != null )
 			{
-				Id = t.Id,
-				Name = t.Name,
-				Kind = kind,
-				Leader = t.Leader,
-				Agenda = agenda,
-				Standing = t.Standing,
-				Cash = t.Cash,
-				RelationshipToPlayer = t.RelationshipToPlayer,
-			};
-			f.Personality.AddRange( t.Personality );
-			f.Clamp();
-			corp.Factions[f.Id] = f;
+				// Layer corporate-AI fields onto the world-generated faction.
+				existing.Agenda = agenda;
+				existing.Leader = t.Leader;
+				existing.RelationshipToPlayer = t.RelationshipToPlayer;
+				if ( t.Cash > 0 ) existing.Cash = t.Cash;
+				existing.Personality.Clear();
+				existing.Personality.AddRange( t.Personality );
+				existing.Clamp();
+				corp.Factions[existing.Id] = existing;
+			}
+			else
+			{
+				var f = new Faction
+				{
+					Id = t.Id,
+					Name = t.Name,
+					Kind = kind,
+					Leader = t.Leader,
+					Agenda = agenda,
+					Standing = t.Standing,
+					Cash = t.Cash,
+					RelationshipToPlayer = t.RelationshipToPlayer,
+				};
+				f.Personality.AddRange( t.Personality );
+				f.Clamp();
+				world.Factions.Add( f );
+				corp.Factions[f.Id] = f;
+			}
 			count++;
 		}
 		return count;
 	}
 
-	/// <summary>Loads directives.json and queues them on the active list.</summary>
-	public static int LoadDirectives( CorporateState corp, WorldState world, TemplateLoader loader )
+	/// <summary>
+	/// Loads directives.json into the board's pending pool. The board issues
+	/// them over the course of the run (PoliticsSystem) instead of dumping the
+	/// whole stack on cycle 1.
+	/// </summary>
+	public static int LoadDirectives( CorporateState corp, TemplateLoader loader )
 	{
 		var list = loader.Deserialize<List<DirectiveTemplate>>( "corporate/directives.json" )
 			?? new List<DirectiveTemplate>();
 		int count = 0;
 		foreach ( var t in list )
 		{
-			corp.ActiveDirectives.Add( new BoardDirective
+			corp.PendingDirectivePool.Add( new BoardDirective
 			{
 				Id = t.Id,
 				Title = t.Title,
@@ -94,7 +123,7 @@ public static class CorporateDataLoader
 				Mandatory = t.Mandatory,
 				IgnoreConfidencePenalty = t.IgnoreConfidencePenalty,
 				ComplyConfidenceReward = t.ComplyConfidenceReward,
-				DeadlineDay = world.Day + t.DeadlineDayOffset,
+				DeadlineDayOffset = t.DeadlineDayOffset,
 			} );
 			count++;
 		}

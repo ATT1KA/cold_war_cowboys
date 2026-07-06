@@ -21,7 +21,14 @@ public sealed class MissionBoard
 		ExpireStale( world );
 
 		int target = rng.Next( min, max + 1 );
-		int existingAvailable = world.Missions.Count( m => m.Status == MissionStatus.Available );
+		// Count only template-generated work toward the quota. Corporate
+		// contracts (faction offers, directives, gray market) are a separate
+		// channel — letting them fill the count starved the authored mission
+		// pool to zero after cycle 1.
+		int existingAvailable = world.Missions.Count( m =>
+			m.Status == MissionStatus.Available
+			&& m.IssuingFactionId == null
+			&& !m.IsBoardDirective );
 		int toGenerate = System.Math.Max( 0, target - existingAvailable );
 
 		var pool = _gen.Templates.ToList();

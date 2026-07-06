@@ -8,24 +8,29 @@ using CWC.Domain;
 namespace CWC.Narrative;
 
 /// <summary>
-/// Night 3 upgrade: role-based casting, token resolution, gender-conditional text.
+/// Role-based casting, token resolution, gender-conditional text.
 ///
 /// Reads narrative flags + stat thresholds off WorldState and queues scenes for
-/// the UI. Selection is OneShot-aware. Cast slots resolve to operatives at render
-/// time based on current state — the same template can fire for different operatives
-/// across cycles as stats shift.
+/// the UI. Selection is OneShot-aware, repeatable scenes carry a cooldown so a
+/// persistent flag doesn't turn a crisis into wallpaper, and the queue never
+/// holds two copies of the same template.
 ///
 /// Token resolution runs at Materialize time:
 ///   {operative.name}           → resolved operative's display name
 ///   {operative.role:mirror}    → name of op filling the "mirror" cast slot
-///   {faction.name}             → relevant faction name
-///   {gender:m|male text|female text} → gender-conditional based on ProtagonistGender
-///   {corp}, {location}, {year} → legacy world-setting tokens
+///   {faction.name}             → most hostile rival faction (never your own corp)
+///   {gender:m|A|B}             → conditional on the CAST OPERATIVE's gender
+///                                (protagonist gender only when no operative is cast)
+///   {corp}, {location}, {year} → world-setting tokens
 /// </summary>
 public sealed class NarrativeDirector
 {
+	/// <summary>Cycles a repeatable (non-OneShot) template must wait before re-firing.</summary>
+	private const int RepeatCooldownCycles = 6;
+
 	private readonly Dictionary<string, SceneTemplate> _templates;
 	private readonly HashSet<string> _firedOneShots = new();
+	private readonly Dictionary<string, int> _lastFiredCycle = new();
 	private readonly Queue<Scene> _queue = new();
 
 	public NarrativeDirector( IEnumerable<SceneTemplate> templates )
@@ -35,52 +40,18 @@ public sealed class NarrativeDirector
 
 	public int QueueDepth => _queue.Count;
 	public IReadOnlyCollection<Scene> Queued => _queue;
+	public int TemplateCount => _templates.Count;
 
-	// ========================================================================
-	// ROLE EVALUATION — re-run each cycle to assign narrative roles
-	// ========================================================================
+	// ---- Save/load support ----
 
-	/// <summary>
-	/// Re-evaluate narrative roles for all active operatives based on current stats.
-	/// Call at start of each cycle before ConsumeFlags.
-	/// </summary>
-	public static void EvaluateRoles( WorldState world )
+	/// <summary>One-shot templates that have fired, for serialization.</summary>
+	public IReadOnlyCollection<string> FiredOneShots => _firedOneShots;
+
+	/// <summary>Restore fired one-shot state from a save so scenes don't re-fire on load.</summary>
+	public void RestoreFiredState( IEnumerable<string> firedOneShots )
 	{
-		var active = world.Operatives.Where( o => o.Active ).ToList();
-		if ( active.Count == 0 ) return;
-
-		// Clear existing roles
-		foreach ( var op in active ) op.NarrativeRole = "";
-
-		// Assign by stat extremes — first match wins, no double-assignment
-		var assigned = new HashSet<int>();
-
-		Assign( active, assigned, "conscience",
-			ops => ops.OrderByDescending( o => o.Psychology.Conscience ).First() );
-		Assign( active, assigned, "weapon",
-			ops => ops.OrderByDescending( o => o.Skills.Combat + o.Skills.Intimidation ).First() );
-		Assign( active, assigned, "mirror",
-			ops => ops.OrderByDescending( o => o.Psychology.Loyalty ).First() );
-		Assign( active, assigned, "anchor",
-			ops => ops.OrderByDescending( o => o.Psychology.Morale ).First() );
-		Assign( active, assigned, "climber",
-			ops => ops.OrderByDescending( o => o.Psychology.Ambition ).First() );
-		Assign( active, assigned, "wildcard",
-			ops => ops.OrderByDescending( o => o.Psychology.Stress ).First() );
-		Assign( active, assigned, "survivor",
-			ops => ops.OrderByDescending( o => o.Tenure ).First() );
-		Assign( active, assigned, "innocent",
-			ops => ops.OrderBy( o => o.Psychology.WetWorkCount ).First() );
-
-		static void Assign( List<Operative> pool, HashSet<int> used, string role,
-			Func<IEnumerable<Operative>, Operative> selector )
-		{
-			var candidates = pool.Where( o => !used.Contains( o.Id ) );
-			if ( !candidates.Any() ) return;
-			var pick = selector( candidates );
-			pick.NarrativeRole = role;
-			used.Add( pick.Id );
-		}
+		_firedOneShots.Clear();
+		foreach ( var id in firedOneShots ) _firedOneShots.Add( id );
 	}
 
 	// ========================================================================
@@ -95,15 +66,24 @@ public sealed class NarrativeDirector
 	public IReadOnlyList<Scene> ConsumeFlags( WorldState world )
 	{
 		var fresh = new List<Scene>();
+		int cycle = world.Corporate.Cycle;
+		var alreadyQueued = new HashSet<string>( _queue.Select( s => s.TemplateId ) );
 
 		foreach ( var template in _templates.Values )
 		{
 			if ( template.OneShot && _firedOneShots.Contains( template.Id ) ) continue;
+			// Repeatable scenes: cooldown so persistent flags don't re-fire every cycle.
+			if ( !template.OneShot
+				&& _lastFiredCycle.TryGetValue( template.Id, out var last )
+				&& cycle - last < RepeatCooldownCycles ) continue;
+			// Never queue a duplicate of something already waiting.
+			if ( alreadyQueued.Contains( template.Id ) ) continue;
 			if ( IsForbidden( template, world ) ) continue;
 			if ( !IsEligible( template, world, out int? opId ) ) continue;
 
 			var scene = Materialize( template, world, opId );
 			fresh.Add( scene );
+			alreadyQueued.Add( template.Id );
 		}
 
 		fresh.Sort( ( a, b ) => b.Priority.CompareTo( a.Priority ) );
@@ -120,8 +100,11 @@ public sealed class NarrativeDirector
 		if ( _queue.Count == 0 ) return null;
 		var scene = _queue.Dequeue();
 		var template = _templates.TryGetValue( scene.TemplateId, out var t ) ? t : null;
-		if ( template != null && template.OneShot )
-			_firedOneShots.Add( template.Id );
+		if ( template != null )
+		{
+			if ( template.OneShot ) _firedOneShots.Add( template.Id );
+			_lastFiredCycle[template.Id] = world.Corporate.Cycle;
+		}
 		foreach ( var f in scene.FlagsOnFire )
 			world.NarrativeFlags.Add( f );
 		return scene;
@@ -149,7 +132,8 @@ public sealed class NarrativeDirector
 	}
 
 	/// <summary>
-	/// Apply player choice from a scene. Mutates the targeted operative + corp.
+	/// Apply player choice from a scene. Mutates the targeted operative + corp,
+	/// records the decision in the choice log, and feeds the corruption tracker.
 	/// </summary>
 	public IReadOnlyList<string> ApplyChoice( Scene scene, SceneChoice choice, WorldState world )
 	{
@@ -166,24 +150,44 @@ public sealed class NarrativeDirector
 		}
 		world.Corporate.Heat = Math.Clamp( world.Corporate.Heat + choice.HeatDelta, 0, 100 );
 		foreach ( var f in choice.FlagsOnPick ) world.NarrativeFlags.Add( f );
+
+		// The corruption arc is authored by decisions, not just drift.
+		bool cold = choice.ConscienceDelta < 0
+			|| choice.FlagsOnPick.Any( f => f.Contains( "cold" ) || f.Contains( "transactional" ) || f.Contains( "machine" ) );
+		bool humane = choice.ConscienceDelta > 0
+			|| choice.FlagsOnPick.Any( f => f.Contains( "human" ) || f.Contains( "mercy" ) );
+		if ( cold ) world.Corruption.RegisterChoice( +4.0 );
+		else if ( humane ) world.Corruption.RegisterChoice( -2.0 );
+
+		world.ChoiceLog.Add( new ChoiceRecord
+		{
+			Cycle = world.Corporate.Cycle,
+			Source = "scene",
+			SourceId = scene.TemplateId,
+			Label = choice.Label,
+			Flags = new List<string>( choice.FlagsOnPick ),
+			OperativeId = scene.OperativeId,
+		} );
+
 		return choice.FlagsOnPick;
 	}
 
 	// ========================================================================
-	// NIGHT 2: narrative role re-evaluation
+	// ROLE DRIFT — narrative roles follow psychology across the run
 	// ========================================================================
 
 	/// <summary>
 	/// Re-evaluate each operative's narrative role against current psychology.
-	/// Called once per cycle (e.g. during Aftermath phase). An operative whose
-	/// stats no longer match the role thresholds loses the tag; one whose stats
-	/// have drifted into a new archetype band may gain one.
+	/// Called once per cycle at Briefing. An operative whose stats no longer
+	/// match the role thresholds loses the tag; one whose stats have drifted
+	/// into a new band may gain one. Roles are seeded by archetype at
+	/// generation and drift from there.
 	/// </summary>
-	public void ReEvaluateRoles( IReadOnlyList<Operative> operatives )
+	public void ReEvaluateRoles( IEnumerable<Operative> operatives )
 	{
 		foreach ( var op in operatives )
 		{
-			if ( !op.Active ) continue;
+			if ( !op.Active || op.IsExecutive ) continue;
 
 			var role = op.NarrativeRole?.ToLowerInvariant() ?? "";
 			var p = op.Psychology;
@@ -220,7 +224,7 @@ public sealed class NarrativeDirector
 	}
 
 	// ========================================================================
-	// ELIGIBILITY — flag predicates + Night 3 stat-based triggers
+	// ELIGIBILITY — flag predicates + stat-based triggers
 	// ========================================================================
 
 	private static bool IsForbidden( SceneTemplate t, WorldState world )
@@ -231,7 +235,7 @@ public sealed class NarrativeDirector
 	}
 
 	/// <summary>
-	/// Check both legacy RequiredFlags AND Night 3 Triggers. All must pass.
+	/// Check both legacy RequiredFlags AND structured Triggers. All must pass.
 	/// </summary>
 	private static bool IsEligible( SceneTemplate t, WorldState world, out int? opId )
 	{
@@ -244,7 +248,7 @@ public sealed class NarrativeDirector
 			if ( opId == null && matchedOp.HasValue ) opId = matchedOp;
 		}
 
-		// Night 3 structured triggers
+		// Structured triggers
 		foreach ( var trigger in t.Triggers )
 		{
 			if ( !EvaluateTrigger( trigger, world, ref opId ) ) return false;
@@ -255,7 +259,8 @@ public sealed class NarrativeDirector
 
 	private static bool EvaluateTrigger( SceneTrigger trigger, WorldState world, ref int? opId )
 	{
-		var active = world.Operatives.Where( o => o.Active ).ToList();
+		// Executives never participate in team math or scene casting.
+		var active = world.ActiveRoster.ToList();
 		if ( active.Count == 0 ) return false;
 
 		switch ( trigger.Type )
@@ -297,7 +302,6 @@ public sealed class NarrativeDirector
 				if ( int.TryParse( hit.Substring( prefix.Length ), out var id ) ) opId ??= id;
 				return true;
 
-			// Night 8: new trigger types for expanded scene templates
 			case "consecutive_successes":
 				return world.ConsecutiveSuccesses >= trigger.Threshold;
 
@@ -366,7 +370,7 @@ public sealed class NarrativeDirector
 	private static Dictionary<string, int> ResolveCast( SceneTemplate t, WorldState world, int? triggeringOpId )
 	{
 		var cast = new Dictionary<string, int>();
-		var active = world.Operatives.Where( o => o.Active ).ToList();
+		var active = world.ActiveRoster.ToList();
 
 		foreach ( var slot in t.Cast )
 		{
@@ -402,7 +406,6 @@ public sealed class NarrativeDirector
 			"highest_stress" => active.OrderByDescending( o => o.Psychology.Stress ).FirstOrDefault()?.Id,
 			"highest_morale" => active.OrderByDescending( o => o.Psychology.Morale ).FirstOrDefault()?.Id,
 			"lowest_morale" => active.OrderBy( o => o.Psychology.Morale ).FirstOrDefault()?.Id,
-			// Night 8: new resolvers for expanded scene cast slots
 			"first_mission_op" => triggeringOpId ?? active.FirstOrDefault()?.Id,
 			"last_catastrophe_op" => triggeringOpId ?? active.OrderByDescending( o => o.Psychology.Stress ).FirstOrDefault()?.Id,
 			_ when slot.Resolver.StartsWith( "role:" ) =>
@@ -472,28 +475,41 @@ public sealed class NarrativeDirector
 					: "someone";
 			}
 			// Also check by narrative role directly
-			var byRole = world.Operatives.FirstOrDefault( o => o.NarrativeRole == role && o.Active );
+			var byRole = world.Operatives.FirstOrDefault( o => o.NarrativeRole == role && o.Active && !o.IsExecutive );
 			return byRole != null
 				? ( string.IsNullOrEmpty( byRole.Codename ) ? byRole.Name : byRole.Codename )
 				: "someone";
 		} );
 
-		// {faction.name} → first relevant faction
+		// {faction.name} → the most hostile non-host faction. A scene about a
+		// rival poaching your operative must never name your own corporation.
 		result = FactionToken.Replace( result, m =>
 		{
-			var faction = world.Factions.FirstOrDefault();
+			var faction = world.Factions
+				.Where( f => f.Kind != FactionKind.HostCorp )
+				.OrderBy( f => f.RelationshipToPlayer )
+				.FirstOrDefault();
 			return faction?.Name ?? "the opposition";
 		} );
 
-		// {gender:m|male text|female text} → gender-conditional
+		// {gender:m|A|B} → conditional on the CAST OPERATIVE's gender. The
+		// content overwhelmingly uses this token about other people ("Promote
+		// {gender:m|him|her}"), so it must read the operative the scene is
+		// about — the protagonist's gender is only the fallback when a scene
+		// has no cast (e.g. the Director addressing you).
 		result = GenderToken.Replace( result, m =>
 		{
 			string condition = m.Groups[1].Value;
 			string optionA = m.Groups[2].Value;
 			string optionB = m.Groups[3].Value;
-			string gender = world.ProtagonistGender?.ToLowerInvariant() ?? "m";
-			// condition "m" → optionA if protagonist is male, optionB otherwise
-			// condition "f" → optionA if protagonist is female, optionB otherwise
+
+			string gender = "m";
+			var castOp = primaryOpId.HasValue ? world.GetOperative( primaryOpId.Value ) : null;
+			if ( castOp != null && !string.IsNullOrEmpty( castOp.Gender ) )
+				gender = castOp.Gender.ToLowerInvariant();
+			else
+				gender = world.ProtagonistGender?.ToLowerInvariant() ?? "m";
+
 			return condition switch
 			{
 				"m" => gender == "m" ? optionA : optionB,
@@ -519,12 +535,12 @@ public sealed class NarrativeDirector
 
 		string Resolve( string s ) => ResolveTokens( s, world, cast, primaryOp );
 
-		// Night 8: determine tone modifier based on corruption level
+		// Tone modifier bands follow the milestone thresholds.
 		var tone = world.Corruption.CorruptionIndex switch
 		{
-			>= 95 => ToneModifier.Hollow,
-			>= 80 => ToneModifier.Transactional,
-			>= 60 => ToneModifier.Guarded,
+			>= 85 => ToneModifier.Hollow,
+			>= 70 => ToneModifier.Transactional,
+			>= 55 => ToneModifier.Guarded,
 			_     => ToneModifier.Normal,
 		};
 

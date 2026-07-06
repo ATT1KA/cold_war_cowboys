@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CWC.Core;
 using CWC.Corporate;
 using CWC.Domain;
@@ -12,11 +13,13 @@ using CWC.Save;
 namespace CWC.Game;
 
 /// <summary>
-/// Top-level orchestrator. Sprint 2 wires NewGame through WorldGenerator;
-/// Sprint 3 wires the mission flow (board refresh / resolve / consequences);
-/// Sprint 4 hooks the NarrativeDirector at Aftermath; Sprint 6 inserts the
-/// Corporate phase between Resolution and Aftermath, where factions act, the
-/// board evaluates, contracts refresh, and random events roll.
+/// Top-level orchestrator. Owns the phase loop:
+///   Briefing (decay/recovery, board refresh, role drift)
+///   → Assignment (player assigns; narrative sequences play here)
+///   → Resolution (missions resolve, corruption recomputes)
+///   → Corporate (mission fallout applies FIRST, then factions/board act)
+///   → Aftermath (scene director fires)
+///   → Review.
 /// </summary>
 public sealed class GameManager
 {
@@ -32,7 +35,7 @@ public sealed class GameManager
 	public MissionNarrativeRunner NarrativeRunner { get; } = new();
 	public NarrativeDirector Director { get; private set; } = new( new List<SceneTemplate>() );
 
-	// Sprint 6: corporate-sim layer.
+	// Corporate-sim layer.
 	public CorporateConsequenceProcessor CorpConsequences { get; private set; }
 	public FactionSystem? Factions { get; private set; }
 	public PoliticsSystem? Politics { get; private set; }
@@ -40,10 +43,26 @@ public sealed class GameManager
 	public ReputationSystem? Reputation { get; private set; }
 	public CorporateEventGenerator? CorporateEvents { get; private set; }
 
-	// Night 6: save/load
+	// Save/load
 	public SaveSystem SaveSystem { get; } = new();
 
 	public List<MissionResult> LastResolutionResults { get; private set; } = new();
+
+	/// <summary>
+	/// Template load errors + content validation problems from the last NewGame.
+	/// Empty means all content loaded clean. Surfaced by the engine entry point
+	/// and asserted on by the smoke test — silent content loss is a bug class
+	/// this project is not allowed to have anymore.
+	/// </summary>
+	public List<string> ContentWarnings { get; } = new();
+
+	/// <summary>
+	/// Long-lived RNG streams (corporate systems advance theirs across cycles).
+	/// Tracked by label so their positions can be serialized into saves —
+	/// determinism survives a load.
+	/// </summary>
+	private readonly Dictionary<string, Rng> _persistentStreams = new();
+	public IReadOnlyDictionary<string, Rng> PersistentStreams => _persistentStreams;
 
 	public event Action? StateChanged;
 
@@ -53,7 +72,7 @@ public sealed class GameManager
 		CorpConsequences = new CorporateConsequenceProcessor( Bus );
 	}
 
-	/// <summary>Night 6: load a saved game from a named slot.</summary>
+	/// <summary>Load a saved game from a named slot.</summary>
 	public bool LoadGame( string slotName )
 	{
 		var data = SaveSystem.Load( slotName );
@@ -72,6 +91,10 @@ public sealed class GameManager
 	{
 		Rng = new Rng( seed );
 		Phase.Reset();
+		NarrativeRunner.Cancel();
+		LastResolutionResults.Clear();
+		ContentWarnings.Clear();
+		_persistentStreams.Clear();
 
 		// Drop subscriptions from any prior run so old captured systems don't
 		// double-fire mutations on top of the new ones we'll wire below.
@@ -82,16 +105,29 @@ public sealed class GameManager
 		{
 			World = new WorldGenerator().Generate( seed );
 		}
-		catch
+		catch ( Exception e )
 		{
-			// Defensive fallback so the game still launches if templates are missing.
+			// Defensive fallback so the game still launches if templates are missing —
+			// but never silently.
+			CwcLog.Warn( $"World generation failed ({e.Message}); using fallback world." );
+			ContentWarnings.Add( $"world generation failed: {e.Message}" );
 			World = new WorldState { Seed = seed };
 			ScaffoldFallbackWorld();
 		}
 
 		MissionGen = new MissionGenerator( loader );
 		Board = new MissionBoard( MissionGen );
-		Director = new NarrativeDirector( loader.Deserialize<List<SceneTemplate>>( "scenes.json" ) ?? new() );
+
+		var scenes = loader.Deserialize<List<SceneTemplate>>( "scenes.json" ) ?? new();
+		Director = new NarrativeDirector( scenes );
+
+		// Content validation — loud at boot, not silent at runtime.
+		ContentWarnings.AddRange( loader.Errors );
+		ContentWarnings.AddRange( TemplateValidator.ValidateScenes( scenes ) );
+		ContentWarnings.AddRange( TemplateValidator.ValidateMissions( MissionGen.Templates.ToList() ) );
+		ContentWarnings.AddRange( TemplateValidator.ValidateArchetypes( loader.LoadArchetypes() ) );
+		foreach ( var w in ContentWarnings )
+			CwcLog.Warn( "content: " + w );
 
 		// Seed opening mission and refresh the board for cycle 1.
 		Board.SeedFromScenario( World.SeedMissionTemplateId, World, Rng.Fork( "scenario_seed" ) );
@@ -102,65 +138,106 @@ public sealed class GameManager
 		StateChanged?.Invoke();
 	}
 
+	private Rng PersistentFork( string label )
+	{
+		var rng = Rng.Fork( label );
+		_persistentStreams[label] = rng;
+		return rng;
+	}
+
 	private void WireCorporateLayer( TemplateLoader loader )
 	{
 		// Reset and wire fresh systems for this run.
 		CorpConsequences = new CorporateConsequenceProcessor( Bus );
-		Factions       = new FactionSystem( Rng.Fork( "corp_factions" ), Bus, CorpConsequences );
-		Politics       = new PoliticsSystem( Rng.Fork( "corp_politics" ), Bus, CorpConsequences );
-		Contracts      = new ContractSystem( Rng.Fork( "corp_contracts" ), Bus, CorpConsequences );
-		Reputation     = new ReputationSystem( Rng.Fork( "corp_reputation" ), Bus, CorpConsequences );
-		CorporateEvents = new CorporateEventGenerator( Rng.Fork( "corp_events" ), Bus, CorpConsequences );
+		Factions       = new FactionSystem( PersistentFork( "corp_factions" ), Bus, CorpConsequences );
+		Politics       = new PoliticsSystem( PersistentFork( "corp_politics" ), Bus, CorpConsequences );
+		Contracts      = new ContractSystem( PersistentFork( "corp_contracts" ), Bus, CorpConsequences );
+		Reputation     = new ReputationSystem( PersistentFork( "corp_reputation" ), Bus, CorpConsequences );
+		CorporateEvents = new CorporateEventGenerator( PersistentFork( "corp_events" ), Bus, CorpConsequences );
 
-		// Seed the corporate-only views of state from generated world data.
-		World.Corporate.Roster.Clear();
-		World.Corporate.Factions.Clear();
-		foreach ( var op in World.Operatives )
-			if ( op.Id < CorporateHierarchyGenerator.BossId ) World.Corporate.Roster.Add( op );
-		foreach ( var f in World.Factions )
-			World.Corporate.Factions[f.Id] = f;
+		RebuildCorporateViews();
 
-		// Layer Sprint 6 templates on top of any defaults already provided by world.json.
-		CorporateDataLoader.LoadFactions( World.Corporate, loader );
-		CorporateDataLoader.LoadDirectives( World.Corporate, World, loader );
+		// Layer corporate templates on top of any defaults already provided by
+		// world.json. The loader MERGES into existing faction objects — corp and
+		// world views must reference the same instances (no split-brain).
+		CorporateDataLoader.LoadFactions( World, loader );
+		CorporateDataLoader.LoadDirectives( World.Corporate, loader );
 		CorporateDataLoader.LoadEvents( CorporateEvents, loader );
-
-		// Make sure any factions added by the corporate loader are also visible
-		// at the world level so the rest of the codebase finds them.
-		foreach ( var kv in World.Corporate.Factions )
-		{
-			if ( World.Factions.Find( f => f.Id == kv.Key ) == null )
-				World.Factions.Add( kv.Value );
-		}
 
 		// Subscribe corporate systems to mission-resolution events.
 		Bus.Subscribe<MissionResolved>( r => Factions!.OnMissionResolved( World.Corporate, r ) );
 		Bus.Subscribe<MissionResolved>( r => Politics!.OnMissionResolved( World.Corporate, r ) );
 		Bus.Subscribe<MissionResolved>( r => Reputation!.OnMissionResolved( World.Corporate, World, r ) );
+
+		// Corporate events become world texture and narrative hooks — the bus
+		// carries consequences to systems its publishers don't know about.
+		Bus.Subscribe<CorporateEventFired>( e => World.Headlines.Add( e.Narrative ) );
+		Bus.Subscribe<RankChanged>( e => World.NarrativeFlags.Add(
+			e.To > e.From ? "corp:promoted" : "corp:demoted" ) );
+		Bus.Subscribe<ReputationThresholdCrossed>( e =>
+			World.NarrativeFlags.Add( $"corp:threshold:{e.Kind.ToString().ToLowerInvariant()}" ) );
+	}
+
+	/// <summary>
+	/// (Re)build the corporate-layer views over world data. The corp Roster and
+	/// Factions dictionary are views of the SAME objects held by WorldState —
+	/// called at NewGame and again after a save restore so the views never
+	/// point at pre-restore phantoms.
+	/// </summary>
+	public void RebuildCorporateViews()
+	{
+		World.Corporate.Roster.Clear();
+		foreach ( var op in World.Operatives )
+			if ( !op.IsExecutive ) World.Corporate.Roster.Add( op );
+
+		World.Corporate.Factions.Clear();
+		foreach ( var f in World.Factions )
+			World.Corporate.Factions[f.Id] = f;
 	}
 
 	public void AdvancePhase()
 	{
+		// Assignment gate: a high-stakes mission with an authored sequence must
+		// play its nodes before resolution. This is the Telltale half's
+		// ignition wire.
+		if ( Phase.CurrentPhase == CyclePhase.Assignment )
+		{
+			if ( NarrativeRunner.IsActive )
+			{
+				// Mid-sequence — the player finishes the nodes before locking in.
+				StateChanged?.Invoke();
+				return;
+			}
+			if ( !NarrativeRunner.IsComplete && TryBeginNarrativeSequence() )
+			{
+				StateChanged?.Invoke();
+				return;
+			}
+		}
+
 		Phase.Advance();
 		var current = Phase.CurrentPhase;
 
 		switch ( current )
 		{
 			case CyclePhase.Briefing:
-				// Night 6: auto-save at start of each new cycle
-				if ( World.Corporate.Cycle > 1 )
-					SaveSystem.AutoSave( this );
 				// New cycle — bookkeeping the foundation owns.
 				World.Corporate.Cycle++;
 				World.Day++;
 				RecoverInjuredOps();
 				DecayStress();
+				ClearRecoveredTripwires();
+				ProcessAmbition();
+				Director.ReEvaluateRoles( World.Operatives );
 				Board.Refresh( World, Rng.Fork( $"board:{World.Corporate.Cycle}" ) );
+				// Auto-save AFTER bookkeeping so a load resumes a coherent
+				// cycle boundary (board refreshed, decay applied).
+				SaveSystem.AutoSave( this );
 				break;
 
 			case CyclePhase.Resolution:
 				ResolveActiveMissions();
-				// Night 5: recompute corruption index after mission outcomes
+				// Recompute corruption index after mission outcomes
 				World.Corruption.Compute( World );
 				break;
 
@@ -176,10 +253,26 @@ public sealed class GameManager
 		StateChanged?.Invoke();
 	}
 
+	/// <summary>
+	/// Start the narrative sequence for the first assigned mission that has one.
+	/// Returns true if a sequence began (the phase advance is held).
+	/// </summary>
+	private bool TryBeginNarrativeSequence()
+	{
+		foreach ( var m in World.Missions )
+		{
+			if ( m.Status != MissionStatus.Active ) continue;
+			if ( m.AssignedOperativeIds.Count == 0 ) continue;
+			if ( m.NarrativeSequence == null ) continue;
+			if ( NarrativeRunner.Begin( m, World ) ) return true;
+		}
+		return false;
+	}
+
 	private void ResolveActiveMissions()
 	{
 		LastResolutionResults.Clear();
-		// Night 8: clear previous catastrophe flag before this cycle's resolution
+		// Clear previous catastrophe flag before this cycle's resolution
 		World.NarrativeFlags.Remove( "last_mission:catastrophe" );
 
 		// Snapshot to allow status mutation while iterating.
@@ -190,7 +283,7 @@ public sealed class GameManager
 
 		foreach ( var m in active )
 		{
-			// Night 4: use narrative overrides if this mission had a completed sequence
+			// Use narrative overrides if this mission had a completed sequence
 			NarrativeOverrides? overrides = null;
 			if ( NarrativeRunner.IsComplete && NarrativeRunner.ActiveMission?.Id == m.Id )
 			{
@@ -202,7 +295,7 @@ public sealed class GameManager
 			Consequences.Apply( result, World );
 			LastResolutionResults.Add( result );
 
-			// Night 8: track consecutive successes and catastrophe flag for scene triggers
+			// Track consecutive successes and catastrophe flag for scene triggers
 			if ( result.Outcome == MissionOutcome.Success )
 				World.ConsecutiveSuccesses++;
 			else
@@ -212,7 +305,7 @@ public sealed class GameManager
 					World.NarrativeFlags.Add( "last_mission:catastrophe" );
 			}
 
-			// Notify Sprint 6 systems that subscribe via the bus.
+			// Notify corporate systems that subscribe via the bus.
 			Bus.Publish( new MissionResolved(
 				m,
 				result.Outcome,
@@ -221,7 +314,7 @@ public sealed class GameManager
 			) );
 		}
 
-		// Night 4: clear narrative runner after all missions resolve
+		// Clear narrative runner after all missions resolve
 		NarrativeRunner.Cancel();
 	}
 
@@ -229,14 +322,21 @@ public sealed class GameManager
 	{
 		if ( Factions == null ) return; // pre-NewGame call — nothing to do.
 
+		// Mission fallout queued during Resolution applies FIRST, so the board
+		// evaluates this cycle's numbers — not last cycle's.
+		CorpConsequences.ApplyAll( World.Corporate );
+
 		Factions.ProcessTurn( World.Corporate );
-		Politics!.EvaluateBoard( World.Corporate, World );
-		Contracts!.RefreshContracts( World.Corporate );
+		Contracts!.RefreshContracts( World.Corporate, World );
 		CorporateEvents!.Roll( World.Corporate, World );
 		Reputation!.Decay( World.Corporate, World );
 		CorpConsequences.ApplyAll( World.Corporate );
 
-		// Surface Sprint 6 contracts on the mission board so the player can see them.
+		// Board evaluates after all corporate-phase fallout has landed.
+		Politics!.EvaluateBoard( World.Corporate, World );
+		CorpConsequences.ApplyAll( World.Corporate );
+
+		// Surface contracts on the mission board so the player can see them.
 		foreach ( var contract in World.Corporate.AvailableContracts )
 		{
 			if ( !World.Missions.Any( m => m.Id == contract.Id ) )
@@ -248,17 +348,33 @@ public sealed class GameManager
 
 	/// <summary>
 	/// Assignment-phase action. Adds operative to mission roster.
-	/// Returns false if assignment is invalid (op unavailable, mission not available, etc.).
+	/// Returns false if assignment is invalid (op unavailable, mission not
+	/// available), or if the operative REFUSES: a high-conscience operative
+	/// will not take a wet-work contract. Refusal leaves a narrative flag
+	/// (refusal:{id}) the scene director can react to.
 	/// </summary>
 	public bool Assign( int operativeId, string missionId )
 	{
 		var op = World.GetOperative( operativeId );
 		var mission = World.GetMission( missionId );
 		if ( op == null || mission == null ) return false;
+		if ( op.IsExecutive ) return false;
 		if ( !op.IsAvailable ) return false;
 		if ( mission.Status != MissionStatus.Available && mission.Status != MissionStatus.Active )
 			return false;
 		if ( mission.AssignedOperativeIds.Contains( operativeId ) ) return false;
+
+		// Conscience produces behavior, not just a gauge: some people won't
+		// cross certain lines.
+		if ( mission.IsWetWork && op.Psychology.Conscience >= 75 )
+		{
+			World.NarrativeFlags.Add( $"refusal:{op.Id}" );
+			op.Psychology.Stress = Math.Clamp( op.Psychology.Stress + 5, 0, 100 );
+			World.Corporate.RecentEventLog.Add(
+				$"[Roster] {op.Codename} refused assignment to '{mission.Title}'." );
+			StateChanged?.Invoke();
+			return false;
+		}
 
 		mission.AssignedOperativeIds.Add( operativeId );
 		op.CurrentMissionId = missionId;
@@ -282,44 +398,73 @@ public sealed class GameManager
 		return true;
 	}
 
+	/// <summary>
+	/// Spend political capital to negotiate better terms on a faction contract.
+	/// The player-facing sink for the political-capital economy.
+	/// </summary>
+	public NegotiationResult NegotiateContract( string missionId, NegotiationLever lever )
+	{
+		var mission = World.GetMission( missionId );
+		if ( mission == null || Contracts == null )
+			return new NegotiationResult( false, "No such contract.", 0 );
+		var result = Contracts.Negotiate( World.Corporate, mission, lever );
+		StateChanged?.Invoke();
+		return result;
+	}
+
 	// ---- end-of-cycle bookkeeping ----------------------------------------
 
 	private void RecoverInjuredOps()
 	{
 		foreach ( var op in World.Operatives )
 		{
+			if ( op.IsExecutive ) continue;
 			if ( op.Status == OperativeStatus.Injured ) op.Status = OperativeStatus.Active;
 			if ( op.Status == OperativeStatus.Active ) op.Tenure++;
 		}
 	}
 
 	/// <summary>
-	/// Night 7: Full psychology decay pass. Runs at start of each new cycle.
-	/// Tuned via balance_test.py (100-seed, 20-cycle simulation).
+	/// Full psychology pass. Runs at start of each new cycle. Executives are
+	/// excluded — they are furniture, not team members.
 	///
-	/// Rates:
-	///   Stress:     -3/cycle natural decay
-	///   Morale:     -1/cycle ambient drift (no longer recovers toward 70)
-	///   Conscience: -0.8/cycle ambient corporate erosion (rounded per-cycle)
-	///   Loyalty:    +1/cycle tenure bonus (after 2 cycles), -1 if stress>70, -1 if morale<35
+	/// The humane path pays in resilience: a rested operative recovers stress
+	/// faster, regains morale, and (below the Effective corruption threshold)
+	/// even recovers conscience. Ambient conscience erosion only exists once
+	/// the division itself has become corrupting (index >= 40) — the world
+	/// darkens because you darkened it.
 	/// </summary>
 	private void DecayStress()
 	{
+		bool corruptCulture = World.Corruption.CorruptionIndex >= 40;
+
 		foreach ( var op in World.Operatives )
 		{
+			if ( op.IsExecutive ) continue;
 			if ( !op.Active ) continue;
 			var p = op.Psychology;
+			bool resting = op.CurrentMissionId == null;
 
-			// Stress bleeds off naturally
-			p.Stress = Math.Clamp( p.Stress - 3, 0, 100 );
+			// Stress bleeds off naturally; genuinely resting doubles recovery.
+			p.Stress = Math.Clamp( p.Stress - ( resting ? 6 : 3 ), 0, 100 );
 
-			// Morale drifts down without active intervention
-			p.Morale = Math.Clamp( p.Morale - 1, 0, 100 );
+			// Morale: rest restores it, constant deployment grinds it down.
+			if ( resting && p.Stress < 50 )
+				p.Morale = Math.Clamp( p.Morale + 1, 0, 100 );
+			else
+				p.Morale = Math.Clamp( p.Morale - 1, 0, 100 );
 
-			// Conscience erodes from ambient corporate pressure
-			// (use cycle parity to approximate -0.8/cycle: lose 1 four out of five cycles)
-			if ( World.Corporate.Cycle % 5 != 0 )
-				p.Conscience = Math.Clamp( p.Conscience - 1, 0, 100 );
+			// Conscience: erodes only inside a corrupt culture; recovers slowly
+			// for rested operatives inside a humane one.
+			if ( corruptCulture )
+			{
+				if ( World.Corporate.Cycle % 5 != 0 )
+					p.Conscience = Math.Clamp( p.Conscience - 1, 0, 100 );
+			}
+			else if ( resting && World.Corporate.Cycle % 2 == 0 )
+			{
+				p.Conscience = Math.Clamp( p.Conscience + 1, 0, 100 );
+			}
 
 			// Loyalty: tenure builds commitment, but stress and low morale erode it
 			int loyaltyDelta = 0;
@@ -330,7 +475,49 @@ public sealed class GameManager
 		}
 	}
 
-	// ---- Sprint 1 fallback world (deterministic placeholder) -------------
+	/// <summary>
+	/// Tripwire flags are states, not events: when an operative recovers, the
+	/// flag clears — otherwise a loyalty crisis becomes wallpaper that re-fires
+	/// scenes forever.
+	/// </summary>
+	private void ClearRecoveredTripwires()
+	{
+		foreach ( var op in World.Operatives )
+		{
+			if ( op.IsExecutive ) continue;
+			var p = op.Psychology;
+			if ( p.Conscience > 25 ) World.NarrativeFlags.Remove( $"hollowed_out:{op.Id}" );
+			if ( p.Stress < 75 ) World.NarrativeFlags.Remove( $"breaking_point:{op.Id}" );
+			if ( p.Loyalty > 30 ) World.NarrativeFlags.Remove( $"defection_risk:{op.Id}" );
+			World.NarrativeFlags.Remove( $"refusal:{op.Id}" );
+			World.NarrativeFlags.Remove( $"ambition_leak:{op.Id}" );
+		}
+		if ( World.Corporate.Heat < 70 ) World.NarrativeFlags.Remove( "heat:critical" );
+		if ( World.Corporate.Suspicion < 70 ) World.NarrativeFlags.Remove( "suspicion:critical" );
+	}
+
+	/// <summary>
+	/// Ambition produces behavior: a hungry, disloyal operative leaks to the
+	/// other divisions to climb. Visible in the corporate log and as a
+	/// narrative flag.
+	/// </summary>
+	private void ProcessAmbition()
+	{
+		var rng = Rng.Fork( $"ambition:{World.Corporate.Cycle}" );
+		foreach ( var op in World.ActiveRoster )
+		{
+			var p = op.Psychology;
+			if ( p.Ambition >= 75 && p.Loyalty < 40 && rng.Chance( 0.15 ) )
+			{
+				World.Corporate.Suspicion = Math.Clamp( World.Corporate.Suspicion + 4, 0, 100 );
+				World.NarrativeFlags.Add( $"ambition_leak:{op.Id}" );
+				World.Corporate.RecentEventLog.Add(
+					$"[Roster] Internal audit traced a document leak to {op.Codename}'s terminal." );
+			}
+		}
+	}
+
+	// ---- Fallback world (deterministic placeholder) -------------
 
 	private void ScaffoldFallbackWorld()
 	{
@@ -355,7 +542,7 @@ public sealed class GameManager
 		World.Factions.Add( new Faction { Id = "rival_kasumi", Name = "Kasumi Dynamics", Kind = FactionKind.RivalCorp, Standing = -25 } );
 		World.Factions.Add( new Faction { Id = "razor", Name = "The Razor", Kind = FactionKind.Agency, Standing = -50 } );
 
-		// Four placeholder operatives so Sprint 3 has bodies to throw at missions.
+		// Four placeholder operatives so the mission loop has bodies to throw at missions.
 		string[] firsts = { "Mara", "Cyrus", "Vivienne", "Jin", "Emil", "Renko", "Lila", "Kade" };
 		string[] codes = { "GHOST", "STITCH", "ECHO", "RIDER", "ORACLE", "WICK" };
 		string[] arches = { "operator", "ghost", "decker", "fixer" };
@@ -378,7 +565,7 @@ public sealed class GameManager
 			op.Skills.Intimidation = statRng.BellInt( 20, 70 );
 			op.Skills.Persuasion = statRng.BellInt( 20, 70 );
 
-			// Archetype tilt — coarse, will be replaced by Sprint 2 archetype templates.
+			// Archetype tilt — coarse fallback only.
 			switch ( op.Archetype )
 			{
 				case "operator": op.Skills.Combat += 15; op.Skills.Intimidation += 10; break;

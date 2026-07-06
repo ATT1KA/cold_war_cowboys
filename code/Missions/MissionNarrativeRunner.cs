@@ -79,6 +79,30 @@ public sealed class MissionNarrativeRunner
 
 		_approachHistory.Add( choice.Approach );
 
+		// The sequence layer must leave traces the scene director can read.
+		if ( !string.IsNullOrEmpty( choice.Approach ) )
+			world.NarrativeFlags.Add( $"seq:{_mission.TemplateId}:{choice.Approach}" );
+		foreach ( var f in choice.FlagsOnPick )
+			world.NarrativeFlags.Add( f );
+		if ( choice.WetWork )
+		{
+			world.NarrativeFlags.Add( "seq:wetwork_chosen" );
+			world.Corruption.RegisterChoice( +5.0 );
+		}
+		else if ( choice.Approach is "social" or "compromise" )
+		{
+			world.Corruption.RegisterChoice( -1.0 );
+		}
+
+		world.ChoiceLog.Add( new ChoiceRecord
+		{
+			Cycle = world.Corporate.Cycle,
+			Source = "sequence",
+			SourceId = _mission.TemplateId,
+			Label = choice.Text,
+			Flags = new List<string>( choice.FlagsOnPick ),
+		} );
+
 		// Accumulate skill weight overrides
 		foreach ( var (skill, weight) in choice.SkillWeightOverride )
 		{

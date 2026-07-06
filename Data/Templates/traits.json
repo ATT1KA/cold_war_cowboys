@@ -4,7 +4,10 @@
     "Name": "Calculating",
     "Axis": "Personality",
     "Description": "Reads the room before stepping in. Slower under pressure, sharper at planning.",
-    "SkillModifiers": { "Hacking": 5, "Deception": 5 },
+    "SkillModifiers": {
+      "Hacking": 5,
+      "Deception": 5
+    },
     "StressModifier": -5
   },
   {
@@ -12,7 +15,11 @@
     "Name": "Volatile",
     "Axis": "Personality",
     "Description": "Quick to escalate. Useful in a fight, hard to keep on a leash.",
-    "SkillModifiers": { "Combat": 8, "Intimidation": 5, "Persuasion": -5 },
+    "SkillModifiers": {
+      "Combat": 8,
+      "Intimidation": 5,
+      "Persuasion": -5
+    },
     "StressModifier": 10
   },
   {
@@ -28,7 +35,9 @@
     "Name": "Cynical",
     "Axis": "Personality",
     "Description": "Trusts nothing. Reads everyone's angle, including yours.",
-    "SkillModifiers": { "Deception": 5 },
+    "SkillModifiers": {
+      "Deception": 5
+    },
     "LoyaltyModifier": -10
   },
   {
@@ -39,20 +48,25 @@
     "ConscienceModifier": 10,
     "LoyaltyModifier": -5
   },
-
   {
     "Id": "ex_military",
     "Name": "Ex-Military",
     "Axis": "Background",
     "Description": "Carried a rifle for someone's flag.",
-    "SkillModifiers": { "Combat": 12, "Intimidation": 5 }
+    "SkillModifiers": {
+      "Combat": 12,
+      "Intimidation": 5
+    }
   },
   {
     "Id": "ex_corporate",
     "Name": "Ex-Corporate",
     "Axis": "Background",
     "Description": "Knows how the boardroom thinks because they used to sit in one.",
-    "SkillModifiers": { "Persuasion": 10, "Deception": 5 },
+    "SkillModifiers": {
+      "Persuasion": 10,
+      "Deception": 5
+    },
     "LoyaltyModifier": 5
   },
   {
@@ -60,7 +74,10 @@
     "Name": "Ex-Press",
     "Axis": "Background",
     "Description": "Used to chase the story. Now they bury it.",
-    "SkillModifiers": { "Persuasion": 8, "Hacking": 5 },
+    "SkillModifiers": {
+      "Persuasion": 8,
+      "Hacking": 5
+    },
     "ConscienceModifier": 5
   },
   {
@@ -68,22 +85,30 @@
     "Name": "Ex-Street",
     "Axis": "Background",
     "Description": "Came up running fences and forging tags.",
-    "SkillModifiers": { "Stealth": 10, "Deception": 8 }
+    "SkillModifiers": {
+      "Stealth": 10,
+      "Deception": 8
+    }
   },
   {
     "Id": "ex_intel",
     "Name": "Ex-Intel",
     "Axis": "Background",
     "Description": "An old badge in a desk drawer somewhere.",
-    "SkillModifiers": { "Hacking": 8, "Deception": 8, "Stealth": 5 }
+    "SkillModifiers": {
+      "Hacking": 8,
+      "Deception": 8,
+      "Stealth": 5
+    }
   },
-
   {
     "Id": "vice_drink",
     "Name": "Heavy Drinker",
     "Axis": "Vice",
     "Description": "Not enough to fail a screening. Enough that you notice.",
-    "SkillModifiers": { "Combat": -3 },
+    "SkillModifiers": {
+      "Combat": -3
+    },
     "StressModifier": -5,
     "ConscienceModifier": -3
   },
@@ -92,7 +117,10 @@
     "Name": "Stim Habit",
     "Axis": "Vice",
     "Description": "Black-market neural enhancers. Edge today, debt tomorrow.",
-    "SkillModifiers": { "Hacking": 5, "Combat": 3 },
+    "SkillModifiers": {
+      "Hacking": 5,
+      "Combat": 3
+    },
     "StressModifier": 8
   },
   {
@@ -107,16 +135,21 @@
     "Name": "Adrenaline Junkie",
     "Axis": "Vice",
     "Description": "Picks the riskier door on purpose.",
-    "SkillModifiers": { "Combat": 5, "Stealth": -3 },
+    "SkillModifiers": {
+      "Combat": 5,
+      "Stealth": -3
+    },
     "StressModifier": -3
   },
-
   {
     "Id": "comp_perfectionist",
     "Name": "Perfectionist",
     "Axis": "Compulsion",
     "Description": "Re-checks every wire. Burns time, saves lives.",
-    "SkillModifiers": { "Hacking": 5, "Stealth": 5 },
+    "SkillModifiers": {
+      "Hacking": 5,
+      "Stealth": 5
+    },
     "StressModifier": 8
   },
   {
@@ -134,5 +167,158 @@
     "Description": "Will not abandon a teammate, even when they should.",
     "LoyaltyModifier": 20,
     "ConscienceModifier": -5
+  },
+  {
+    "Id": "stoic",
+    "Name": "Stoic",
+    "Axis": "Personality",
+    "Description": "Doesn't flinch. Doesn't celebrate. Just works.",
+    "SkillModifiers": {
+      "Combat": 3,
+      "Intimidation": 5
+    },
+    "StressModifier": -10
+  },
+  {
+    "Id": "paranoid",
+    "Name": "Paranoid",
+    "Axis": "Personality",
+    "Description": "Trusts no schedule, no badge, no door. Catches what others miss — and what isn't there.",
+    "SkillModifiers": {
+      "Stealth": 5,
+      "Deception": 5,
+      "Hacking": 3
+    },
+    "StressModifier": 10,
+    "LoyaltyModifier": -5
+  },
+  {
+    "Id": "magnetic",
+    "Name": "Magnetic",
+    "Axis": "Personality",
+    "Description": "People listen even when they shouldn't. Especially when they shouldn't.",
+    "SkillModifiers": {
+      "Persuasion": 10,
+      "Intimidation": 5
+    },
+    "LoyaltyModifier": 5
+  },
+  {
+    "Id": "precise",
+    "Name": "Precise",
+    "Axis": "Personality",
+    "Description": "Doesn't waste a motion. Doesn't waste a syllable.",
+    "SkillModifiers": {
+      "Hacking": 8,
+      "Stealth": 5,
+      "Combat": -3
+    },
+    "ConscienceModifier": -3
+  },
+  {
+    "Id": "ex_clergy",
+    "Name": "Ex-Clergy",
+    "Axis": "Background",
+    "Description": "Took vows in a chapel that doesn't exist anymore.",
+    "SkillModifiers": {
+      "Persuasion": 10,
+      "Deception": 3
+    },
+    "ConscienceModifier": 10
+  },
+  {
+    "Id": "ex_medic",
+    "Name": "Ex-Medic",
+    "Axis": "Background",
+    "Description": "Pulled triggers in a uniform. Pulled bullets out afterwards.",
+    "SkillModifiers": {
+      "Combat": 5,
+      "Persuasion": 5
+    },
+    "ConscienceModifier": 8
+  },
+  {
+    "Id": "ex_assassin",
+    "Name": "Ex-Assassin",
+    "Axis": "Background",
+    "Description": "Worked for someone who paid in numbered accounts. Won't talk about it.",
+    "SkillModifiers": {
+      "Combat": 10,
+      "Stealth": 10,
+      "Persuasion": -3
+    },
+    "ConscienceModifier": -8
+  },
+  {
+    "Id": "ex_academy",
+    "Name": "Ex-Academy",
+    "Axis": "Background",
+    "Description": "Made it three years into a corp officer program before something gave.",
+    "SkillModifiers": {
+      "Hacking": 8,
+      "Persuasion": 5,
+      "Deception": 5
+    },
+    "LoyaltyModifier": -3
+  },
+  {
+    "Id": "vice_data",
+    "Name": "Data Hoarder",
+    "Axis": "Vice",
+    "Description": "Hoards leaked dumps the way junkies hoard. The next leak is always the one.",
+    "SkillModifiers": {
+      "Hacking": 8,
+      "Deception": -3
+    },
+    "LoyaltyModifier": -10
+  },
+  {
+    "Id": "vice_arena",
+    "Name": "Arena Junkie",
+    "Axis": "Vice",
+    "Description": "Off-book combat sims. Pays in adrenaline, costs in dreams.",
+    "SkillModifiers": {
+      "Combat": 8,
+      "Intimidation": 3
+    },
+    "StressModifier": 12
+  },
+  {
+    "Id": "vice_synth",
+    "Name": "Synth-Empath",
+    "Axis": "Vice",
+    "Description": "Synth-empathy mods bought from a clinic that doesn't exist on the map.",
+    "SkillModifiers": {
+      "Persuasion": 8,
+      "Deception": 5
+    },
+    "ConscienceModifier": -5
+  },
+  {
+    "Id": "comp_ritual",
+    "Name": "Pre-Mission Rituals",
+    "Axis": "Compulsion",
+    "Description": "Three things in the same order before every job. Don't ask which three.",
+    "SkillModifiers": {
+      "Stealth": 5,
+      "Combat": 5
+    },
+    "StressModifier": -8
+  },
+  {
+    "Id": "comp_confess",
+    "Name": "Compulsive Confessor",
+    "Axis": "Compulsion",
+    "Description": "Has to tell someone. Picks the wrong someone often enough to be a problem.",
+    "LoyaltyModifier": -15,
+    "ConscienceModifier": 10
+  },
+  {
+    "Id": "comp_codes",
+    "Name": "Hard Codes",
+    "Axis": "Compulsion",
+    "Description": "Won't cross certain lines. The lines weren't in their contract.",
+    "ConscienceModifier": 15,
+    "LoyaltyModifier": -5
   }
 ]

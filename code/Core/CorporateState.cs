@@ -25,6 +25,12 @@ public sealed class BoardDirective
 	public int ComplyConfidenceReward { get; set; } = 5;
 	public int DeadlineDay { get; set; }
 	public bool Resolved { get; set; }
+
+	/// <summary>Days from issuance to deadline; used when the board issues from the pending pool.</summary>
+	public int DeadlineDayOffset { get; set; } = 7;
+
+	/// <summary>True once a matching mission succeeded before the deadline (confidence reward paid).</summary>
+	public bool Complied { get; set; }
 }
 
 /// <summary>
@@ -64,6 +70,9 @@ public sealed class CorporateState
 
 	/// <summary>Directives the board has issued and is tracking.</summary>
 	public List<BoardDirective> ActiveDirectives { get; } = new();
+
+	/// <summary>Directives the board has not issued yet; PoliticsSystem drip-feeds from here.</summary>
+	public List<BoardDirective> PendingDirectivePool { get; } = new();
 
 	/// <summary>Recent corporate-event log entries; oldest-first.</summary>
 	public List<string> RecentEventLog { get; } = new();
@@ -106,6 +115,7 @@ public sealed class CorporateState
 		foreach ( var kv in Factions ) clone.Factions[kv.Key] = kv.Value;
 		foreach ( var c in AvailableContracts ) clone.AvailableContracts.Add( c );
 		foreach ( var d in ActiveDirectives ) clone.ActiveDirectives.Add( d );
+		foreach ( var d in PendingDirectivePool ) clone.PendingDirectivePool.Add( d );
 		foreach ( var e in RecentEventLog ) clone.RecentEventLog.Add( e );
 
 		return clone;

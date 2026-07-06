@@ -26,6 +26,9 @@ public sealed class MissionTemplate
 
 	public int CycleWindow { get; set; } = 3;       // cycles before expiry
 
+	/// <summary>Cash payout on success. 0 = derive from difficulty at generation.</summary>
+	public int Reward { get; set; } = 0;
+
 	public List<string> NarrativeFlagsOnSuccess { get; set; } = new();
 	public List<string> NarrativeFlagsOnPartialSuccess { get; set; } = new();
 	public List<string> NarrativeFlagsOnFailure { get; set; } = new();

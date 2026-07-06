@@ -50,4 +50,11 @@ public sealed class Operative
 
 	/// <summary>True when the operative is on the active roster (not Defected/Dead).</summary>
 	public bool Active => Status == OperativeStatus.Active || Status == OperativeStatus.Injured;
+
+	/// <summary>
+	/// True for corporate-hierarchy NPCs (Director, division heads, board).
+	/// They are not assignable and must never count toward team averages,
+	/// psychology decay, or corruption computation.
+	/// </summary>
+	public bool IsExecutive { get; set; }
 }

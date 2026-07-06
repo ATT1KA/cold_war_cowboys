@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using CWC.Core;
 using CWC.Domain;
 
@@ -11,16 +10,26 @@ namespace CWC.Missions;
 /// Hybrid resolver. Skills primary, psychology penalty, relationship swing, RNG.
 ///
 /// score = SkillContribution - PsychologyPenalty + RelationshipSwing + RngSwing
-/// outcome by margin against Difficulty:
-///   margin >= +15 -> Success
-///   margin >=  -5 -> PartialSuccess
-///   margin >= -25 -> Failure
+/// outcome by margin against Difficulty (dice span ±18 so every band is
+/// genuinely reachable from a matched fight):
+///   margin >= +8  -> Success        (~30% at matched skill/difficulty)
+///   margin >= -12 -> PartialSuccess
+///   margin >= -30 -> Failure
 ///   else          -> Catastrophe
+///
+/// Skill weights come from <see cref="MissionWeights"/> — the same source the
+/// UI fit hints use, so the picker and the resolver can't drift apart.
 ///
 /// Resolver is pure: builds MissionResult only. ConsequenceProcessor applies it.
 /// </summary>
 public sealed class MissionResolver
 {
+	/// <summary>
+	/// Margin needed for full success. Public so UI fit displays can be honest
+	/// about what "a good fit" actually means at resolution time.
+	/// </summary>
+	public const int SuccessMargin = 8;
+
 	/// <summary>
 	/// Resolve with default mission parameters (no narrative overrides).
 	/// </summary>
@@ -39,10 +48,18 @@ public sealed class MissionResolver
 			.Cast<Operative>()
 			.ToList();
 
+		// Hostile factions bury real risk in the fine print. Parsed here so the
+		// tags actually cost something.
+		int hiddenRisk = ParseTag( mission, "hidden_risk" );
+		int hiddenExposure = ParseTag( mission, "hidden_exposure" );
+
+		int difficulty = Math.Clamp(
+			mission.Difficulty + hiddenRisk + ( overrides?.DifficultyDelta ?? 0 ), 5, 95 );
+
 		var result = new MissionResult
 		{
 			MissionId = mission.Id,
-			Target = overrides != null ? Math.Clamp( mission.Difficulty + overrides.DifficultyDelta, 5, 95 ) : mission.Difficulty,
+			Target = difficulty,
 			AssignedOperativeIds = mission.AssignedOperativeIds.ToList(),
 		};
 
@@ -56,53 +73,37 @@ public sealed class MissionResolver
 			return result;
 		}
 
-		// Night 4: apply narrative overrides to mission parameters before resolution
+		// Apply narrative overrides to mission parameters before resolution
 		var effectiveMission = mission;
-		int difficultyOverride = mission.Difficulty;
-		if ( overrides != null )
+		if ( overrides != null && ( overrides.SkillWeightDeltas.Count > 0 || overrides.ForcedWetWork ) )
 		{
-			// Apply skill weight deltas from narrative choices
-			if ( overrides.SkillWeightDeltas.Count > 0 )
+			var adjusted = MissionWeights.EffectiveWeights( mission )
+				.ToDictionary( kv => kv.Key, kv => kv.Value );
+			foreach ( var (sk, delta) in overrides.SkillWeightDeltas )
 			{
-				var adjusted = new Dictionary<SkillKind, int>( mission.StatWeights );
-				foreach ( var (sk, delta) in overrides.SkillWeightDeltas )
-				{
-					if ( !adjusted.ContainsKey( sk ) ) adjusted[sk] = 0;
-					adjusted[sk] = Math.Max( 0, adjusted[sk] + delta );
-				}
-				// Use a shallow copy with overridden weights
-				effectiveMission = new Mission
-				{
-					Id = mission.Id, TemplateId = mission.TemplateId, Type = mission.Type,
-					Status = mission.Status, Title = mission.Title, Briefing = mission.Briefing,
-					Difficulty = mission.Difficulty, MoralWeight = mission.MoralWeight,
-					IsWetWork = mission.IsWetWork || overrides.ForcedWetWork,
-					StatWeights = adjusted,
-					AssignedOperativeIds = mission.AssignedOperativeIds,
-				};
+				adjusted.TryGetValue( sk, out var current );
+				adjusted[sk] = Math.Max( 0, current + delta );
 			}
-			else if ( overrides.ForcedWetWork && !mission.IsWetWork )
+			effectiveMission = new Mission
 			{
-				effectiveMission = new Mission
-				{
-					Id = mission.Id, TemplateId = mission.TemplateId, Type = mission.Type,
-					Status = mission.Status, Title = mission.Title, Briefing = mission.Briefing,
-					Difficulty = mission.Difficulty, MoralWeight = mission.MoralWeight,
-					IsWetWork = true,
-					StatWeights = mission.StatWeights,
-					AssignedOperativeIds = mission.AssignedOperativeIds,
-				};
-			}
-			difficultyOverride = Math.Clamp( mission.Difficulty + overrides.DifficultyDelta, 5, 95 );
+				Id = mission.Id, TemplateId = mission.TemplateId, Type = mission.Type,
+				Status = mission.Status, Title = mission.Title, Briefing = mission.Briefing,
+				Difficulty = mission.Difficulty, MoralWeight = mission.MoralWeight,
+				IsWetWork = mission.IsWetWork || overrides.ForcedWetWork,
+				StatWeights = adjusted,
+				AssignedOperativeIds = mission.AssignedOperativeIds,
+				SuccessText = mission.SuccessText, PartialText = mission.PartialText,
+				FailureText = mission.FailureText, CatastropheText = mission.CatastropheText,
+			};
 		}
 
 		int skill = ComputeSkill( effectiveMission, ops );
 		int psych = ComputePsychPenalty( ops );
 		int relSwing = ComputeRelationshipSwing( ops, world, rng );
-		int rngSwing = rng.Next( -15, 16 );
+		int rngSwing = rng.Next( -18, 19 );
 
 		int score = skill - psych + relSwing + rngSwing;
-		var outcome = ClassifyOutcome( score, difficultyOverride );
+		var outcome = ClassifyOutcome( score, difficulty );
 
 		result.SkillContribution = skill;
 		result.PsychologyPenalty = psych;
@@ -110,7 +111,7 @@ public sealed class MissionResolver
 		result.RngSwing = rngSwing;
 		result.Score = score;
 		result.Outcome = outcome;
-		result.NarrativeText = BuildNarrative( mission, world, ops, outcome );
+		result.NarrativeText = BuildNarrative( effectiveMission, world, ops, outcome );
 
 		AddFlags( result, outcome switch
 		{
@@ -121,25 +122,31 @@ public sealed class MissionResolver
 			_                              => new List<string>(),
 		} );
 
-		BuildPerOperativeImpact( result, mission, ops, rng );
-		BuildWorldConsequences( result, mission, ops, outcome );
+		BuildPerOperativeImpact( result, effectiveMission, ops, rng );
+		BuildWorldConsequences( result, effectiveMission, ops, outcome, hiddenExposure );
 
 		return result;
 	}
 
+	private static int ParseTag( Mission mission, string prefix )
+	{
+		foreach ( var tag in mission.Tags )
+		{
+			if ( !tag.StartsWith( prefix + ":" ) ) continue;
+			if ( int.TryParse( tag.Substring( prefix.Length + 1 ), out var v ) ) return v;
+		}
+		return 0;
+	}
+
 	// Per-required-skill team max with effectiveness penalty for non-leads.
 	// effective = max(skill_i * effectiveness_i) where effectiveness = 1 - psychPenalty/100.
-	// Result then weighted by mission.StatWeights.
+	// Result then weighted by the mission's effective weights (MissionWeights).
 	private static int ComputeSkill( Mission mission, List<Operative> ops )
 	{
 		double weightedSum = 0;
 		int weightTotal = 0;
 
-		var weights = mission.StatWeights.Count > 0
-			? mission.StatWeights
-			: DefaultWeightsFor( mission.Type );
-
-		foreach ( var (kind, weight) in weights )
+		foreach ( var (kind, weight) in MissionWeights.EffectiveWeights( mission ) )
 		{
 			if ( weight <= 0 ) continue;
 			int best = 0;
@@ -218,20 +225,25 @@ public sealed class MissionResolver
 	private static MissionOutcome ClassifyOutcome( int score, int difficulty )
 	{
 		int margin = score - difficulty;
-		if ( margin >= 15 ) return MissionOutcome.Success;
-		if ( margin >= -5 ) return MissionOutcome.PartialSuccess;
-		if ( margin >= -25 ) return MissionOutcome.Failure;
+		if ( margin >= SuccessMargin ) return MissionOutcome.Success;
+		if ( margin >= -12 ) return MissionOutcome.PartialSuccess;
+		if ( margin >= -30 ) return MissionOutcome.Failure;
 		return MissionOutcome.Catastrophe;
 	}
 
 	private static string BuildNarrative( Mission mission, WorldState world, List<Operative> ops, MissionOutcome outcome )
 	{
+		// Authored template text first; stock lines as fallback.
 		string template = outcome switch
 		{
-			MissionOutcome.Success         => "Clean exit. {leader} signs off, the others fall in behind.",
-			MissionOutcome.PartialSuccess  => "Done, but rough. {leader} reports complications. Cleanup will cost.",
-			MissionOutcome.Failure         => "Aborted. The team falls back. {leader}'s after-action report is short and unhappy.",
-			MissionOutcome.Catastrophe     => "It went sideways. {leader} barely got the team out. Someone's going to ask questions.",
+			MissionOutcome.Success         => string.IsNullOrEmpty( mission.SuccessText )
+				? "Clean exit. {leader} signs off, the others fall in behind." : mission.SuccessText,
+			MissionOutcome.PartialSuccess  => string.IsNullOrEmpty( mission.PartialText )
+				? "Done, but rough. {leader} reports complications. Cleanup will cost." : mission.PartialText,
+			MissionOutcome.Failure         => string.IsNullOrEmpty( mission.FailureText )
+				? "Aborted. The team falls back. {leader}'s after-action report is short and unhappy." : mission.FailureText,
+			MissionOutcome.Catastrophe     => string.IsNullOrEmpty( mission.CatastropheText )
+				? "It went sideways. {leader} barely got the team out. Someone's going to ask questions." : mission.CatastropheText,
 			_                              => "",
 		};
 
@@ -277,6 +289,7 @@ public sealed class MissionResolver
 				impact.WetWorkDelta = 1;
 				impact.ConscienceDelta = -7;
 				impact.StressDelta += 5;
+				impact.MoraleDelta -= 3; // dirty jobs wear, whatever the outcome
 			}
 			else if ( mission.MoralWeight >= 30 )
 			{
@@ -293,21 +306,24 @@ public sealed class MissionResolver
 	}
 
 	// World-level consequences (heat, suspicion, budget, faction standing).
-	private static void BuildWorldConsequences( MissionResult result, Mission mission, List<Operative> ops, MissionOutcome outcome )
+	// Contracts pay their stated Reward — the economy is real. Wet work pays a
+	// premium (set at generation) but triples the heat: that trade is the game.
+	private static void BuildWorldConsequences( MissionResult result, Mission mission, List<Operative> ops, MissionOutcome outcome, int hiddenExposure )
 	{
 		int heatDelta = 0, suspDelta = 0, repDelta = 0, budgetDelta = 0;
+		int payout = mission.Reward > 0 ? mission.Reward : 12_000;
 
 		switch ( outcome )
 		{
 			case MissionOutcome.Success:
 				heatDelta = mission.IsWetWork ? 3 : 1;
 				repDelta = 2;
-				budgetDelta = 12_000;
+				budgetDelta = payout;
 				break;
 			case MissionOutcome.PartialSuccess:
 				heatDelta = mission.IsWetWork ? 6 : 3;
 				repDelta = 0;
-				budgetDelta = 6_000;
+				budgetDelta = payout / 2;
 				break;
 			case MissionOutcome.Failure:
 				heatDelta = 4;
@@ -324,6 +340,10 @@ public sealed class MissionResolver
 					result.NarrativeFlags.Add( "heat:body_found" );
 				break;
 		}
+
+		// Hidden exposure from poisoned contracts costs suspicion whatever the
+		// outcome — you took the job before reading the fine print.
+		suspDelta += hiddenExposure / 3;
 
 		result.Consequences.Add( new MissionConsequence { Kind = ConsequenceKind.HeatChange, IntValue = heatDelta } );
 		result.Consequences.Add( new MissionConsequence { Kind = ConsequenceKind.SuspicionChange, IntValue = suspDelta } );
@@ -369,28 +389,5 @@ public sealed class MissionResolver
 	private static void AddFlags( MissionResult r, IEnumerable<string> flags )
 	{
 		foreach ( var f in flags ) r.NarrativeFlags.Add( f );
-	}
-
-	// Default weights when a template/mission doesn't specify any. Coarse but
-	// keeps Resolver functional for synthetic missions in tests.
-	private static IEnumerable<KeyValuePair<SkillKind, int>> DefaultWeightsFor( MissionType type )
-	{
-		var d = new Dictionary<SkillKind, int>();
-		switch ( type )
-		{
-			case MissionType.Extraction:
-				d[SkillKind.Stealth] = 50; d[SkillKind.Combat] = 30; d[SkillKind.Persuasion] = 20; break;
-			case MissionType.Sabotage:
-				d[SkillKind.Stealth] = 40; d[SkillKind.Hacking] = 30; d[SkillKind.Combat] = 30; break;
-			case MissionType.Surveillance:
-				d[SkillKind.Stealth] = 50; d[SkillKind.Hacking] = 30; d[SkillKind.Deception] = 20; break;
-			case MissionType.Assassination:
-				d[SkillKind.Combat] = 50; d[SkillKind.Stealth] = 30; d[SkillKind.Intimidation] = 20; break;
-			case MissionType.DataTheft:
-				d[SkillKind.Hacking] = 60; d[SkillKind.Stealth] = 30; d[SkillKind.Deception] = 10; break;
-			case MissionType.CounterIntel:
-				d[SkillKind.Deception] = 40; d[SkillKind.Hacking] = 30; d[SkillKind.Persuasion] = 30; break;
-		}
-		return d;
 	}
 }
