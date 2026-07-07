@@ -1,0 +1,54 @@
+// The worked example from the Content Authoring Manual, §4.
+// A callback scene: fires only after third_kill_intro has played
+// (scene:third_kill_seen), re-binding the operative who crossed the line.
+// This file is a FIXTURE — the smoke test loads, validates, and renders it
+// on every run. If the manual's example ever drifts from the real schema,
+// the build goes red.
+{
+  "Id": "corruption_fourth_wet_job",
+  "Title": "The Fourth Name",
+  "Speaker": "{operative.role:watcher}",
+  "Setting": "Parking structure, level 6, {location} — the cameras here have a maintenance gap and everyone knows it",
+  "RequiredFlags": [
+    "scene:third_kill_seen",
+    "any_op:third_kill"
+  ],
+  "ForbiddenFlags": ["choice:pull_hollow"],
+  "Triggers": [
+    { "Type": "cycle_reached", "Threshold": 4 }
+  ],
+  "Priority": "Pressing",
+  "OneShot": true,
+  "Cast": [
+    { "Name": "watcher", "Kind": "Role", "Resolver": "role:mirror" }
+  ],
+  "TextLines": [
+    "{operative.role:watcher} is waiting by your car. Not hiding it. Wanting to be seen waiting.",
+    "\"There's a fourth work order in the queue. Same signature block as the last three. I checked.\"",
+    "\"{operative.name} hasn't said no to anything since the drawing on the desk. You noticed that too, or you didn't. Either way you should know which.\"",
+    "The maintenance gap ends in four minutes. {gender:m|He|She} isn't going to say any of this twice."
+  ],
+  "Choices": [
+    {
+      "Label": "\"The orders were all necessary. So is this one.\"",
+      "FlagsOnPick": ["choice:cold_acceptance"],
+      "ConscienceDelta": -8,
+      "StressDelta": -3
+    },
+    {
+      "Label": "\"Hold the work order. {operative.name} takes a cycle first.\"",
+      "FlagsOnPick": ["choice:human_pause"],
+      "StressDelta": -10,
+      "LoyaltyDelta": 3,
+      "HeatDelta": 2
+    },
+    {
+      "Label": "\"What's one more?\"",
+      "FlagsOnPick": ["choice:cold_joke"],
+      "ConscienceDelta": -12,
+      "StressDelta": -5,
+      "MoraleDelta": -4
+    }
+  ],
+  "FlagsOnFire": ["scene:fourth_wet_job_seen"]
+}

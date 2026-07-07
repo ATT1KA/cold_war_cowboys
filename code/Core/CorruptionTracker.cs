@@ -11,12 +11,12 @@ namespace CWC.Core;
 /// persistent choice-driven component: the arc is something the player
 /// authors, not weather that happens to them.
 ///
-/// Components (weights sum to 1.0 over the state terms, plus the choice term):
-///   avg team wet-work        × 0.30  — what you made them do
+/// Components (see Compute for the authoritative numbers):
+///   division wet-work record × 0.30  — what you made them do
 ///   (100 − avg conscience)   × 0.30  — what it did to them
-///   operatives lost/burned   × 0.15  — who you spent
-///   heat + suspicion         × 0.15  — how loud you were about it
-///   choice weight            + up to 20 — the decisions you personally made
+///   operatives lost/burned   × 0.10  — who you spent
+///   heat + suspicion         × 0.10  — how loud you were about it
+///   choice weight            × 0.25  — the decisions you personally made
 ///
 /// BoardConfidence is deliberately NOT a component: being good at your job
 /// humanely must never read as corruption.

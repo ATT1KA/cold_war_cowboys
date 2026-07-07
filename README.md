@@ -78,11 +78,12 @@ Autonomous corporate AI that runs in parallel with the player's actions.
 
 **Systems: built and wired** (July 2026 wiring pass). Nine autonomous nightly sprints built every system's module; a fresh-eyes assessment (see git history for `ASSESSMENT.md`) then found that roughly a third of the public surface was never called, the scene library silently failed to load, and the math contradicted the theme. The July 2026 wiring pass fixed all of it: the loader is loud and validated, the mission narrative runner ignites, save/load round-trips completely (including RNG streams), corp/world faction state is unified, the economy pays, corruption is choice-driven and its endgame milestones are reachable, and gender tokens resolve against the operative the scene is about.
 
-Two validation harnesses run against the real game code (no mirrored logic):
+Three validation harnesses run against the real game code (no mirrored logic):
 
 ```sh
-cd tests/SmokeTest && dotnet run     # 84 checks: loaders, wiring, round-trips
+cd tests/SmokeTest && dotnet run     # 107 checks: loaders, wiring, round-trips, full content pipeline
 cd tools/PolicySim && dotnet run     # 40-seed × 20-cycle humane-vs-ruthless balance targets
+dotnet run --project tools/ScenePreview -- --validate   # every template loads + validates
 ```
 
 **Not yet done:** the project has not been booted inside the s&box editor. The sandbox-unsafe reflection/System.IO code has been replaced with a provider seam (`CwcFiles` + `SandboxFileProvider` over `FileSystem.Mounted`/`FileSystem.Data`), which is the API the sandbox documents — but until someone opens the .sbproj and sees a scene fire, in-engine behavior remains unverified.
@@ -95,13 +96,21 @@ cd tools/PolicySim && dotnet run     # 40-seed × 20-cycle humane-vs-ruthless ba
 
 All gameplay content is JSON, loaded from [Data/Templates/](Data/Templates/) at startup:
 
-- `missions.json` / `narrative_missions.json` — mission templates with stat checks, role requirements, and outcome branches.
-- `scenes.json` — narrative scenes consumed by `NarrativeDirector`. Each scene declares roles, selection conditions, line text with token slots, and player choices that route through `ConsequenceProcessor`.
+- `scenes/` — narrative scenes consumed by `NarrativeDirector`, **one scene per file** in category subdirectories (`corruption/`, `psychology/`, `corporate/`, `relationships/`, `missions/`, `atmosphere/`). Each scene declares triggers, cast slots, line text with token slots, and player choices.
+- `missions.json` / `narrative_missions.json` — mission templates with stat checks, narrative sequences, and outcome branches.
 - `archetypes.json`, `traits.json`, `names.json` — operative generation.
 - `world.json`, `scenarios.json` — world setting and scenario seeds.
 - `corporate/` — faction, directive, and corporate-event templates.
 
-For the comprehensive scene-writing guide covering JSON format reference, use-case walkthroughs, and the cyberpunk register guide, see the [Content Authoring Manual](docs/CWC_Content_Authoring_Manual.pdf).
+For the comprehensive scene-writing guide — JSON schema reference, the full trigger/flag vocabulary, use-case walkthroughs, and the cyberpunk register guide — see the [Content Authoring Manual](docs/CONTENT_AUTHORING_MANUAL.md). Its JSON examples live in [docs/examples/](docs/examples/) as fixtures the smoke test loads, so the manual cannot drift from the code.
+
+The authoring loop runs through [tools/ScenePreview](tools/ScenePreview/):
+
+```sh
+dotnet run --project tools/ScenePreview -- Data/Templates/scenes/corruption/third_kill_intro.json
+dotnet run --project tools/ScenePreview -- --validate       # CI-friendly full content check
+dotnet run --project tools/ScenePreview -- --list-eligible --flag third_kill:1 --cycle 8
+```
 
 ---
 
@@ -125,11 +134,15 @@ cold_war_cowboys/
 ├── Editor/                   # s&box editor extensions
 ├── Assets/scenes/            # s&box scenes (minimal.scene = startup)
 ├── Data/
-│   ├── Templates/            # JSON content (missions, scenes, archetypes, traits, world, corporate/)
+│   ├── Templates/            # JSON content (missions, archetypes, traits, world, corporate/)
+│   │   └── scenes/           # one scene per file, by category
 │   └── Saves/                # save files
 ├── tests/SmokeTest/          # engine-independent .NET 8 smoke test
-├── tools/                    # auxiliary scripts (e.g., balance_test.py)
+├── tools/
+│   ├── ScenePreview/         # render/validate scenes without booting s&box
+│   └── PolicySim/            # 40-seed balance harness over the real game loop
 └── docs/
-    ├── CWC_Content_Authoring_Manual.pdf
+    ├── CONTENT_AUTHORING_MANUAL.md
+    ├── examples/             # manual's JSON examples — fixtures the smoke test loads
     └── QA_AUDIT.md
 ```

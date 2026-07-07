@@ -186,7 +186,9 @@ internal static class Program
 				needed.Add( m.Groups[1].Value );
 		needed.IntersectWith( TemplateValidator.NarrativeRoles );
 		foreach ( var op in roster ) op.NarrativeRole = "";
-		int slotIdx = 0;
+		// Start role assignment AFTER the triggering operative so the observer
+		// isn't previewed observing themselves (when the roster allows it).
+		int slotIdx = 1;
 		foreach ( var role in needed.OrderBy( r => r, StringComparer.Ordinal ) )
 			roster[slotIdx++ % roster.Count].NarrativeRole = role;
 

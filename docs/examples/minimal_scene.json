@@ -1,0 +1,32 @@
+// The starter template from the Content Authoring Manual, §11.1 — the
+// smallest scene the validator accepts. Copy into a category folder under
+// Data/Templates/scenes/, rename file + Id, and write.
+// This file is a FIXTURE loaded by the smoke test; it must always be valid.
+{
+  "Id": "example_minimal_scene",
+  "Title": "Untitled",
+  "Speaker": "Director",
+  "Setting": "Somewhere in {corp}",
+
+  // Gate the scene or it fires on cycle 1. Pick one or more of:
+  //   RequiredFlags  — ["any_op:breaking_point"], ["flag:heat:critical"], ["scene:other_scene_seen"]
+  //   Triggers       — [{ "Type": "cycle_reached", "Threshold": 3 }]
+  //   ForbiddenFlags — ["corruption:the_machine"]
+  "RequiredFlags": ["flag:example_never_set"],
+
+  // Optional: "Priority" (Background|Routine|Pressing|Critical, default Routine),
+  // "OneShot" (default true), "Cast" (see manual §2.4), "FlagsOnFire".
+
+  "TextLines": [
+    "One line of prose per entry."
+  ],
+  "Choices": [
+    {
+      "Label": "The only option.",
+      "FlagsOnPick": ["choice:example"]
+      // Deltas default to 0: LoyaltyDelta, StressDelta, ConscienceDelta,
+      // HeatDelta, MoraleDelta. They hit the scene's primary operative
+      // (Heat hits the corporation).
+    }
+  ]
+}

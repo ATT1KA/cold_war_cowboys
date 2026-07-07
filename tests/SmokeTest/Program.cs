@@ -584,6 +584,55 @@ internal static class Program
 				cleanScenes == rendered, $"dirty: {string.Join( ", ", dirty )}" );
 		}
 
+		Section( "19. Manual examples are living fixtures (docs/examples/)" );
+		{
+			// The Content Authoring Manual's JSON examples are real files. If
+			// the schema moves and the manual doesn't, this section goes red —
+			// documentation is not allowed to drift into fiction again.
+			var files = CwcFiles.FindFiles( "docs/examples", "*.json" );
+			Check( "manual example fixtures exist", files.Count >= 2, $"found={files.Count}" );
+
+			var exLoader = new CWC.Generation.Templates.TemplateLoader( "docs/examples" );
+			var fixtures = new List<CWC.Narrative.SceneTemplate>();
+			foreach ( var f in files )
+			{
+				var loaded = exLoader.DeserializeSceneFile( f );
+				if ( loaded != null ) fixtures.AddRange( loaded );
+			}
+			Check( "every manual example deserializes", fixtures.Count >= files.Count,
+				$"scenes={fixtures.Count} files={files.Count}" );
+			Check( "manual examples have no unknown fields (strict pass)",
+				exLoader.Errors.Count == 0, string.Join( "; ", exLoader.Errors ) );
+
+			// Validate in context: fixtures may chain off shipped scenes
+			// (corruption_fourth_wet_job requires scene:third_kill_seen).
+			var shipped = new CWC.Generation.Templates.TemplateLoader().LoadScenes();
+			var merged = shipped.Concat( fixtures ).ToList();
+			var fixtureProblems = CWC.Generation.Templates.TemplateValidator.ValidateScenes( merged )
+				.Where( p => fixtures.Any( fx => p.Contains( $"'{fx.Id}'" ) ) )
+				// The starter template's placeholder gate is intentionally never set.
+				.Where( p => !p.Contains( "example_never_set" ) )
+				.ToList();
+			Check( "manual examples pass the validator in context",
+				fixtureProblems.Count == 0, string.Join( "; ", fixtureProblems ) );
+
+			// And the worked example must actually RENDER clean.
+			var gm = new GameManager();
+			gm.NewGame( 424242 );
+			var roster = gm.World.ActiveRoster.ToList();
+			roster[0].NarrativeRole = "mirror";
+			var worked = fixtures.FirstOrDefault( f => f.Id == "corruption_fourth_wet_job" );
+			Check( "worked example fixture present", worked != null );
+			if ( worked != null )
+			{
+				var scene = gm.Director.RenderPreview( worked, gm.World, roster[1].Id );
+				string all = string.Join( "\n", scene.TextLines.Concat( scene.Choices.Select( c => c.Label ) )
+					.Append( scene.Title ).Append( scene.Setting ).Append( scene.Speaker ) );
+				Check( "worked example renders clean",
+					!all.Contains( '{' ) && !all.Contains( "someone" ), all );
+			}
+		}
+
 		Console.WriteLine();
 		Console.WriteLine( $"-----------------------------------------" );
 		Console.WriteLine( $"Total: {_pass + _fail} checks, {_pass} pass, {_fail} fail" );
