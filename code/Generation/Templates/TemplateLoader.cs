@@ -100,8 +100,9 @@ public sealed class TemplateLoader
 	/// <summary>
 	/// A scene file may hold a single scene object or an array of scenes.
 	/// Detected from the first significant character so authors can use either.
+	/// Public so tools/ScenePreview can load one file in isolation.
 	/// </summary>
-	private List<SceneTemplate>? DeserializeSceneFile( string filename )
+	public List<SceneTemplate>? DeserializeSceneFile( string filename )
 	{
 		var text = ReadText( filename );
 		if ( text is null )

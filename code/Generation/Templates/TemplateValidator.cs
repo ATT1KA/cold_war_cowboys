@@ -65,6 +65,9 @@ public static class TemplateValidator
 		"survivor", "climber", "anchor", "wildcard",
 	};
 
+	/// <summary>The valid narrative-role vocabulary, for tooling (ScenePreview, harnesses).</summary>
+	public static IReadOnlyCollection<string> NarrativeRoles => KnownNarrativeRoles;
+
 	private static readonly HashSet<string> KnownStats = new()
 	{
 		"conscience", "loyalty", "stress", "morale", "ambition",
