@@ -33,3 +33,6 @@ Exports/
 
 # Save files are player data, not content
 Data/Saves/
+
+# SmokeTest scratch content (section 17 writes and deletes here)
+tmp_smoketest/

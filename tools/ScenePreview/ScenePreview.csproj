@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>CWC.ScenePreview</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Compiles the REAL game code — the preview renders through the same
+         NarrativeDirector the game uses, so what you see is what ships. -->
+    <Compile Include="..\..\code\Core\**\*.cs" />
+    <Compile Include="..\..\code\Domain\**\*.cs" />
+    <Compile Include="..\..\code\Game\**\*.cs" />
+    <Compile Include="..\..\code\Generation\**\*.cs" />
+    <Compile Include="..\..\code\Missions\**\*.cs" />
+    <Compile Include="..\..\code\Narrative\**\*.cs" />
+    <Compile Include="..\..\code\Corporate\**\*.cs" />
+    <Compile Include="..\..\code\Save\**\*.cs" />
+    <Compile Include="..\..\tests\SmokeTest\DiskFileProvider.cs" />
+  </ItemGroup>
+</Project>
