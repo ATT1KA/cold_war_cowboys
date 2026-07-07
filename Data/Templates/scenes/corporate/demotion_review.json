@@ -1,0 +1,52 @@
+{
+  "Id": "demotion_review",
+  "Title": "Performance Improvement",
+  "Speaker": "Director",
+  "Setting": "Director's office, blinds half-drawn, the lamp on the desk angled like an interrogation",
+  "RequiredFlags": [
+    "corp:demotion_imminent"
+  ],
+  "ForbiddenFlags": [
+    "scene:demotion_review_seen"
+  ],
+  "Priority": "Pressing",
+  "OneShot": true,
+  "Cast": [],
+  "TextLines": [
+    "The folder on the desk is yours. It's thicker than you remember it being.",
+    "\"The board is concerned,\" the Director says. The word *concerned* is doing a lot of work in that sentence.",
+    "Three paragraphs of metrics. Mission outcomes trending wrong. Asset attrition. Heat indicators the underwriters are flagging in their quarterly.",
+    "\"Nobody's saying you're done. We're saying we'd like you to be… smaller. For a while.\"",
+    "Outside, a maintenance drone is washing the windows of the building across the gap. It moves slowly, methodically, leaving the glass clean."
+  ],
+  "Choices": [
+    {
+      "Label": "\"What does smaller look like, exactly?\"",
+      "FlagsOnPick": [
+        "choice:demotion_accept"
+      ],
+      "LoyaltyDelta": -3,
+      "MoraleDelta": -4,
+      "StressDelta": 4
+    },
+    {
+      "Label": "\"Give me one more cycle. I'll fix the numbers.\"",
+      "FlagsOnPick": [
+        "choice:demotion_fight"
+      ],
+      "StressDelta": 8,
+      "LoyaltyDelta": 2
+    },
+    {
+      "Label": "\"The metrics don't tell the whole story. Read the field reports.\"",
+      "FlagsOnPick": [
+        "choice:demotion_defend"
+      ],
+      "ConscienceDelta": 3,
+      "LoyaltyDelta": -1
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:demotion_review_seen"
+  ]
+}

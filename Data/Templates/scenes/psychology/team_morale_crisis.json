@@ -1,0 +1,71 @@
+{
+  "Id": "team_morale_crisis",
+  "Title": "Dead Air",
+  "Speaker": "{operative.role:anchor}",
+  "Setting": "Operations bullpen, end of shift, half the workstations dark, holo-screens cycling standby patterns",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:morale_crisis_seen"
+  ],
+  "Priority": "Pressing",
+  "OneShot": true,
+  "Triggers": [
+    {
+      "Type": "avg_stat_below",
+      "Key": "morale",
+      "Threshold": 40
+    }
+  ],
+  "Cast": [
+    {
+      "Name": "anchor",
+      "Kind": "Role",
+      "Resolver": "role:anchor"
+    },
+    {
+      "Name": "wildcard",
+      "Kind": "Role",
+      "Resolver": "role:wildcard"
+    },
+    {
+      "Name": "survivor",
+      "Kind": "Role",
+      "Resolver": "role:survivor"
+    }
+  ],
+  "TextLines": [
+    "The bullpen used to hum at shift change — arguments, laughter, the clatter of someone's takeout hitting a desk. Now the loudest sound is the climate system cycling.",
+    "{operative.role:anchor} catches you at the door. \"We're hemorrhaging, {gender:m|sir|ma'am}. Not bodies. Something worse.\"",
+    "\"{operative.role:wildcard} hasn't pinged the group chat in three days. {operative.role:survivor} is filling out transfer forms — I saw it on their screen before they killed the display.\"",
+    "\"They're not angry. Angry I can work with. They've gone flat. Like the building ate whatever was left.\""
+  ],
+  "Choices": [
+    {
+      "Label": "\"Organize something. Off-book. Dinner, drinks, I don't care.\"",
+      "FlagsOnPick": [
+        "choice:boost_morale"
+      ],
+      "MoraleDelta": 8,
+      "LoyaltyDelta": 3
+    },
+    {
+      "Label": "\"Cut the dead weight. Reassign anyone below baseline.\"",
+      "FlagsOnPick": [
+        "choice:cut_deadweight"
+      ],
+      "MoraleDelta": -4,
+      "StressDelta": 6,
+      "LoyaltyDelta": -5
+    },
+    {
+      "Label": "\"They'll find their footing. Give it time.\"",
+      "FlagsOnPick": [
+        "choice:ignore_morale"
+      ],
+      "MoraleDelta": -2
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:morale_crisis_seen"
+  ]
+}

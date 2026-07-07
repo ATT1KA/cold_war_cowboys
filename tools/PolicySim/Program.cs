@@ -121,10 +121,10 @@ internal static class Program
 				{
 					if ( gm.NarrativeRunner.IsActive )
 					{
-						var node = gm.NarrativeRunner.CurrentNode!;
+						var offered = gm.NarrativeRunner.CurrentChoices;
 						var choice = ruthless
-							? node.Choices.OrderByDescending( c => c.WetWork ? 1 : 0 ).First()
-							: node.Choices.OrderBy( c => c.WetWork ? 1 : 0 ).First();
+							? offered.OrderByDescending( c => c.WetWork ? 1 : 0 ).First()
+							: offered.OrderBy( c => c.WetWork ? 1 : 0 ).First();
 						gm.NarrativeRunner.ApplyChoice( choice, w );
 					}
 					else gm.AdvancePhase();

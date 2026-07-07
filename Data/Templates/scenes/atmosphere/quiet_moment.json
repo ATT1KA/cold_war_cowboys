@@ -1,0 +1,73 @@
+{
+  "Id": "quiet_moment",
+  "Title": "Rooftop",
+  "Speaker": "{operative.name}",
+  "Setting": "Building rooftop, {location}, city noise far below",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:quiet_moment_seen"
+  ],
+  "Priority": "Background",
+  "OneShot": false,
+  "Triggers": [
+    {
+      "Type": "no_active_missions",
+      "Key": "",
+      "Threshold": 0
+    },
+    {
+      "Type": "any_relationship_above",
+      "Key": "",
+      "Threshold": 60
+    }
+  ],
+  "Cast": [
+    {
+      "Name": "triggering",
+      "Kind": "Role",
+      "Resolver": "highest_morale"
+    },
+    {
+      "Name": "mirror",
+      "Kind": "Role",
+      "Resolver": "role:mirror"
+    }
+  ],
+  "TextLines": [
+    "No ops running. No comms traffic. The board is clean for the first time in weeks.",
+    "{operative.name} found you up here. Brought two cups of something that passes for coffee in {location}.",
+    "\"You ever think about what happens after?\" {operative.name} asks. Not fishing. Just asking.",
+    "The city hums. {operative.role:mirror} is down in the bullpen, probably reading the same blank board.",
+    "For a few minutes, nobody needs anything from you."
+  ],
+  "Choices": [
+    {
+      "Label": "\"After? There's no after in this line of work.\"",
+      "FlagsOnPick": [
+        "choice:no_after"
+      ],
+      "LoyaltyDelta": 2,
+      "ConscienceDelta": -1
+    },
+    {
+      "Label": "\"I think about it more than I should.\"",
+      "FlagsOnPick": [
+        "choice:honest_moment"
+      ],
+      "LoyaltyDelta": 6,
+      "MoraleDelta": 4,
+      "StressDelta": -3
+    },
+    {
+      "Label": "Say nothing. Drink the coffee.",
+      "FlagsOnPick": [
+        "choice:quiet_peace"
+      ],
+      "StressDelta": -5,
+      "MoraleDelta": 3
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:quiet_moment_seen"
+  ]
+}

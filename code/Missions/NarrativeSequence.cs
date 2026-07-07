@@ -45,6 +45,14 @@ public sealed class NarrativeChoice
 	/// <summary>Display text for the choice.</summary>
 	public string Text { get; set; } = "";
 
+	/// <summary>
+	/// Optional gate: choice is only offered if an ASSIGNED operative's skill
+	/// meets the threshold. Format "Skill:threshold", e.g. "Hacking:55".
+	/// Same grammar as NarrativeNode.RequiresStat, evaluated per choice by
+	/// MissionNarrativeRunner.CurrentChoices.
+	/// </summary>
+	public string? RequiresStat { get; set; }
+
 	/// <summary>Approach tag: stealth, social, force, cyber, compromise, abort.</summary>
 	public string Approach { get; set; } = "";
 

@@ -1,0 +1,41 @@
+{
+  "Id": "hollowed_out",
+  "Title": "Empty",
+  "Speaker": "{operative.name}",
+  "Setting": "Operative's apartment, blackout mode, smart-home unresponsive, {location} glow leaking through seams in the blinds",
+  "RequiredFlags": [
+    "any_op:hollowed_out"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "Cast": [
+    {
+      "Name": "triggering",
+      "Kind": "Role",
+      "Resolver": "triggering_operative"
+    }
+  ],
+  "TextLines": [
+    "{operative.name} hasn't answered the comm in two days.",
+    "When you arrive the apartment is empty of personality — no photos, no books, no signs of life.",
+    "{operative.name} is sitting on the floor against the wall, looking at the door."
+  ],
+  "Choices": [
+    {
+      "Label": "Pull {gender:m|him|her} from rotation.",
+      "FlagsOnPick": [
+        "choice:pull_hollow"
+      ],
+      "StressDelta": -10,
+      "LoyaltyDelta": 4
+    },
+    {
+      "Label": "Tell {gender:m|him|her} tomorrow's mission needs {gender:m|him|her}.",
+      "FlagsOnPick": [
+        "choice:push_hollow"
+      ],
+      "StressDelta": 10,
+      "ConscienceDelta": -2
+    }
+  ]
+}

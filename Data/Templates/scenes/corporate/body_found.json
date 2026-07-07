@@ -1,0 +1,40 @@
+{
+  "Id": "body_found",
+  "Title": "Late Edition",
+  "Speaker": "Director",
+  "Setting": "Director's office, wall-screen muted, news crawl cycling in silent red",
+  "RequiredFlags": [
+    "flag:heat:body_found"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "TextLines": [
+    "The Quill pushed the story at 0400 — algorithmic amplification had it front-of-feed by 0600. Two million impressions before breakfast.",
+    "\"There's a name attached,\" the Director says. \"Not yours yet. But the metadata trail is warm.\"",
+    "{gender:m|She|He} flicks the wall-screen toward you. The face is the contractor your team buried two cycles ago — reconstructed from dental records and a traffic cam still that should have been scrubbed."
+  ],
+  "Choices": [
+    {
+      "Label": "\"Buy the journalist out.\"",
+      "FlagsOnPick": [
+        "choice:buy_press"
+      ],
+      "HeatDelta": -5
+    },
+    {
+      "Label": "\"Bury the journalist.\"",
+      "FlagsOnPick": [
+        "choice:bury_press"
+      ],
+      "HeatDelta": -8,
+      "ConscienceDelta": -5
+    },
+    {
+      "Label": "\"Ride it out.\"",
+      "FlagsOnPick": [
+        "choice:ride_heat"
+      ],
+      "HeatDelta": 5
+    }
+  ]
+}

@@ -170,8 +170,10 @@ internal static class Program
 		Section( "9. Content pipeline — templates load loudly and completely" );
 		{
 			var loader = new CWC.Generation.Templates.TemplateLoader();
-			var scenes = loader.Deserialize<List<CWC.Narrative.SceneTemplate>>( "scenes.json" ) ?? new();
-			Check( "scenes.json loads (>= 30 scenes)", scenes.Count >= 30, $"count={scenes.Count}" );
+			var scenes = loader.LoadScenes();
+			Check( "per-file scene library loads (>= 30 scenes)", scenes.Count >= 30, $"count={scenes.Count}" );
+			Check( "scene ids unique across files",
+				scenes.Select( s => s.Id ).Distinct().Count() == scenes.Count );
 			Check( "scene priorities parsed (string enums)",
 				scenes.Any( s => s.Priority == CWC.Narrative.ScenePriority.Critical ) );
 			Check( "no loader errors", loader.Errors.Count == 0,
@@ -276,8 +278,7 @@ internal static class Program
 				int guard = 0;
 				while ( gm.NarrativeRunner.IsActive && guard++ < 20 )
 				{
-					var node = gm.NarrativeRunner.CurrentNode!;
-					gm.NarrativeRunner.ApplyChoice( node.Choices[0], world );
+					gm.NarrativeRunner.ApplyChoice( gm.NarrativeRunner.CurrentChoices[0], world );
 				}
 				Check( "sequence completed", gm.NarrativeRunner.IsComplete );
 				Check( "sequence choices left narrative flags",

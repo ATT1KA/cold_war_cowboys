@@ -37,4 +37,14 @@ public sealed class SandboxFileProvider : ICwcFileProvider
 		FileSystem.Data.DeleteFile( path );
 		return true;
 	}
+
+	public System.Collections.Generic.IEnumerable<string> FindFiles( string folder, string pattern, bool recursive )
+	{
+		// BaseFileSystem.FindFile returns paths relative to the searched folder,
+		// which matches the ICwcFileProvider contract. Templates are read-only
+		// project content, so only the Mounted filesystem is scanned.
+		if ( !FileSystem.Mounted.DirectoryExists( folder ) )
+			return System.Array.Empty<string>();
+		return FileSystem.Mounted.FindFile( folder, pattern, recursive );
+	}
 }

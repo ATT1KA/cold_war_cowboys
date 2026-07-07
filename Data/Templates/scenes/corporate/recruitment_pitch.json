@@ -1,0 +1,53 @@
+{
+  "Id": "recruitment_pitch",
+  "Title": "Fresh Chrome",
+  "Speaker": "",
+  "Setting": "Hiring floor, {corp} talent acquisition, holographic candidate profiles rotating",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:recruitment_pitch_seen"
+  ],
+  "Priority": "Routine",
+  "OneShot": true,
+  "Triggers": [
+    {
+      "Type": "active_operatives_below",
+      "Key": "",
+      "Threshold": 4
+    }
+  ],
+  "Cast": [],
+  "TextLines": [
+    "Talent acquisition sent three files. Headshots glow on the interview room's curved display — all of them young, all of them hungry, none of them knowing what the job actually entails.",
+    "The first candidate has mil-spec reflex augments and a discharge that reads 'administrative' in the kind of font that means 'classified.'",
+    "The second is a self-taught decker out of the {location} undercity. No formal record before age nineteen. That's either impressive or fabricated.",
+    "The third has a recommendation letter from someone in the Finance Division. That alone tells you everything about whose interests they serve.",
+    "You have budget for one. Maybe."
+  ],
+  "Choices": [
+    {
+      "Label": "\"Send me the soldier. We need hands, not questions.\"",
+      "FlagsOnPick": [
+        "choice:recruit_soldier"
+      ],
+      "MoraleDelta": 2
+    },
+    {
+      "Label": "\"The decker. We're exposed on the net and we both know it.\"",
+      "FlagsOnPick": [
+        "choice:recruit_decker"
+      ],
+      "StressDelta": -2
+    },
+    {
+      "Label": "\"The connected one. Better to have Finance's eyes where I can see them.\"",
+      "FlagsOnPick": [
+        "choice:recruit_connected"
+      ],
+      "LoyaltyDelta": -2
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:recruitment_pitch_seen"
+  ]
+}

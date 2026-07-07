@@ -1,0 +1,34 @@
+{
+  "Id": "corruption_jenkins",
+  "Title": "",
+  "Speaker": "",
+  "Setting": "",
+  "RequiredFlags": [
+    "corruption:jenkins"
+  ],
+  "ForbiddenFlags": [
+    "scene:corruption_jenkins_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "Cast": [],
+  "TextLines": [
+    "You don't remember when the names stopped mattering.",
+    "The reports are clean. The numbers are good. The board is satisfied.",
+    "Somewhere in the building, someone is having the worst day of their life because of a decision you made before your second coffee.",
+    "You didn't make it to hurt them. You didn't make it not to. You just made it.",
+    "This is Tuesday."
+  ],
+  "Choices": [
+    {
+      "Label": "Next.",
+      "FlagsOnPick": [
+        "choice:jenkins"
+      ],
+      "ConscienceDelta": -3
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:corruption_jenkins_seen"
+  ]
+}

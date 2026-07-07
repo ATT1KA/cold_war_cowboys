@@ -1,0 +1,67 @@
+{
+  "Id": "relationship_tension",
+  "Title": "Fracture Lines",
+  "Speaker": "{operative.name}",
+  "Setting": "Briefing room, mag-locked, privacy film activated, every surface reflecting strip-LED amber",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:relationship_tension_seen"
+  ],
+  "Priority": "Pressing",
+  "OneShot": false,
+  "Triggers": [
+    {
+      "Type": "any_relationship_below",
+      "Key": "",
+      "Threshold": -30
+    }
+  ],
+  "Cast": [
+    {
+      "Name": "triggering",
+      "Kind": "Role",
+      "Resolver": "triggering_operative"
+    },
+    {
+      "Name": "mirror",
+      "Kind": "Role",
+      "Resolver": "role:mirror"
+    }
+  ],
+  "TextLines": [
+    "{operative.name} won't sit. Keeps pacing the length of the window.",
+    "\"I'm not working with {operative.role:mirror} again. I don't care what the board says.\"",
+    "\"Last op, {gender:m|he|she} left me in the corridor for six minutes. Six. You know what six minutes means in the field.\"",
+    "The request is on your desk already. Transfer or termination. {operative.name} wants an answer today."
+  ],
+  "Choices": [
+    {
+      "Label": "\"I'll separate you. Different rotations.\"",
+      "FlagsOnPick": [
+        "choice:separate_ops"
+      ],
+      "LoyaltyDelta": 5,
+      "StressDelta": -4
+    },
+    {
+      "Label": "\"You'll work with who I assign. That's final.\"",
+      "FlagsOnPick": [
+        "choice:force_together"
+      ],
+      "LoyaltyDelta": -8,
+      "StressDelta": 6,
+      "MoraleDelta": -4
+    },
+    {
+      "Label": "\"Tell me what happened. The real version.\"",
+      "FlagsOnPick": [
+        "choice:investigate_tension"
+      ],
+      "LoyaltyDelta": 3,
+      "StressDelta": -2
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:relationship_tension_seen"
+  ]
+}

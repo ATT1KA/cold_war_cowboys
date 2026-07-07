@@ -1,0 +1,56 @@
+{
+  "Id": "mentor_talk",
+  "Title": "Archive",
+  "Speaker": "Director Vale",
+  "Setting": "Vale's private office, old wood under new glass, bourbon older than the arcology",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:mentor_talk_seen"
+  ],
+  "Priority": "Pressing",
+  "OneShot": true,
+  "Triggers": [
+    {
+      "Type": "cycle_reached",
+      "Key": "",
+      "Threshold": 8
+    }
+  ],
+  "Cast": [],
+  "TextLines": [
+    "Vale pours two glasses without asking. The bottle has no label — pre-collapse stock, worth more than most operatives' annual salary.",
+    "\"I had a handler once. Before your time, before this title. She told me something I didn't understand until I'd been doing this for a decade.\"",
+    "The ice shifts in the glass. Outside, a cargo drone slides past the window trailing position lights.",
+    "\"She said: 'The job doesn't change you. It reveals you. And most people don't like the reveal.'\"",
+    "Vale looks at you the way people look at X-rays.",
+    "\"So. What has it revealed so far?\""
+  ],
+  "Choices": [
+    {
+      "Label": "\"That I'm good at this. Better than I should be.\"",
+      "FlagsOnPick": [
+        "choice:mentor_honest"
+      ],
+      "ConscienceDelta": -3,
+      "LoyaltyDelta": 4
+    },
+    {
+      "Label": "\"That I can live with the math. Most days.\"",
+      "FlagsOnPick": [
+        "choice:mentor_pragmatic"
+      ],
+      "StressDelta": -4,
+      "MoraleDelta": 2
+    },
+    {
+      "Label": "\"Ask me again in another ten cycles.\"",
+      "FlagsOnPick": [
+        "choice:mentor_deflect"
+      ],
+      "StressDelta": -2
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:mentor_talk_seen"
+  ]
+}

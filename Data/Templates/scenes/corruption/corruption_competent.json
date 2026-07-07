@@ -1,0 +1,41 @@
+{
+  "Id": "corruption_competent",
+  "Title": "Competent",
+  "Speaker": "Director Vale",
+  "Setting": "Corner office, morning light filtered through smart-glass, {location} skyline pixelated by atmospheric haze",
+  "RequiredFlags": [
+    "corruption:competent"
+  ],
+  "ForbiddenFlags": [
+    "scene:corruption_competent_seen"
+  ],
+  "Priority": "Pressing",
+  "OneShot": true,
+  "Cast": [],
+  "TextLines": [
+    "Vale closes a holo-folder with a flick. Your name glows on the tab in {corp} corporate blue.",
+    "\"The board's analytics flagged your division. Clean operations, minimal exposure, acceptable losses. Your efficiency rating is in the top decile.\"",
+    "A pause. The kind that means the next sentence was rehearsed.",
+    "\"They're routing you harder contracts. Ones the other divisions won't touch. Consider it a compliment. Or a test. The difference doesn't matter up here.\""
+  ],
+  "Choices": [
+    {
+      "Label": "\"I'll handle whatever comes.\"",
+      "FlagsOnPick": [
+        "choice:confident"
+      ],
+      "LoyaltyDelta": 2,
+      "MoraleDelta": 3
+    },
+    {
+      "Label": "\"Define 'harder.'\"",
+      "FlagsOnPick": [
+        "choice:cautious"
+      ],
+      "StressDelta": 2
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:corruption_competent_seen"
+  ]
+}

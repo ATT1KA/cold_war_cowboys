@@ -36,6 +36,27 @@ public sealed class MissionNarrativeRunner
 	/// <summary>The current node to present to the player. Null if not active.</summary>
 	public NarrativeNode? CurrentNode => IsActive ? _eligibleNodes[_currentNodeIndex] : null;
 
+	/// <summary>
+	/// The current node's choices with per-choice stat gates applied — a choice
+	/// with RequiresStat "Hacking:55" is only offered when an assigned operative
+	/// clears the bar. Falls back to the full list if gating would leave the
+	/// player with nothing to pick. UI and harnesses must present THIS, not
+	/// CurrentNode.Choices.
+	/// </summary>
+	public IReadOnlyList<NarrativeChoice> CurrentChoices
+	{
+		get
+		{
+			var node = CurrentNode;
+			if ( node == null || _mission == null || _world == null )
+				return Array.Empty<NarrativeChoice>();
+			var offered = node.Choices
+				.Where( c => MeetsStatRequirement( c.RequiresStat, _mission, _world ) )
+				.ToList();
+			return offered.Count > 0 ? offered : node.Choices;
+		}
+	}
+
 	/// <summary>Current node index (0-based) for UI progress display.</summary>
 	public int CurrentStep => _currentNodeIndex;
 
@@ -209,18 +230,8 @@ public sealed class MissionNarrativeRunner
 				continue;
 
 			// Stat gating: skip if operative stats don't meet threshold
-			if ( !string.IsNullOrEmpty( node.RequiresStat ) )
-			{
-				var parts = node.RequiresStat.Split( ':' );
-				if ( parts.Length == 2 && int.TryParse( parts[1], out int threshold ) )
-				{
-					bool met = mission.AssignedOperativeIds
-						.Select( id => world.GetOperative( id ) )
-						.Where( o => o != null )
-						.Any( o => GetSkillValue( o!, parts[0] ) >= threshold );
-					if ( !met ) continue;
-				}
-			}
+			if ( !MeetsStatRequirement( node.RequiresStat, mission, world ) )
+				continue;
 
 			// Roll gating: random probability filter
 			if ( node.RollThreshold.HasValue )
@@ -233,6 +244,21 @@ public sealed class MissionNarrativeRunner
 			eligible.Add( node );
 		}
 		return eligible;
+	}
+
+	/// <summary>
+	/// "Skill:threshold" gate shared by node- and choice-level RequiresStat:
+	/// true when any ASSIGNED operative meets the bar (or the spec is empty/malformed).
+	/// </summary>
+	private static bool MeetsStatRequirement( string? spec, Mission mission, WorldState world )
+	{
+		if ( string.IsNullOrEmpty( spec ) ) return true;
+		var parts = spec.Split( ':' );
+		if ( parts.Length != 2 || !int.TryParse( parts[1], out int threshold ) ) return true;
+		return mission.AssignedOperativeIds
+			.Select( id => world.GetOperative( id ) )
+			.Where( o => o != null )
+			.Any( o => GetSkillValue( o!, parts[0] ) >= threshold );
 	}
 
 	private static int GetSkillValue( Operative op, string skill ) => skill.ToLowerInvariant() switch

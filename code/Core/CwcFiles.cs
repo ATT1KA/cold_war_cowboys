@@ -24,6 +24,14 @@ public interface ICwcFileProvider
 	string? ReadAllText( string path );
 	void WriteAllText( string path, string contents );
 	bool DeleteFile( string path );
+
+	/// <summary>
+	/// List files under <paramref name="folder"/> matching <paramref name="pattern"/>
+	/// (e.g. "*.json"). Returned paths are RELATIVE to <paramref name="folder"/>,
+	/// forward-slashed, and include subdirectory prefixes when
+	/// <paramref name="recursive"/> is true. A missing folder yields an empty list.
+	/// </summary>
+	IEnumerable<string> FindFiles( string folder, string pattern, bool recursive );
 }
 
 public static class CwcFiles
@@ -71,6 +79,27 @@ public static class CwcFiles
 		{
 			CwcLog.Warn( $"CwcFiles: delete failed for '{path}': {e.Message}" );
 			return false;
+		}
+	}
+
+	public static IReadOnlyList<string> FindFiles( string folder, string pattern = "*", bool recursive = false )
+	{
+		if ( Provider == null )
+		{
+			CwcLog.Warn( $"CwcFiles: no file provider registered; cannot list '{folder}'." );
+			return Array.Empty<string>();
+		}
+		try
+		{
+			var result = new List<string>();
+			foreach ( var f in Provider.FindFiles( folder, pattern, recursive ) )
+				result.Add( f );
+			return result;
+		}
+		catch ( Exception e )
+		{
+			CwcLog.Warn( $"CwcFiles: listing failed for '{folder}': {e.Message}" );
+			return Array.Empty<string>();
 		}
 	}
 }

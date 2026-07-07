@@ -1,0 +1,49 @@
+{
+  "Id": "corruption_the_machine",
+  "Title": "The Machine",
+  "Speaker": "",
+  "Setting": "Your office. Late. The lights are off but you haven't noticed.",
+  "RequiredFlags": [
+    "corruption:the_machine"
+  ],
+  "ForbiddenFlags": [
+    "scene:corruption_machine_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "Cast": [
+    {
+      "Name": "mirror",
+      "Kind": "Role",
+      "Resolver": "role:mirror"
+    }
+  ],
+  "TextLines": [
+    "The org chart on your wall has more red lines than black ones now. Terminated. Transferred. Reassigned. The euphemisms have their own euphemisms.",
+    "You realise you've been sitting in the dark for forty minutes, reviewing personnel files by screen light. Not reading them. Processing them.",
+    "{operative.role:mirror} knocked earlier. You heard it. You chose not to answer.",
+    "The building hums. Climate control, server cooling, security systems. It sounds like breathing. It sounds like you."
+  ],
+  "Choices": [
+    {
+      "Label": "Close the file. Open the next one.",
+      "FlagsOnPick": [
+        "choice:machine_continues"
+      ],
+      "ConscienceDelta": -10,
+      "StressDelta": -5,
+      "MoraleDelta": -8
+    },
+    {
+      "Label": "Turn on the lights.",
+      "FlagsOnPick": [
+        "choice:machine_hesitates"
+      ],
+      "ConscienceDelta": 5,
+      "StressDelta": 10
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:corruption_machine_seen"
+  ]
+}

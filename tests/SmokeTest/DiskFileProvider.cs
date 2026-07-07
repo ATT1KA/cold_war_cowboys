@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CWC.Core;
 
 namespace CWC.SmokeTest;
@@ -54,5 +56,16 @@ public sealed class DiskFileProvider : ICwcFileProvider
 		if ( !File.Exists( full ) ) return false;
 		File.Delete( full );
 		return true;
+	}
+
+	public IEnumerable<string> FindFiles( string folder, string pattern, bool recursive )
+	{
+		var full = Resolve( folder );
+		if ( !Directory.Exists( full ) ) return Array.Empty<string>();
+		return Directory
+			.GetFiles( full, pattern, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly )
+			.Select( f => Path.GetRelativePath( full, f ).Replace( '\\', '/' ) )
+			.OrderBy( f => f, StringComparer.Ordinal )
+			.ToList();
 	}
 }

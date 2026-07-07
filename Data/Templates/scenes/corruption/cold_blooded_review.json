@@ -1,0 +1,47 @@
+{
+  "Id": "cold_blooded_review",
+  "Title": "Performance Review",
+  "Speaker": "{operative.name}",
+  "Setting": "Glass conference room, Director's floor, city light refracting through rain-streaked smart-glass",
+  "RequiredFlags": [
+    "any_op:cold_blooded"
+  ],
+  "ForbiddenFlags": [
+    "scene:cold_blooded_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "Cast": [
+    {
+      "Name": "triggering",
+      "Kind": "Role",
+      "Resolver": "triggering_operative"
+    }
+  ],
+  "TextLines": [
+    "{operative.name}'s file is open on the table. Seven entries. The last three don't even have names.",
+    "\"You don't ask anymore,\" the Director observes. \"You used to ask.\"",
+    "{operative.name} doesn't look up from the coffee."
+  ],
+  "Choices": [
+    {
+      "Label": "\"Promote {gender:m|him|her}. {gender:m|He's|She's} earned it.\"",
+      "FlagsOnPick": [
+        "choice:promote_cold"
+      ],
+      "LoyaltyDelta": 6,
+      "HeatDelta": 2
+    },
+    {
+      "Label": "\"Bench {gender:m|him|her}. Get {gender:m|him|her} an evaluation.\"",
+      "FlagsOnPick": [
+        "choice:bench_cold"
+      ],
+      "LoyaltyDelta": -8,
+      "StressDelta": 8
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:cold_blooded_seen"
+  ]
+}

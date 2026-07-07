@@ -1,0 +1,55 @@
+{
+  "Id": "audit_visit",
+  "Title": "Internal Affairs",
+  "Speaker": "Auditor",
+  "Setting": "Conference room B, {corp} compliance floor, fluorescent overheads and a pitcher of water nobody touches",
+  "RequiredFlags": [
+    "corp:audit_triggered"
+  ],
+  "ForbiddenFlags": [
+    "scene:audit_visit_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "Cast": [],
+  "TextLines": [
+    "The auditor arrived without notice. No name on the door slate. No ID badge — just an authorization code that opened every lock between the lobby and your floor.",
+    "She's already opened a notebook. Paper. That's what makes you nervous.",
+    "\"I'm not here to interview anyone yet. I'm here to walk through the last six cycles of your operational decisions and decide whether they constitute a pattern.\"",
+    "She slides a file across the table. Three highlighted line items. You recognize all three.",
+    "\"You'll have access to your files until tomorrow at 0900. After that, custody transfers. Cooperative posture is recommended.\"",
+    "She smiles. It doesn't change anything else about her face."
+  ],
+  "Choices": [
+    {
+      "Label": "\"Take whatever you need. We have nothing to hide.\"",
+      "FlagsOnPick": [
+        "choice:audit_open"
+      ],
+      "LoyaltyDelta": -2,
+      "StressDelta": 6,
+      "ConscienceDelta": 4
+    },
+    {
+      "Label": "\"I'll have legal liaise. We'll get you everything within scope.\"",
+      "FlagsOnPick": [
+        "choice:audit_lawyer"
+      ],
+      "HeatDelta": -3,
+      "LoyaltyDelta": 2,
+      "StressDelta": 4
+    },
+    {
+      "Label": "\"There are files you won't see tonight. Walk away.\"",
+      "FlagsOnPick": [
+        "choice:audit_obstruct"
+      ],
+      "HeatDelta": 8,
+      "ConscienceDelta": -3,
+      "LoyaltyDelta": 3
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:audit_visit_seen"
+  ]
+}

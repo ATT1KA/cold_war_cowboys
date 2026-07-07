@@ -1,0 +1,24 @@
+{
+  "Id": "first_cycle_briefing",
+  "Title": "Welcome to the Floor",
+  "Speaker": "Director",
+  "Setting": "Operations bullpen, reinforced glass and matte-black consoles, holo-feeds cycling threat assessments in {corp} cyan",
+  "RequiredFlags": [
+    "first_cycle"
+  ],
+  "Priority": "Routine",
+  "OneShot": true,
+  "TextLines": [
+    "\"You've read the file. You know what we do. What the corporate charter calls 'asset realignment' and what the street calls something shorter.\"",
+    "\"What you don't know yet is what it does to the people you send. The augments don't buffer that part.\"",
+    "\"Try not to find out the hard way. This city eats the ones who learn slow.\""
+  ],
+  "Choices": [
+    {
+      "Label": "Acknowledge.",
+      "FlagsOnPick": [
+        "choice:opening_ack"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "Id": "mission_gone_wrong",
+  "Title": "Black Ice",
+  "Speaker": "{operative.name}",
+  "Setting": "Operations floor, emergency lighting, every screen red",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:mission_gone_wrong_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": false,
+  "Triggers": [
+    {
+      "Type": "last_mission_catastrophe",
+      "Key": "",
+      "Threshold": 0
+    }
+  ],
+  "Cast": [
+    {
+      "Name": "triggering",
+      "Kind": "Role",
+      "Resolver": "last_catastrophe_op"
+    },
+    {
+      "Name": "anchor",
+      "Kind": "Role",
+      "Resolver": "role:anchor"
+    }
+  ],
+  "TextLines": [
+    "The comms went dead at 02:17. By 02:19 every alarm on the operations floor was screaming.",
+    "{operative.name} made it back. Barely. Field blacks torn at the shoulder, blood — not all {gender:m|his|hers} — streaked across the collar. The extraction vehicle is still burning three blocks from the {location} waterfront.",
+    "{operative.role:anchor} is running triage on the debrief data, pulling what they can from corrupted helmet feeds.",
+    "\"We were made before we breached the perimeter,\" {operative.name} says, voice flat. \"Someone fed them our approach vector. Exact coordinates. Exact timing.\"",
+    "The implication hangs in the emergency light like smoke."
+  ],
+  "Choices": [
+    {
+      "Label": "\"Lock down all comms. Full security audit. Nobody leaves this floor.\"",
+      "FlagsOnPick": [
+        "choice:gone_wrong_lockdown"
+      ],
+      "StressDelta": 6,
+      "HeatDelta": -4
+    },
+    {
+      "Label": "\"Get {gender:m|him|her} to medical. We'll figure out who talked later.\"",
+      "FlagsOnPick": [
+        "choice:gone_wrong_medical"
+      ],
+      "LoyaltyDelta": 5,
+      "StressDelta": -3,
+      "HeatDelta": 2
+    },
+    {
+      "Label": "\"Pull the access logs. I want names before sunrise.\"",
+      "FlagsOnPick": [
+        "choice:gone_wrong_hunt"
+      ],
+      "StressDelta": 4,
+      "ConscienceDelta": -2
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:mission_gone_wrong_seen"
+  ]
+}

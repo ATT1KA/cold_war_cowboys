@@ -19,7 +19,7 @@
 		</div>
 
 		<div class="narrative-choices">
-			@foreach ( var choice in node.Choices )
+			@foreach ( var choice in Runner.CurrentChoices )
 			{
 				<button class="narrative-choice approach-@choice.Approach"
 				        @onclick=@( () => OnPick( choice ) )>

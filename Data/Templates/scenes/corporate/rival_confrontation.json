@@ -1,0 +1,54 @@
+{
+  "Id": "rival_confrontation",
+  "Title": "Chrome and Courtesy",
+  "Speaker": "",
+  "Setting": "Neutral ground — the Parallax Lounge, {location}, privacy field active",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:rival_confrontation_seen"
+  ],
+  "Priority": "Pressing",
+  "OneShot": true,
+  "Triggers": [
+    {
+      "Type": "any_faction_relationship_below",
+      "Key": "",
+      "Threshold": -40
+    }
+  ],
+  "Cast": [],
+  "TextLines": [
+    "The invitation came on actual paper — cream stock, embossed with the Kasumi Dynamics seal. Old-world power move.",
+    "Their handler is already seated when you arrive. Chrome jaw implant, tailored graphene suit, drink untouched. The privacy field turns the rest of the lounge into soft static.",
+    "\"Your division has been... energetic. Our actuaries have noticed.\"",
+    "A data-slate slides across the table. Casualty projections. Yours and theirs. The numbers are not kind to either side.",
+    "\"I'm here to discuss whether those numbers need to get worse, or whether we can find a more profitable arrangement.\""
+  ],
+  "Choices": [
+    {
+      "Label": "\"Show me the terms. I'm listening.\"",
+      "FlagsOnPick": [
+        "choice:rival_negotiate"
+      ],
+      "HeatDelta": -3
+    },
+    {
+      "Label": "\"Your actuaries should update their models. We're just getting started.\"",
+      "FlagsOnPick": [
+        "choice:rival_escalate"
+      ],
+      "HeatDelta": 4,
+      "ConscienceDelta": -2
+    },
+    {
+      "Label": "\"This meeting never happened. Enjoy your drink.\"",
+      "FlagsOnPick": [
+        "choice:rival_walk"
+      ],
+      "StressDelta": 3
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:rival_confrontation_seen"
+  ]
+}

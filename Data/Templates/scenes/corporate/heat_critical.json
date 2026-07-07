@@ -1,0 +1,24 @@
+{
+  "Id": "heat_critical",
+  "Title": "External Pressure",
+  "Speaker": "Director",
+  "Setting": "Boardroom anteroom, electrochromic glass opaqued, sound-dampening field humming at the threshold",
+  "RequiredFlags": [
+    "flag:heat:critical"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "TextLines": [
+    "\"The Razor is moving on us. Open file. Public-facing. They've got satellite feeds and transaction logs.\"",
+    "The Director's voice is even, but {gender:m|her|his} hands are flat on the brushed-steel table — {gender:m|she's|he's} keeping them still. The holo-display behind {gender:m|her|him} cycles through intercept transcripts.",
+    "\"Whatever you have planned this cycle, halve it. We go dark until the drones stop circling.\""
+  ],
+  "Choices": [
+    {
+      "Label": "Acknowledge.",
+      "FlagsOnPick": [
+        "choice:heat_ack"
+      ]
+    }
+  ]
+}

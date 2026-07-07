@@ -1,0 +1,59 @@
+{
+  "Id": "first_debrief",
+  "Title": "Neon Wash",
+  "Speaker": "{operative.name}",
+  "Setting": "Sublevel conference room, strip-LEDs cycling indigo to magenta, rain streaking the glass ceiling",
+  "RequiredFlags": [
+    "first_cycle"
+  ],
+  "ForbiddenFlags": [
+    "scene:first_debrief_seen"
+  ],
+  "Priority": "Pressing",
+  "OneShot": true,
+  "Cast": [
+    {
+      "Name": "triggering",
+      "Kind": "Role",
+      "Resolver": "first_mission_op"
+    }
+  ],
+  "TextLines": [
+    "The projector throws mission telemetry across the far wall — thermal overlays, comm intercepts, satellite feeds — all of it rendered in {corp}'s proprietary cyan.",
+    "{operative.name} hasn't sat down yet. Still in field blacks, still smelling like ozone and cheap synth-rain from the {location} underpass.",
+    "\"Debrief says clean. My hands say otherwise.\"",
+    "The after-action report blinks on your tablet. Three paragraphs of operational language that don't mention the guard who stopped breathing in the stairwell.",
+    "Outside, the arcology hums its sixty-hertz lullaby. Business as usual."
+  ],
+  "Choices": [
+    {
+      "Label": "\"Clean is what the report says. That's what clean means here.\"",
+      "FlagsOnPick": [
+        "choice:define_clean"
+      ],
+      "LoyaltyDelta": -3,
+      "ConscienceDelta": -4,
+      "StressDelta": 3
+    },
+    {
+      "Label": "\"Walk me through it. The parts that aren't in the file.\"",
+      "FlagsOnPick": [
+        "choice:hear_truth"
+      ],
+      "LoyaltyDelta": 6,
+      "StressDelta": -4,
+      "MoraleDelta": 3
+    },
+    {
+      "Label": "\"File it. Shower. Sleep. Debrief's over.\"",
+      "FlagsOnPick": [
+        "choice:dismiss_debrief"
+      ],
+      "StressDelta": -2,
+      "LoyaltyDelta": -1
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:first_debrief_seen"
+  ]
+}

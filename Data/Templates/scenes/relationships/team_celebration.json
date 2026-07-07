@@ -1,0 +1,68 @@
+{
+  "Id": "team_celebration",
+  "Title": "Overflow",
+  "Speaker": "{operative.role:anchor}",
+  "Setting": "Rooftop bar, forty floors up, {location} skyline bleeding neon into low cloud",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:team_celebration_seen"
+  ],
+  "Priority": "Background",
+  "OneShot": false,
+  "Triggers": [
+    {
+      "Type": "consecutive_successes",
+      "Key": "",
+      "Threshold": 3
+    }
+  ],
+  "Cast": [
+    {
+      "Name": "anchor",
+      "Kind": "Role",
+      "Resolver": "role:anchor"
+    },
+    {
+      "Name": "wildcard",
+      "Kind": "Role",
+      "Resolver": "role:wildcard"
+    }
+  ],
+  "TextLines": [
+    "Someone booked the rooftop. Expensed it to operational morale — line item nobody audits.",
+    "{operative.role:anchor} is two drinks ahead of everyone, telling a version of the Kasumi extraction that didn't happen but should have. {operative.role:wildcard} is laughing hard enough to spill something expensive on the railing.",
+    "The {location} sprawl stretches out below — a circuit board someone left powered on overnight. Traffic drones weave between ad-blimps pushing pharma and corpo recruitment.",
+    "For one night, nobody's asset is anybody's liability.",
+    "Your comm is off. You checked twice."
+  ],
+  "Choices": [
+    {
+      "Label": "Stay. Buy the next round.",
+      "FlagsOnPick": [
+        "choice:celebrate_stay"
+      ],
+      "MoraleDelta": 8,
+      "LoyaltyDelta": 4,
+      "StressDelta": -6
+    },
+    {
+      "Label": "One drink. Then back to the floor.",
+      "FlagsOnPick": [
+        "choice:celebrate_brief"
+      ],
+      "MoraleDelta": 4,
+      "StressDelta": -2
+    },
+    {
+      "Label": "Watch from the doorway. Don't sit down.",
+      "FlagsOnPick": [
+        "choice:celebrate_distant"
+      ],
+      "MoraleDelta": 2,
+      "LoyaltyDelta": -2
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:team_celebration_seen"
+  ]
+}

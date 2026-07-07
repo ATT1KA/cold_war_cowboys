@@ -1,0 +1,54 @@
+{
+  "Id": "third_kill_intro",
+  "Title": "Three",
+  "Speaker": "{operative.name}",
+  "Setting": "Office balcony, twenty-second floor, {location} skyline bleeding neon through smog",
+  "RequiredFlags": [
+    "any_op:third_kill"
+  ],
+  "Priority": "Pressing",
+  "OneShot": true,
+  "Cast": [
+    {
+      "Name": "triggering",
+      "Kind": "Role",
+      "Resolver": "triggering_operative"
+    }
+  ],
+  "TextLines": [
+    "{operative.name} stands at the railing, lighter open, cigarette unlit.",
+    "\"That's three, now. The last one had a kid's drawing on {gender:m|his|her} desk.\"",
+    "The wind takes the lighter flame before it catches."
+  ],
+  "Choices": [
+    {
+      "Label": "\"You did the job. That's what we pay for.\"",
+      "FlagsOnPick": [
+        "choice:cold"
+      ],
+      "LoyaltyDelta": -2,
+      "ConscienceDelta": -3,
+      "StressDelta": 4
+    },
+    {
+      "Label": "\"You don't have to like it.\"",
+      "FlagsOnPick": [
+        "choice:human"
+      ],
+      "LoyaltyDelta": 4,
+      "ConscienceDelta": 2,
+      "StressDelta": -2
+    },
+    {
+      "Label": "\"You want a bonus or a transfer?\"",
+      "FlagsOnPick": [
+        "choice:transactional"
+      ],
+      "LoyaltyDelta": -1,
+      "ConscienceDelta": -1
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:third_kill_seen"
+  ]
+}

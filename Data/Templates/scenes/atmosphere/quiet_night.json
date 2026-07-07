@@ -1,0 +1,62 @@
+{
+  "Id": "quiet_night",
+  "Title": "Dead Channel",
+  "Speaker": "",
+  "Setting": "Your office, {location}, rain on glass, city light refracted into slow geometry",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:quiet_night_seen"
+  ],
+  "Priority": "Background",
+  "OneShot": false,
+  "Triggers": [
+    {
+      "Type": "no_active_missions",
+      "Key": "",
+      "Threshold": 0
+    },
+    {
+      "Type": "stress_below",
+      "Key": "",
+      "Threshold": 40
+    }
+  ],
+  "Cast": [],
+  "TextLines": [
+    "No operations running. No comms traffic. The mission board is empty for the first time in weeks and the silence has a weight to it, like pressure equalization.",
+    "The rain draws lines down the floor-to-ceiling glass. Below, the {location} night shift moves through neon and vapor — delivery drones, late-shift workers, the occasional patrol vehicle sweeping its searchlight across wet pavement.",
+    "Your desk is clean. The reports are filed. The coffee is cold but you drink it anyway.",
+    "There's a photo in the second drawer you haven't looked at in months. You think about opening it.",
+    "The building breathes. The servers hum. The rain continues.",
+    "Somewhere in this city, nobody needs you to make a decision that ruins their life. Not tonight."
+  ],
+  "Choices": [
+    {
+      "Label": "Open the drawer.",
+      "FlagsOnPick": [
+        "choice:quiet_remember"
+      ],
+      "MoraleDelta": 3,
+      "StressDelta": -5,
+      "ConscienceDelta": 2
+    },
+    {
+      "Label": "Leave it closed. Go home.",
+      "FlagsOnPick": [
+        "choice:quiet_leave"
+      ],
+      "StressDelta": -8
+    },
+    {
+      "Label": "Stay. Pull tomorrow's briefs early.",
+      "FlagsOnPick": [
+        "choice:quiet_work"
+      ],
+      "StressDelta": 2,
+      "LoyaltyDelta": 2
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:quiet_night_seen"
+  ]
+}

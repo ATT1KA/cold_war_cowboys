@@ -1,0 +1,39 @@
+{
+  "Id": "defection_risk_pull",
+  "Title": "Loyalty Audit",
+  "Speaker": "{operative.name}",
+  "Setting": "Unlicensed noodle bar, twenty blocks from any {corp} subnet, rain drumming on corrugated steel",
+  "RequiredFlags": [
+    "any_op:defection_risk"
+  ],
+  "Priority": "Pressing",
+  "OneShot": false,
+  "Cast": [
+    {
+      "Name": "triggering",
+      "Kind": "Role",
+      "Resolver": "triggering_operative"
+    }
+  ],
+  "TextLines": [
+    "{operative.name} chose the meeting place — off-grid, no cameras, no corp RF signatures within three blocks. That alone tells you something.",
+    "\"I want a transfer,\" {operative.name} says, chopsticks untouched. \"Or a contract review. Pick one. Before someone else makes me a better offer.\""
+  ],
+  "Choices": [
+    {
+      "Label": "Promise the transfer.",
+      "FlagsOnPick": [
+        "choice:transfer_promised"
+      ],
+      "LoyaltyDelta": 10
+    },
+    {
+      "Label": "Refuse. Quietly.",
+      "FlagsOnPick": [
+        "choice:transfer_refused"
+      ],
+      "LoyaltyDelta": -10,
+      "StressDelta": 5
+    }
+  ]
+}

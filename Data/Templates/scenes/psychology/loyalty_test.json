@@ -1,0 +1,68 @@
+{
+  "Id": "loyalty_test",
+  "Title": "The Offer",
+  "Speaker": "{operative.name}",
+  "Setting": "Parking sublevel 3, autonomous vehicle idling on battery, perimeter cameras looped",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:loyalty_test_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": false,
+  "Triggers": [
+    {
+      "Type": "any_stat_below",
+      "Key": "loyalty",
+      "Threshold": 25
+    }
+  ],
+  "Cast": [
+    {
+      "Name": "triggering",
+      "Kind": "Role",
+      "Resolver": "lowest_loyalty"
+    },
+    {
+      "Name": "climber",
+      "Kind": "Role",
+      "Resolver": "role:climber"
+    }
+  ],
+  "TextLines": [
+    "The message came through a dead drop — encrypted burst, routed through three proxy nodes. Not your dead drop. {operative.name} met someone on the other side of it.",
+    "\"{faction.name} offered me a package,\" {operative.name} says, not looking at you. Staring at the parking sublevel's flickering sodium light. \"New biometrics. New identity. Double salary. Off-grid relocation.\"",
+    "The vehicle hums on battery. {operative.role:climber} doesn't know about this meeting. Nobody in the building does. The camera loop buys you twelve minutes.",
+    "\"I'm telling you because I haven't decided yet. And because the clock on their offer expires at midnight.\""
+  ],
+  "Choices": [
+    {
+      "Label": "\"What would it take to stay?\"",
+      "FlagsOnPick": [
+        "choice:counter_offer"
+      ],
+      "LoyaltyDelta": 12,
+      "StressDelta": -5
+    },
+    {
+      "Label": "\"If you walk, you know what happens.\"",
+      "FlagsOnPick": [
+        "choice:threaten_defector"
+      ],
+      "LoyaltyDelta": -5,
+      "StressDelta": 10,
+      "ConscienceDelta": -3
+    },
+    {
+      "Label": "\"Go. I'll give you a twelve-hour head start.\"",
+      "FlagsOnPick": [
+        "choice:release_defector"
+      ],
+      "LoyaltyDelta": 0,
+      "ConscienceDelta": 5,
+      "MoraleDelta": -3
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:loyalty_test_seen"
+  ]
+}

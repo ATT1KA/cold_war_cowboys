@@ -118,7 +118,7 @@ public sealed class GameManager
 		MissionGen = new MissionGenerator( loader );
 		Board = new MissionBoard( MissionGen );
 
-		var scenes = loader.Deserialize<List<SceneTemplate>>( "scenes.json" ) ?? new();
+		var scenes = loader.LoadScenes();
 		Director = new NarrativeDirector( scenes );
 
 		// Content validation — loud at boot, not silent at runtime.

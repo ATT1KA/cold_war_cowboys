@@ -1,0 +1,69 @@
+{
+  "Id": "corruption_milestone",
+  "Title": "The Ledger",
+  "Speaker": "{operative.role:conscience}",
+  "Setting": "Basement archive, {corp} records wing, {year}",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:corruption_milestone_seen"
+  ],
+  "Priority": "Pressing",
+  "OneShot": true,
+  "Triggers": [
+    {
+      "Type": "avg_stat_below",
+      "Key": "conscience",
+      "Threshold": 50
+    }
+  ],
+  "Cast": [
+    {
+      "Name": "conscience",
+      "Kind": "Role",
+      "Resolver": "role:conscience"
+    },
+    {
+      "Name": "weapon",
+      "Kind": "Role",
+      "Resolver": "role:weapon"
+    }
+  ],
+  "TextLines": [
+    "{operative.role:conscience} is waiting for you in the archive. The lights flicker — nobody comes down here.",
+    "\"I pulled the operational summaries. All of them.\" A stack of folders, thicker than it should be.",
+    "\"We crossed a line somewhere, {gender:m|sir|ma'am}. I can't tell you when because there wasn't a single moment. It was all of them.\"",
+    "From upstairs, you hear {operative.role:weapon} laughing at something. The sound carries wrong down here."
+  ],
+  "Choices": [
+    {
+      "Label": "\"We do what the mission requires. That hasn't changed.\"",
+      "FlagsOnPick": [
+        "choice:accept_corruption"
+      ],
+      "ConscienceDelta": -5,
+      "LoyaltyDelta": -3,
+      "HeatDelta": 0
+    },
+    {
+      "Label": "\"Pull the worst cases. I want a review.\"",
+      "FlagsOnPick": [
+        "choice:review_corruption"
+      ],
+      "ConscienceDelta": 4,
+      "MoraleDelta": 3,
+      "HeatDelta": 2
+    },
+    {
+      "Label": "\"Burn those files. Now.\"",
+      "FlagsOnPick": [
+        "choice:burn_evidence"
+      ],
+      "ConscienceDelta": -8,
+      "StressDelta": 5,
+      "HeatDelta": -3
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:corruption_milestone_seen"
+  ]
+}

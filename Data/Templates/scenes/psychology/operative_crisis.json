@@ -1,0 +1,60 @@
+{
+  "Id": "operative_crisis",
+  "Title": "Signal Loss",
+  "Speaker": "{operative.name}",
+  "Setting": "Medical sublevel, fluorescent buzz, antiseptic and burnt polymer",
+  "RequiredFlags": [
+    "any_op:breaking_point"
+  ],
+  "ForbiddenFlags": [
+    "scene:operative_crisis_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "Cast": [
+    {
+      "Name": "triggering",
+      "Kind": "Role",
+      "Resolver": "triggering_operative"
+    }
+  ],
+  "TextLines": [
+    "{operative.name} was found in the server room at 0400, pulling cable. Methodically. Disconnecting comms arrays one junction at a time.",
+    "Security didn't intervene — they called you.",
+    "The med-tech's report glows on the wall-screen behind {operative.name}'s head: elevated cortisol, sleep debt measured in weeks, micro-tremors in both hands.",
+    "\"{gender:m|He|She} keeps saying the signal is wrong,\" the tech whispers. \"That the frequencies don't match the mission logs.\"",
+    "{operative.name} looks at you with perfect clarity. That's the part that worries you."
+  ],
+  "Choices": [
+    {
+      "Label": "\"Pull {gender:m|him|her} from active. Full psychiatric evaluation.\"",
+      "FlagsOnPick": [
+        "choice:crisis_medical"
+      ],
+      "StressDelta": -15,
+      "LoyaltyDelta": 3,
+      "MoraleDelta": 5
+    },
+    {
+      "Label": "\"Sedate {gender:m|him|her}. Wipe the security footage. This didn't happen.\"",
+      "FlagsOnPick": [
+        "choice:crisis_cover"
+      ],
+      "StressDelta": -5,
+      "ConscienceDelta": -6,
+      "LoyaltyDelta": -4
+    },
+    {
+      "Label": "\"Let me talk to {gender:m|him|her}. Alone.\"",
+      "FlagsOnPick": [
+        "choice:crisis_personal"
+      ],
+      "StressDelta": -8,
+      "LoyaltyDelta": 8,
+      "MoraleDelta": 3
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:operative_crisis_seen"
+  ]
+}

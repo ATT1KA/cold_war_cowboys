@@ -1,0 +1,67 @@
+{
+  "Id": "final_confrontation",
+  "Title": "Terminus",
+  "Speaker": "",
+  "Setting": "Sub-basement server farm, {corp} central archive, cold enough to see your breath",
+  "RequiredFlags": [
+    "corruption:the_machine"
+  ],
+  "ForbiddenFlags": [
+    "scene:final_confrontation_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "Cast": [
+    {
+      "Name": "conscience",
+      "Kind": "Role",
+      "Resolver": "role:conscience"
+    },
+    {
+      "Name": "weapon",
+      "Kind": "Role",
+      "Resolver": "role:weapon"
+    }
+  ],
+  "TextLines": [
+    "The archive is three stories of server racks descending into bedrock. Climate control keeps it just above freezing. Your breath fogs under strip lighting that hasn't been serviced since the building was new.",
+    "{operative.role:conscience} is waiting at the bottom. They have a drive — a small one, matte black, no markings. Everything your division has done is on it. Every operation, every casualty, every line item the board never audited.",
+    "\"I'm walking this out of the building,\" {operative.role:conscience} says. Not angry. Not afraid. Resolved.",
+    "\"The Razor gets it by morning. Or the press. Or both. I haven't decided.\"",
+    "Above you, {operative.role:weapon} is stationed at the only exit. They're waiting for your call.",
+    "The servers hum. The cold sinks through your shoes. The drive is small enough to crush in one hand."
+  ],
+  "Choices": [
+    {
+      "Label": "\"Give me the drive. Walk away. I'll make sure you disappear clean.\"",
+      "FlagsOnPick": [
+        "choice:final_bargain"
+      ],
+      "ConscienceDelta": -5,
+      "StressDelta": 10,
+      "LoyaltyDelta": -8
+    },
+    {
+      "Label": "\"Take it. Go. I won't stop you.\"",
+      "FlagsOnPick": [
+        "choice:final_release"
+      ],
+      "ConscienceDelta": 10,
+      "HeatDelta": 15,
+      "MoraleDelta": 5
+    },
+    {
+      "Label": "Signal {operative.role:weapon}.",
+      "FlagsOnPick": [
+        "choice:final_weapon"
+      ],
+      "ConscienceDelta": -15,
+      "StressDelta": 15,
+      "HeatDelta": -5,
+      "MoraleDelta": -10
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:final_confrontation_seen"
+  ]
+}

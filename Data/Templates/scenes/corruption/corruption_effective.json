@@ -1,0 +1,56 @@
+{
+  "Id": "corruption_effective",
+  "Title": "Effective",
+  "Speaker": "Director Vale",
+  "Setting": "Executive dining room, biometric locks, {location} glittering forty stories below, empty except for two place settings",
+  "RequiredFlags": [
+    "corruption:effective"
+  ],
+  "ForbiddenFlags": [
+    "scene:corruption_effective_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "Cast": [
+    {
+      "Name": "conscience",
+      "Kind": "Role",
+      "Resolver": "role:conscience"
+    }
+  ],
+  "TextLines": [
+    "Vale pours something from a bottle with no label — real grapes, not synth. Worth more than a field operative's quarterly bonus.",
+    "\"Your people are efficient. The board's AI is using words like 'reliable' and 'dependable.' In this company, those words mean something specific. They mean the guardrails are coming off.\"",
+    "\"It means they'll start routing you work that doesn't come with written orders. Jobs that exist in the space between what the charter permits and what the market requires.\"",
+    "Somewhere below, {operative.role:conscience} is probably still at their desk. Still believing the mission statements on the lobby wall — the ones written in chrome script that nobody reads anymore."
+  ],
+  "Choices": [
+    {
+      "Label": "\"I understand the arrangement.\"",
+      "FlagsOnPick": [
+        "choice:complicit"
+      ],
+      "ConscienceDelta": -5,
+      "LoyaltyDelta": 3
+    },
+    {
+      "Label": "\"My team follows policy. So do I.\"",
+      "FlagsOnPick": [
+        "choice:principled"
+      ],
+      "ConscienceDelta": 3,
+      "LoyaltyDelta": -2,
+      "HeatDelta": 3
+    },
+    {
+      "Label": "\"What's the upside?\"",
+      "FlagsOnPick": [
+        "choice:transactional"
+      ],
+      "ConscienceDelta": -2
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:corruption_effective_seen"
+  ]
+}

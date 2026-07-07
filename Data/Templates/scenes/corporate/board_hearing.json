@@ -1,0 +1,64 @@
+{
+  "Id": "board_hearing",
+  "Title": "Glass Ceiling",
+  "Speaker": "Board Chair Okonkwo",
+  "Setting": "67th floor boardroom, panoramic windows, {location} at altitude",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:board_hearing_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "Triggers": [
+    {
+      "Type": "board_confidence_below",
+      "Key": "",
+      "Threshold": 25
+    }
+  ],
+  "Cast": [
+    {
+      "Name": "conscience",
+      "Kind": "Role",
+      "Resolver": "role:conscience"
+    }
+  ],
+  "TextLines": [
+    "Seven chairs. Five occupied. The empty two belong to members who voted against this hearing.",
+    "Okonkwo's face is a mask of corporate patience — the kind that costs six figures in executive coaching. The holographic minutes float between you.",
+    "\"Your division's operational expenditure has exceeded projected returns by a factor of three. Your heat index is a liability the insurance underwriters have flagged. Twice.\"",
+    "A pause calibrated to the millisecond.",
+    "\"Convince us you're still an asset and not a line item waiting for deletion.\"",
+    "Somewhere below, {operative.role:conscience} is probably updating their resume."
+  ],
+  "Choices": [
+    {
+      "Label": "\"The numbers don't capture what we prevent. I have case files.\"",
+      "FlagsOnPick": [
+        "choice:board_defend"
+      ],
+      "LoyaltyDelta": 2,
+      "StressDelta": 5
+    },
+    {
+      "Label": "\"Cut my budget in half. I'll deliver the same results.\"",
+      "FlagsOnPick": [
+        "choice:board_sacrifice"
+      ],
+      "MoraleDelta": -4,
+      "StressDelta": 8
+    },
+    {
+      "Label": "\"Fire me. See what happens to your containment metrics.\"",
+      "FlagsOnPick": [
+        "choice:board_threaten"
+      ],
+      "LoyaltyDelta": -3,
+      "ConscienceDelta": -2,
+      "StressDelta": -3
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:board_hearing_seen"
+  ]
+}

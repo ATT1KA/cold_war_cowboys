@@ -1,0 +1,48 @@
+{
+  "Id": "corruption_feared",
+  "Title": "Feared",
+  "Speaker": "",
+  "Setting": "Elevator, between floors, camera disabled",
+  "RequiredFlags": [
+    "corruption:feared"
+  ],
+  "ForbiddenFlags": [
+    "scene:corruption_feared_seen"
+  ],
+  "Priority": "Critical",
+  "OneShot": true,
+  "Cast": [
+    {
+      "Name": "weapon",
+      "Kind": "Role",
+      "Resolver": "role:weapon"
+    }
+  ],
+  "TextLines": [
+    "The elevator stops between floors. Not a malfunction. A conversation.",
+    "A voice from the board's security detail: \"Your division's reputation precedes it. Rival divisions are requesting transfers out. Three this quarter.\"",
+    "\"The board finds this... useful. Fear is a resource, and you've learned to spend it.\"",
+    "The elevator resumes. {operative.role:weapon} is waiting in the lobby, reading something on their phone. They don't look up when the doors open."
+  ],
+  "Choices": [
+    {
+      "Label": "Fear is just efficiency with better PR.",
+      "FlagsOnPick": [
+        "choice:embraced_fear"
+      ],
+      "ConscienceDelta": -8,
+      "MoraleDelta": -5
+    },
+    {
+      "Label": "This isn't what I built.",
+      "FlagsOnPick": [
+        "choice:doubt"
+      ],
+      "ConscienceDelta": 3,
+      "StressDelta": 8
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:corruption_feared_seen"
+  ]
+}

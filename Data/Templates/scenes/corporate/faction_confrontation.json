@@ -1,0 +1,64 @@
+{
+  "Id": "faction_confrontation",
+  "Title": "The Other Side of the Table",
+  "Speaker": "",
+  "Setting": "Neutral conference site, {location} financial district, security personnel from both sides watching each other watch each other",
+  "RequiredFlags": [],
+  "ForbiddenFlags": [
+    "scene:faction_confrontation_seen"
+  ],
+  "Priority": "Pressing",
+  "OneShot": true,
+  "Triggers": [
+    {
+      "Type": "any_faction_relationship_below",
+      "Key": "",
+      "Threshold": -65
+    }
+  ],
+  "Cast": [
+    {
+      "Name": "anchor",
+      "Kind": "Role",
+      "Resolver": "role:anchor"
+    }
+  ],
+  "TextLines": [
+    "They asked for the meet. You didn't expect them to bring lawyers and an envoy with a rank you can't quite parse.",
+    "\"This isn't a negotiation,\" the envoy says, before anyone has spoken. \"This is a notification.\"",
+    "{operative.role:anchor} is at your shoulder, hand close to where a sidearm would be if security hadn't taken everyone's at the door.",
+    "\"You've been operating against our interests for six cycles. We've documented it. We're going to start responding.\"",
+    "There's no anger in their voice. That's worse than anger. Anger you can negotiate with.",
+    "\"You have the rest of this meeting to tell us why we shouldn't.\""
+  ],
+  "Choices": [
+    {
+      "Label": "\"What would it cost to make this go away?\"",
+      "FlagsOnPick": [
+        "choice:faction_pay"
+      ],
+      "LoyaltyDelta": -2,
+      "HeatDelta": -5
+    },
+    {
+      "Label": "\"Respond however you want. We'll meet it.\"",
+      "FlagsOnPick": [
+        "choice:faction_defy"
+      ],
+      "LoyaltyDelta": 3,
+      "HeatDelta": 8,
+      "StressDelta": 6
+    },
+    {
+      "Label": "\"What did we do that you noticed? Specifically.\"",
+      "FlagsOnPick": [
+        "choice:faction_clarify"
+      ],
+      "ConscienceDelta": 2,
+      "MoraleDelta": 2
+    }
+  ],
+  "FlagsOnFire": [
+    "scene:faction_confrontation_seen"
+  ]
+}
