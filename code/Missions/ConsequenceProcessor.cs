@@ -1,3 +1,4 @@
+// [CWC-SPECIFIC] Cold War Cowboys game design in code form. Rewrite for a different game. Map: docs/FRAMEWORK_MAP.md
 using System;
 using System.Collections.Generic;
 using CWC.Core;

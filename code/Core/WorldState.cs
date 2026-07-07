@@ -1,3 +1,4 @@
+// [FRAMEWORK-PATTERN] The shape is reusable; the vocabulary is CWC's. Port by rename. Map: docs/FRAMEWORK_MAP.md
 using System.Collections.Generic;
 using System.Linq;
 using CWC.Domain;

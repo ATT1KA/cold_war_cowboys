@@ -1,3 +1,6 @@
+// [MIXED] ~45% framework (flag eligibility, priority queue, role casting, tokens, choice log)
+// and ~55% CWC (stat names, resolvers, corruption hooks, tripwires). Do NOT genericize —
+// re-derive the pattern for a new game. Map: docs/FRAMEWORK_MAP.md
 using System;
 using System.Collections.Generic;
 using System.Linq;

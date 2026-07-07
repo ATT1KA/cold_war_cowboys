@@ -1,3 +1,4 @@
+// [FRAMEWORK] Game-agnostic. Copy as-is into another s&box project. Map: docs/FRAMEWORK_MAP.md
 using System;
 using System.Collections.Generic;
 using System.Linq;
