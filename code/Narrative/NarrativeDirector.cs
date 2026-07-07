@@ -523,6 +523,18 @@ public sealed class NarrativeDirector
 	}
 
 	// ========================================================================
+	// PREVIEW — render any template without eligibility gating
+	// ========================================================================
+
+	/// <summary>
+	/// Materialize a template against the given world regardless of triggers,
+	/// cooldowns, or one-shot state. Powers tools/ScenePreview and the smoke
+	/// test's render-every-scene pass; fires no flags and mutates nothing.
+	/// </summary>
+	public Scene RenderPreview( SceneTemplate template, WorldState world, int? triggeringOperativeId = null )
+		=> Materialize( template, world, triggeringOperativeId );
+
+	// ========================================================================
 	// MATERIALIZE — build concrete Scene from template + world state
 	// ========================================================================
 

@@ -25,6 +25,17 @@ internal static class Program
 		Console.WriteLine( $"== {name} ==" );
 	}
 
+	private static int CountOf( string haystack, string needle )
+	{
+		int count = 0, idx = 0;
+		while ( ( idx = haystack.IndexOf( needle, idx, StringComparison.Ordinal ) ) >= 0 )
+		{
+			count++;
+			idx += needle.Length;
+		}
+		return count;
+	}
+
 	public static int Main()
 	{
 		Console.WriteLine( "CWC — smoke test" );
@@ -435,6 +446,142 @@ internal static class Program
 				world.Corruption.CorruptionIndex >= 85 || world.Corruption.CorruptionIndex >= 70,
 				$"index={world.Corruption.CorruptionIndex:F1}" );
 			Check( "milestone flags emitted", world.NarrativeFlags.Contains( "corruption:the_machine" ) );
+		}
+
+		Section( "17. Validator traps are armed — bad content is caught loudly" );
+		{
+			// A typo'd FIELD name must surface via the loader's strict re-parse.
+			CwcFiles.WriteAllText( "tmp_smoketest/scenes/typo_field.json",
+				"{ \"Id\": \"typo_test\", \"TextLines\": [\"x\"], \"FlagOnFire\": [\"oops\"] }" );
+			var trapLoader = new CWC.Generation.Templates.TemplateLoader( "tmp_smoketest" );
+			var trapScenes = trapLoader.LoadScenes();
+			Check( "typo'd field name still loads the scene (lenient pass)",
+				trapScenes.Count == 1 && trapScenes[0].Id == "typo_test" );
+			Check( "typo'd field name is reported (strict pass)",
+				trapLoader.Errors.Any( e => e.Contains( "unknown field" ) && e.Contains( "FlagOnFire" ) ),
+				string.Join( "; ", trapLoader.Errors ) );
+			CwcFiles.DeleteFile( "tmp_smoketest/scenes/typo_field.json" );
+
+			// Scene-level authoring mistakes must each produce a validator problem.
+			var badScene = new CWC.Narrative.SceneTemplate
+			{
+				Id = "bad_scene",
+				Setting = "The {operative.role:ghostwriter} watches. A {jetpack} hums.",
+				Triggers = new()
+				{
+					new() { Type = "wet_work_count" },              // fictional (manual v1.0) type
+					new() { Type = "cycle_reached" },                // missing threshold
+					new() { Type = "flag" },                         // missing key; also: no op source
+				},
+				Cast = new()
+				{
+					new() { Name = "witness", Kind = CWC.Narrative.CastSlotKind.Role, Resolver = "role:bystander" },
+					new() { Name = "hero", Kind = CWC.Narrative.CastSlotKind.Role, Resolver = "triggering_operative" },
+				},
+				TextLines = new() { "Fine {gender:m|his}. " },       // malformed gender token
+			};
+			var sceneProblems = CWC.Generation.Templates.TemplateValidator.ValidateScenes( new[] { badScene } );
+			Check( "unknown trigger type caught", sceneProblems.Any( p => p.Contains( "wet_work_count" ) ) );
+			Check( "missing trigger threshold caught", sceneProblems.Any( p => p.Contains( "no Threshold" ) ) );
+			Check( "missing trigger key caught", sceneProblems.Any( p => p.Contains( "no Key" ) ) );
+			Check( "unknown narrative role in cast caught", sceneProblems.Any( p => p.Contains( "bystander" ) ) );
+			Check( "triggering_operative without op source caught",
+				sceneProblems.Any( p => p.Contains( "no trigger identifies one" ) ) );
+			Check( "unresolvable role token caught (the 'someone' bug)",
+				sceneProblems.Any( p => p.Contains( "ghostwriter" ) && p.Contains( "someone" ) ) );
+			Check( "unknown token caught", sceneProblems.Any( p => p.Contains( "{jetpack}" ) ) );
+			Check( "malformed gender token caught", sceneProblems.Any( p => p.Contains( "malformed gender token" ) ) );
+
+			// Dangling references across template families.
+			var badArch = new CWC.Generation.Templates.ArchetypeTemplate
+			{
+				Id = "bad_arch", NarrativeRole = "protagonist",
+				Conscience = new( 50, 80 ), Loyalty = new( 50, 80 ),
+				TraitPool = new() { "calculating", "totally_made_up" },
+			};
+			var traits = new CWC.Generation.Templates.TemplateLoader().LoadTraits();
+			var archProblems = CWC.Generation.Templates.TemplateValidator.ValidateArchetypes( new[] { badArch }, traits );
+			Check( "dangling trait id caught", archProblems.Any( p => p.Contains( "totally_made_up" ) ) );
+			Check( "unknown narrative role on archetype caught", archProblems.Any( p => p.Contains( "protagonist" ) ) );
+
+			var badMission = new MissionTemplate
+			{
+				Id = "bad_mission", Type = "Surveillance",
+				ClientCandidates = new() { "megacorp_nine" },
+			};
+			var missionProblems = CWC.Generation.Templates.TemplateValidator.ValidateMissions(
+				new[] { badMission }, new HashSet<string> { "host" } );
+			Check( "dangling faction id caught", missionProblems.Any( p => p.Contains( "megacorp_nine" ) ) );
+		}
+
+		Section( "18. Content pipeline end-to-end — every shipped scene renders" );
+		{
+			var gm = new GameManager();
+			gm.NewGame( 60660 );
+			var world = gm.World;
+			var trigOp = world.ActiveRoster.First();
+
+			// Every narrative role the CONTENT references must be present on the
+			// roster, the way a real mid-run roster would have drifted into them.
+			var loader = new CWC.Generation.Templates.TemplateLoader();
+			var templates = loader.LoadScenes();
+			var roleToken = new System.Text.RegularExpressions.Regex( @"\{operative\.role:([^}]+)\}" );
+			var neededRoles = new HashSet<string>();
+			foreach ( var t in templates )
+			{
+				foreach ( var slot in t.Cast )
+					if ( slot.Resolver.StartsWith( "role:" ) )
+						neededRoles.Add( slot.Resolver.Substring( 5 ) );
+				foreach ( var line in t.TextLines.Concat( t.Choices.Select( c => c.Label ) )
+					.Append( t.Title ).Append( t.Setting ).Append( t.Speaker ) )
+					foreach ( System.Text.RegularExpressions.Match m in roleToken.Matches( line ) )
+						neededRoles.Add( m.Groups[1].Value );
+			}
+			var roster = world.ActiveRoster.ToList();
+
+			// No single scene may reference more roles than a roster can hold —
+			// otherwise it can never render fully on any playthrough.
+			static HashSet<string> RolesOf( CWC.Narrative.SceneTemplate t, System.Text.RegularExpressions.Regex tokenRx )
+			{
+				var roles = new HashSet<string>();
+				foreach ( var slot in t.Cast )
+					if ( slot.Resolver.StartsWith( "role:" ) ) roles.Add( slot.Resolver.Substring( 5 ) );
+				foreach ( var line in t.TextLines.Concat( t.Choices.Select( c => c.Label ) )
+					.Append( t.Title ).Append( t.Setting ).Append( t.Speaker ) )
+					foreach ( System.Text.RegularExpressions.Match m in tokenRx.Matches( line ) )
+						roles.Add( m.Groups[1].Value );
+				return roles;
+			}
+			Check( "no scene references more roles than a roster holds",
+				templates.All( t => RolesOf( t, roleToken ).Count <= roster.Count ) );
+
+			// A scene is dirty if any token survives to the rendered text, or if
+			// rendering ADDED a "someone"/"the operative" fallback that the
+			// template's own prose didn't contain. Roles are assigned per scene,
+			// the way a drifted mid-run roster would satisfy them.
+			int rendered = 0, cleanScenes = 0;
+			var dirty = new List<string>();
+			foreach ( var template in templates )
+			{
+				int slotIdx = 0;
+				foreach ( var op in roster ) op.NarrativeRole = "";
+				foreach ( var role in RolesOf( template, roleToken ).OrderBy( r => r, StringComparer.Ordinal ) )
+					roster[slotIdx++ % roster.Count].NarrativeRole = role;
+
+				var scene = gm.Director.RenderPreview( template, world, trigOp.Id );
+				rendered++;
+				string renderedAll = string.Join( "\n", scene.TextLines.Concat( scene.Choices.Select( c => c.Label ) )
+					.Append( scene.Title ).Append( scene.Setting ).Append( scene.Speaker ) );
+				string templateAll = string.Join( "\n", template.TextLines.Concat( template.Choices.Select( c => c.Label ) )
+					.Append( template.Title ).Append( template.Setting ).Append( template.Speaker ) );
+				bool clean = !renderedAll.Contains( '{' )
+					&& CountOf( renderedAll, "someone" ) == CountOf( templateAll, "someone" )
+					&& CountOf( renderedAll, "the operative" ) == CountOf( templateAll, "the operative" );
+				if ( clean ) cleanScenes++; else dirty.Add( template.Id );
+			}
+			Check( "all scenes render via RenderPreview", rendered >= 32, $"rendered={rendered}" );
+			Check( "every scene renders clean (no raw tokens, no fallback names)",
+				cleanScenes == rendered, $"dirty: {string.Join( ", ", dirty )}" );
 		}
 
 		Console.WriteLine();

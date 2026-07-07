@@ -121,19 +121,22 @@ public sealed class GameManager
 		var scenes = loader.LoadScenes();
 		Director = new NarrativeDirector( scenes );
 
-		// Content validation — loud at boot, not silent at runtime.
-		ContentWarnings.AddRange( loader.Errors );
-		ContentWarnings.AddRange( TemplateValidator.ValidateScenes( scenes ) );
-		ContentWarnings.AddRange( TemplateValidator.ValidateMissions( MissionGen.Templates.ToList() ) );
-		ContentWarnings.AddRange( TemplateValidator.ValidateArchetypes( loader.LoadArchetypes() ) );
-		foreach ( var w in ContentWarnings )
-			CwcLog.Warn( "content: " + w );
-
 		// Seed opening mission and refresh the board for cycle 1.
 		Board.SeedFromScenario( World.SeedMissionTemplateId, World, Rng.Fork( "scenario_seed" ) );
 		Board.Refresh( World, Rng.Fork( "board:1" ) );
 
 		WireCorporateLayer( loader );
+
+		// Content validation — loud at boot, not silent at runtime. Runs after
+		// the corporate layer so faction cross-references check against the
+		// COMPLETE faction list (world.json + corporate/factions.json).
+		var factionIds = new HashSet<string>( World.Factions.Select( f => f.Id ) );
+		ContentWarnings.AddRange( loader.Errors );
+		ContentWarnings.AddRange( TemplateValidator.ValidateScenes( scenes ) );
+		ContentWarnings.AddRange( TemplateValidator.ValidateMissions( MissionGen.Templates.ToList(), factionIds ) );
+		ContentWarnings.AddRange( TemplateValidator.ValidateArchetypes( loader.LoadArchetypes(), loader.LoadTraits() ) );
+		foreach ( var w in ContentWarnings )
+			CwcLog.Warn( "content: " + w );
 
 		StateChanged?.Invoke();
 	}

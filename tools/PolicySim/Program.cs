@@ -40,6 +40,21 @@ internal static class Program
 		Console.WriteLine( $"CWC policy simulation — {Seeds} seeds × {Cycles} cycles per policy" );
 		Console.WriteLine();
 
+		// Guard: this simulator is only meaningful against the REAL content. A
+		// missing template directory silently produces the fallback world, and a
+		// balance PASS against fallback content is exactly the class of fiction
+		// this tool exists to prevent.
+		var probe = new GameManager();
+		probe.NewGame( 1 );
+		if ( probe.ContentWarnings.Count > 0 || probe.Director.TemplateCount < 30 )
+		{
+			Console.WriteLine( "POLICY SIM: FAIL — content did not load clean; refusing to simulate fiction." );
+			foreach ( var w in probe.ContentWarnings ) Console.WriteLine( "  content: " + w );
+			return 1;
+		}
+		Console.WriteLine( $"  content: {probe.Director.TemplateCount} scenes, 0 warnings — simulating real templates" );
+		Console.WriteLine();
+
 		bool ok = true;
 		var humane = RunPolicy( ruthless: false );
 		var ruthless = RunPolicy( ruthless: true );
